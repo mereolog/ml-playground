@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        #data-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #plot {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Linear Regression Visualization</h1>
+    <form id="data-form">
+        <label for="data">Enter data points (comma-separated, one per line):</label>
+        <textarea id="data" rows="10" placeholder="Example:&#10;1,2&#10;2,4&#10;3,5&#10;4,4&#10;5,5"></textarea>
+        <button type="button" onclick="computeRegression()">Compute Regression</button>
+    </form>
+    <div id="plot"></div>
+    <div id="loading" class="loading" style="display: none;">Computing regression...</div>
+
+    <script>
+        function computeRegression() {
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.style.display = 'block';
+            
+            const data = document.getElementById('data').value.split('\n');
+            fetch('/compute/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({data: data})
+            })
+            .then(response => response.json())
+            .then(result => {
+                loadingDiv.style.display = 'none';
+                if (result.error) {
+                    alert(result.error);
+                } else {
+                    plotRegression(result.intercept, result.coefficients);
+                }
+            })
+            .catch(error => {
+                loadingDiv.style.display = 'none';
+                alert('An error occurred. Please try again.');
+            });
+        }
+
+        function plotRegression(intercept, coefficients) {
+            const dataPoints = document.getElementById('data').value.split('\n').map(point => point.split(',').map(Number));
+            const X = dataPoints.map(point => point[0]);
+            const y = dataPoints.map(point => point[1]);
+
+            const regressionLine = X.map(x => intercept + coefficients[0] * x);
+
+            const trace1 = {
+                x: X,
+                y: y,
+                mode: 'markers',
+                type: 'scatter',
+                name: 'Data Points',
+                marker: { color: '#3498db' }
+            };
+
+            const trace2 = {
+                x: X,
+                y: regressionLine,
+                mode: 'lines',
+                type: 'scatter',
+                name: 'Regression Line',
+                line: { color: '#e74c3c' }
+            };
+
+            const layout = {
+                title: 'Linear Regression',
+                xaxis: {title: 'X'},
+                yaxis: {title: 'Y'},
+                font: { family: 'Roboto, sans-serif' },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#f8f9fa'
+            };
+
+            const config = {
+                responsive: true
+            };
+
+            const data = [trace1, trace2];
+            Plotly.newPlot('plot', data, layout, config);
+        }
+    </script>
+</body>
+</html>
