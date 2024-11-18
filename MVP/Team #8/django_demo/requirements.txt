@@ -2,3 +2,4 @@ scikit-learn
 django==4.2.3
 numpy
 pandas
+django-browser-reload
