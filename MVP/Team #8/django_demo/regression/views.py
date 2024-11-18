@@ -6,6 +6,9 @@ from sklearn.linear_model import LinearRegression
 def index(request):
     return render(request, 'regression/index.html')
 
+def regression(request):
+    return render(request, 'pages/regression.html')
+
 def compute_regression(request):
     if request.method == 'POST':
         data = request.POST.getlist('data[]')
