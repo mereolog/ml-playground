@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression with Gradient Descent</title>
+</head>
+<body>
+    <h1>Linear Regression Model</h1>
+
+    <!-- Formularz do wprowadzenia danych -->
+    <form method="POST" enctype="multipart/form-data">
+        <label for="dataset">Upload dataset (CSV):</label>
+        <input type="file" name="dataset" accept=".csv"><br>
+
+        <label for="learning_rate">Learning Rate:</label>
+        <input type="text" id="learning_rate" name="learning_rate" required><br>
+
+        <label for="iterations">Iterations:</label>
+        <input type="text" id="iterations" name="iterations" required><br>
+
+        <label for="regularization_type">Regularization Type:</label>
+        <select name="regularization_type" required>
+            <option value="None">None</option>
+            <option value="Lasso">Lasso</option>
+            <option value="Ridge">Ridge</option>
+        </select><br>
+
+        <label for="regularization_param">Regularization Parameter:</label>
+        <input type="text" name="regularization_param" required><br>
+
+        <label for="cost_function">Cost Function:</label>
+        <select name="cost_function" required>
+            <option value="MSE">Mean Squared Error (MSE)</option>
+            <option value="MAE">Mean Absolute Error (MAE)</option>
+            <option value="R2">R-squared (R²)</option>
+        </select><br>
+
+        <label for="step_by_step">Step-by-Step:</label>
+        <input type="checkbox" name="step_by_step"><br>
+
+        <input type="submit" value="Train Model">
+    </form>
+
+    <!-- Wyświetlanie wyników -->
+    {% if plot_path %}
+        <h2>Wyniki:</h2>
+        <p>Slope (m): {{ m }}</p>
+        <p>Intercept (b): {{ b }}</p>
+        <p>Cost Function: {{ cost_function }}</p>
+
+        <h3>Cost History:</h3>
+        <ul>
+            {% for cost in cost_history %}
+                <li>{{ cost }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Wykres regresji liniowej:</h2>
+        <img src="{{ url_for('static', filename='regression_plot.png') }}" alt="Regression Plot">
+    {% endif %}
+</body>
+</html>
