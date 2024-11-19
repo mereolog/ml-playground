@@ -3,31 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <title>Regresja Liniowa - Wizualizacja Uczenia Krok po Kroku</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         img { margin-bottom: 20px; }
+        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        h1, h2 { text-align: center; }
+        form { margin-bottom: 20px; }
+        input, select, button { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background-color: #4CAF50; color: white; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
     </style>
 </head>
 <body>
-    <h1>Regresja Liniowa - Wizualizacja Uczenia Krok po Kroku</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <label for="file">Prześlij plik CSV z danymi:</label><br>
-        <input type="file" id="file" name="file" required><br><br>
+    <div class="container">
+        <h1>Regresja Liniowa - Wizualizacja Uczenia Krok po Kroku</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="file">Prześlij plik CSV z danymi:</label><br>
+            <input type="file" id="file" name="file" required><br><br>
 
-        <label for="lr">Współczynnik uczenia (np. 0.01):</label><br>
-        <input type="text" id="lr" name="lr" required><br><br>
+            <label for="lr">Współczynnik uczenia (np. 0.01):</label><br>
+            <input type="text" id="lr" name="lr" required><br><br>
 
-        <label for="iterations">Liczba iteracji:</label><br>
-        <input type="text" id="iterations" name="iterations" required><br><br>
+            <label for="iterations">Liczba iteracji:</label><br>
+            <input type="text" id="iterations" name="iterations" required><br><br>
 
-        <button type="submit">Rozpocznij uczenie</button>
-    </form>
+            <label for="cost_function">Wybierz funkcję kosztu:</label><br>
+            <select id="cost_function" name="cost_function" required>
+                <option value="mse">Mean Squared Error</option>
+                <option value="mae">Mean Absolute Error</option>
+                <option value="r2">R-squared</option>
+            </select><br><br>
 
-    {% if plot %}
-        <h2>Krok {{ step }} z {{ session.iterations }}</h2>
-        <form action="{{ url_for('next_step') }}" method="get">
-            <button type="submit">Kolejny krok</button>
+            <label for="regularization">Wybierz typ regularizacji:</label><br>
+            <select id="regularization" name="regularization" required>
+                <option value="none">Brak</option>
+                <option value="lasso (L1)">Lasso</option>
+                <option value="ridge (L2)">Ridge</option>
+            </select><br><br>
+
+            <label for="reg_param">Parametr regularyzacji (np. 0.1):</label><br>
+            <input type="text" id="reg_param" name="reg_param" required><br><br>
+
+            <button type="submit">Rozpocznij uczenie</button>
         </form>
-        <img src="data:image/png;base64,{{ plot }}" alt="Wykres regresji krok {{ step }}">
-    {% endif %}
+
+        {% if plot %}
+            <h2>Krok {{ step }} z {{ session.iterations }}</h2>
+            <p>Aktualny koszt ({{ cost_function }}): {{ cost }}</p>
+            <form action="{{ url_for('next_step') }}" method="get">
+                <button type="submit">Kolejny krok</button>
+            </form>
+            <img src="data:image/png;base64,{{ plot }}" alt="Wykres regresji krok {{ step }}">
+        {% endif %}
+
+        {% if cost_plot %}
+            <h2>Zmiana funkcji kosztu w czasie</h2>
+            <img src="data:image/png;base64,{{ cost_plot }}" alt="Wykres zmiany kosztu">
+        {% endif %}
+
+        {% if is_finished %}
+            <h2>Uczenie zakończone</h2>
+        {% endif %}
+    </div>
 </body>
 </html>
