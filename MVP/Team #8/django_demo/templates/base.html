@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html data-theme="retro" lang="pl">
 <head>
@@ -43,59 +44,95 @@
             <!-- Interactive workspace -->
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body space-y-4">
-                    <h2 class="text-2xl font-bold">Workspace</h2>
-                    
-                    <!-- Dataset selection and parameters -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text font-medium">Dataset</span>
-                            </label>
-                            <select class="select select-bordered w-full">
-                                <option>Housing Prices Dataset</option>
-                                <option>Student Performance Data</option>
-                                <option>Custom Dataset</option>
-                            </select>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="card bg-base-100  p-4">
+                            <h2 class="text-xl font-semibold mb-4">Czym jest funkcja liniowa?</h2>
+                            <p class="text-base-content">
+                                Funkcja liniowa to równanie pierwszego stopnia, które przedstawia prostą linię na płaszczyźnie. 
+                                Składa się z dwóch kluczowych współczynników:
+                            </p>
+                            <ul class="list-disc pl-5 mt-2 text-gray-600">
+                                <li><strong>a</strong> - współczynnik kierunkowy, określający nachylenie prostej</li>
+                                <li><strong>b</strong> - wyraz wolny, który pokazuje punkt przecięcia z osią Y</li>
+                            </ul>
+                            <h1 class="text-3xl font-bold text-center mt-6 text-primary">y = <span id="aValue">a</span>x + <span id="bValue">b</span></h1>
                         </div>
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text font-medium">Learning Rate</span>
-                                <span class="label-text-alt">0.01</span>
-                            </label>
-                            <input type="range" min="0" max="100" class="range range-primary" />
-                        </div>
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text font-medium">Iterations</span>
-                            </label>
-                            <input type="number" class="input input-bordered" value="100" />
+                        
+                        <div class="card bg-base-100  p-4">
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">Współczynnik a (nachylenie)</span>
+                                </label>
+                                {% csrf_token %}
+                                <input type="range" 
+                                name="value" 
+                                min="-5"
+                                step="0.01",
+                                max="5" 
+                                hx-post="{% url 'redis_post' app='linear_regression' key='a' %}" 
+                                hx-trigger="input" 
+                                hx-target="#aValue" 
+                                hx-swap="innerHTML",
+                                class="range range-primary">
+                                <label class="label">
+                                    <span id="aValue" class="label-text-alt">1.0</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text">Współczynnik b (przesunięcie)</span>
+                                </label>
+                                <input type="range" 
+                                name="value" 
+                                min="-2"
+                                step="0.01",
+                                max="2" 
+                                hx-post="{% url 'redis_post' app='linear_regression' key='b' %}" 
+                                hx-trigger="input" 
+                                hx-target="#bValue" 
+                                hx-swap="innerHTML",
+                                class="range range-secondary">
+                                <label class="label">
+                                    <span id="bValue" class="label-text-alt">0.0</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
-
+                
+             
                     <!-- Visualization area -->
-                    <div class="h-80 bg-base-200 rounded-box flex items-center justify-center">
-                        <div class="text-base-content/50">Visualization will appear here</div>
-                    </div>
-
+                    <iframe 
+                    src="http://localhost:8051"
+                    width="100%" 
+                    height="600px"
+                    frameborder="0"
+                    allow="same-origin"
+                    ></iframe>
+                
+                    
+                        
                     <!-- Controls -->
                     <div class="flex justify-end gap-2">
                         <button class="btn btn-ghost">Reset</button>
                         <button class="btn btn-primary">Run Model</button>
                     </div>
-                </div>
+              
+                <!-- Controls -->
             </div>
-
-            <!-- Explanation section -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body prose max-w-none">
-                    <h2>Understanding the Model</h2>
-                    <p>
-                        As you adjust the parameters above, you'll see how the model's behavior changes in real-time. 
+        </div>
+        
+        <!-- Explanation section -->
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body prose max-w-none">
+                <h2>Understanding the Model</h2>
+                <p>
+                    As you adjust the parameters above, you'll see how the model's behavior changes in real-time. 
                         The visualization shows both the raw data points and the regression line that best fits them.
                     </p>
                 </div>
             </div>
-
+            
             <!-- Performance metrics -->
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body">
@@ -114,9 +151,34 @@
                     </div>
                 </div>
             </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">Dataset</span>
+                    </label>
+                    <select class="select select-bordered w-full">
+                        <option>Hoousing Prices Dataset</option>
+                        <option>Student Performance Data</option>
+                        <option>Custom Dataset</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">Learning Rate</span>
+                        <span class="label-text-alt">0.01</span>
+                    </label>
+                    <input type="range" min="0" max="100" class="range range-primary" />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-medium">Iterations</span>
+                    </label>
+                    <input type="number" class="input input-bordered" value="100" />
+                </div>
+            </div>
         </div>
     </div>
-
+    
     <!-- Sidebar -->
     <div class="drawer-side">
         <label for="drawer-toggle" class="drawer-overlay"></label>
@@ -180,10 +242,19 @@
         </aside>
     </div>
 </div>
+
+
 <footer class="footer footer-center bg-base-300 text-base-content p-4">
   <aside>
     <p>Copyright © 2024 - All right reserved</p>
   </aside>
 </footer>
+<script>
+    document.body.addEventListener('htmx:configRequest', (event) => {
+  event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+});
+
+
+</script>
 </body>
 </html>

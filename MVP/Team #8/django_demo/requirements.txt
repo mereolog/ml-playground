@@ -2,4 +2,10 @@ scikit-learn
 django==4.2.3
 numpy
 pandas
+requests
 django-browser-reload
+channels
+daphne
+redis
+django-redis
+channels-redis

@@ -1,7 +1,36 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseServerError
 import numpy as np
 from sklearn.linear_model import LinearRegression
+import requests
+import json
+
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.clickjacking import xframe_options_sameorigin, xframe_options_exempt
+from django.views.decorators.csrf import csrf_exempt
+
+import os
+import redis
+
+REDIS_HOST = os.environ.get('REDIS_HOST', 'redis')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+
+def get_redis_connection():
+    try:
+        redis_client = redis.Redis(
+            host=REDIS_HOST, 
+            port=REDIS_PORT, 
+            db=0, 
+            decode_responses=True,
+            socket_connect_timeout=5,  # 5 second timeout
+            socket_timeout=5
+        )
+        redis_client.ping()  # Test connection
+        return redis_client
+    except redis.ConnectionError as e:
+        print(f"Redis Connection Error: {e}")
+        raise
+
 
 def index(request):
     return render(request, 'regression/index.html')
@@ -25,8 +54,8 @@ def compute_regression(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 # regression/views.py
-import json
-from django.views.decorators.csrf import csrf_exempt
+
+
 
 @csrf_exempt
 def compute_regression(request):
@@ -45,3 +74,36 @@ def compute_regression(request):
         return JsonResponse({'intercept': intercept, 'coefficients': list(coefficients)})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+
+@require_http_methods(["POST"])
+def redis_post(request, app, key):
+    
+    try:
+        # Get data from the HTMX post request
+        value = request.POST.get('value')
+        
+        if not key or not value:
+            return JsonResponse({
+                'status': 'error', 
+                'message': 'Key and value are required'
+            }, status=400)
+        
+        # Store in Redis
+        redis_client = get_redis_connection()
+        
+        key = f'{app}:{key}'
+        
+        redis_client.set(key, value)
+        
+        return HttpResponse(value)
+        
+        return JsonResponse({
+            'status': 'success', 
+            'message': f'Stored {key}: {value} in Redis'
+        })
+    
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error', 
+            'message': str(e)
+        }, status=500)
