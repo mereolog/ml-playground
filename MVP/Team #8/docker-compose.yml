@@ -8,21 +8,49 @@ services:
     env_file: ./.env
     environment:
       - DENO_DIR=/deno
+    container_name: deno
     tty: true
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    env_file:
+      - ./.env
+
+  dash:
+    build:
+      context: ./dash
+      dockerfile: Dockerfile
+    container_name: dash
+    volumes:
+      - type: bind
+        source: ./dash
+        target: /dash
+    env_file:
+      - ./.env
+    ports:
+      - "8051:8051"
 
   web:
     build:
       context: ./django_demo
       dockerfile: Dockerfile
-    container_name: django_demo
+    container_name: django
     volumes:
-      - ./django_demo:/app    
+      - type: bind
+        source: ./django_demo
+        target: /app
 
     ports: 
       - "8050:8050"
     restart: always
     env_file: ./.env
-
+    
 
 volumes:
   django_templates:
