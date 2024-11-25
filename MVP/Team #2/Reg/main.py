@@ -156,11 +156,11 @@ def next_step():
         cost_history.append(cost)
         session['cost_history'] = cost_history
 
-        plot_url = generate_plot(x, y, weights, session['current_step'], column_names)
+        plot_url1 = generate_plot(x, y, weights, session['current_step'], column_names)
 
         return render_template(
             "index.html",
-            plot=plot_url,
+            plot=plot_url1,
             step=session['current_step'],
             cost=cost,
             cost_function=cost_function,
