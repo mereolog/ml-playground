@@ -1,54 +1,59 @@
 import streamlit as st
 import pandas as pd
-from model_logic import load_data, train_model, plot_errors, plot_predictions
+from model_logic import load_data, train_model, calculate_cost, plot_training_steps
+import plotly.graph_objects as go
 
-st.title("Regresja liniowa do przewidywania wynagrodzeń")
-st.write("Ta aplikacja przewiduje wynagrodzenie na podstawie doświadczenia zawodowego za pomocą regresji liniowej.")
+st.set_page_config(page_title="Regresja liniowa", layout="wide")
 
-if 'epoch' not in st.session_state:
-    st.session_state.epoch = 0
-if 'errors' not in st.session_state:
-    st.session_state.errors = []
+# Nagłówek
+st.markdown("<h1 style='text-align: center; color: #006699;'>Regresja liniowa</h1>", unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader("Prześlij plik CSV", type="csv")
+# Wczytywanie pliku
+uploaded_file = st.file_uploader("Prześlij plik CSV", type="csv", key="fileUploader")
+
 if uploaded_file:
-    X, y = load_data(uploaded_file)
+    data, X, y = load_data(uploaded_file)
 
-    st.subheader("Podgląd danych")
-    st.write(pd.DataFrame({
-        'Doświadczenie': X.values.flatten(),
-        'Wynagrodzenie': y.astype(str)  
-    }))
+    # Podgląd danych
+    with st.container():
+        st.markdown("<h3 style='color: #003366;'>Podgląd danych:</h3>", unsafe_allow_html=True)
+        st.dataframe(pd.DataFrame({
+            'Doświadczenie': X.flatten(),
+            'Wynagrodzenie': y.astype(str)
+        }), height=150)
 
+    st.markdown("---")
 
-    st.subheader("Parametry modelu")
-    cost_function = st.selectbox("Wybierz funkcję kosztu", ["MSE", "MAE", "R2"])
-    reg_type = st.selectbox("Wybierz rodzaj regularyzacji", [None, "Ridge", "Lasso"])
-    reg_param = st.slider("Parametr regularyzacji (alpha)", 0.0, 1.0, 0.1) if reg_type else 0
-    learning_rate = st.slider("Wskaźnik uczenia (Learning Rate)", 0.001, 1.0, 0.01)
-    epochs = st.slider("Liczba epok", 1, 10, 1)
-    step_by_step = st.checkbox("Wykonaj krok po kroku")
+    # Wybór funkcji kosztu
+    cost_function = st.selectbox("Wybierz funkcję kosztu", ["Błąd średniokwadratowy (MSE)", "Błąd średniobezwzględny (MAE)", "R2 Score"])
 
-    if st.button("Trenuj model"):
-        with st.spinner("Trwa trenowanie modelu..."):
-            if step_by_step:
-                step_generator = train_model(X, y, reg_type, reg_param, epochs, cost_function, step_by_step=True, learning_rate=learning_rate)
-                for epoch, error, y_test, y_pred in step_generator:
-                    if epoch == st.session_state.epoch:
-                        st.session_state.errors.append(error)
-                        st.write(f"Epoka {epoch + 1}: {cost_function} = {error}")
-                        st.session_state.epoch += 1
-                        break
-                st.button("Kontynuuj")
-            else:
-                model, errors, y_test, y_pred = train_model(X, y, reg_type, reg_param, epochs, cost_function, step_by_step=False, learning_rate=learning_rate)
-                st.session_state.errors = errors
+    # Ustawienia modelu
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        regularization_type = st.selectbox("Wybierz typ regularyzacji", ["None", "Lasso", "Ridge"])
+    with col2:
+        alpha = st.slider("Wybierz parametr regularyzacji (alpha)", 0.01, 10.0, 1.0)
+    with col3:
+        learning_rate = st.slider("Wybierz współczynnik uczenia", 0.001, 0.1, 0.01)
 
+    epochs = st.slider("Wybierz liczbę epok", 1, 10, 1)
 
-            st.subheader("Zmiana błędu epoka po epoce")
-            st.pyplot(plot_errors(st.session_state.errors))
+    # Sprawdzenie kolumn
+    if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
+        st.error("Dane muszą zawierać kolumny 'YearsExperience' i 'Salary'.")
+    else:
+        # Trenowanie modelu
+        y_test, y_pred = train_model(X, y, regularization_type, alpha)
 
-            st.subheader("Rzeczywiste VS Przewidywane wynagrodzenie")
-            st.pyplot(plot_predictions(y_test, y_pred))
-else:
-    st.info("Prześlij plik CSV, aby rozpocząć.")
+        if y_test is not None and y_pred is not None:
+            cost = calculate_cost(y_test, y_pred, cost_function)
+            st.success(f"Wartość funkcji kosztu ({cost_function}): {cost:.4f}")
+
+            # Wykres: rzeczywiste vs przewidywane
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=y_test, y=y_pred, mode='markers', name='Dane rzeczywiste', marker=dict(color='#0080ff')))
+            fig.update_layout(title='Rzeczywiste vs Przewidywane wyniki', xaxis_title='Rzeczywiste wynagrodzenie', yaxis_title='Przewidywane wynagrodzenie')
+            st.plotly_chart(fig)
+
+    # Uczenie krok po kroku
+    plot_training_steps(X, y, learning_rate, epochs, cost_function)
