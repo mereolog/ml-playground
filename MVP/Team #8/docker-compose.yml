@@ -22,19 +22,17 @@ services:
     env_file:
       - ./.env
 
-  dash:
-    build:
-      context: ./dash
-      dockerfile: Dockerfile
-    container_name: dash
+  fastapi:
+    build: ./fastapi
+    container_name: fastapi-application
+    ports:
+      - "8000:8000"
     volumes:
       - type: bind
-        source: ./dash
-        target: /dash
+        source: ./fastapi
+        target: /fastapi
     env_file:
       - ./.env
-    ports:
-      - "8051:8051"
 
   web:
     build:
@@ -48,7 +46,7 @@ services:
 
     ports: 
       - "8050:8050"
-    restart: always
+    restart: "always"
     env_file: ./.env
     
 

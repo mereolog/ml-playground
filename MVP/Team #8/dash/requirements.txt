@@ -1,4 +1,0 @@
-plotly
-pandas
-dash
-redis
