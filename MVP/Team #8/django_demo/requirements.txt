@@ -8,4 +8,6 @@ channels
 daphne
 redis
 django-redis
+plotly
 channels-redis
+markupsafe

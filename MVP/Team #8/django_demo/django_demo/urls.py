@@ -21,6 +21,8 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('regression.urls')),
+    path('api/', include('api.urls')),
+    path('', include('plotly.urls')),
     # path('dash_iframe/<path:path>', dash_iframe, name="dash_iframe"),  # Route for Dash assets      # Route for Dash root
     path("__reload__/", include("django_browser_reload.urls")),
 ]
