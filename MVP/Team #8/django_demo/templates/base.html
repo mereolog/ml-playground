@@ -5,12 +5,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
+    <meta name="htmx-config" content='{"selfRequestsOnly":false}'>
+    <title>{% block title %}{% endblock %}</title>
     <link href="{% static 'styles.css' %}" rel="stylesheet">
     <script src="{% static 'htmx/htmx.min.js' %}"></script>
     <script src="{% static 'theme-change/theme-change.js' %}"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.js" charset="utf-8"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/ocramz/htmx-plotly@0.4/htmx-plotly.js" integrity="sha256-FgvTlDVvVXn0uoRXC9MLfkxAsu9AOoGMxFRwc7If9Cg=" crossorigin="anonymous"></script> -->
+    <script src="{% static 'plotly/plotly-htmx.js' %}"></script>
+    <!-- <script src="{% static 'plotly/linear_regression.js' %}"></script> -->
+    <script src="https://kit.fontawesome.com/ca43eda49a.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/ws.js"></script>
+
+    {% block head_js %}
+    {% endblock %}
 </head>
+
 <body>
+
+
   <div class="drawer lg:drawer-open">
     <!-- Drawer toggle for mobile -->
     <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
@@ -18,230 +33,33 @@
     <!-- Page content -->
     <div class="drawer-content flex flex-col">
         <!-- Navbar -->
-        <div class="navbar bg-base-100 border-b lg:hidden">
-            <div class="flex-none">
-                <label for="drawer-toggle" class="btn btn-square btn-ghost drawer-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </label>
-            </div>
-            <div class="flex-1">
-                <h1 class="text-xl font-bold">Linear Regression Playground</h1>
-            </div>
-        </div>
+        {% include 'partials/navbar.html' %}
 
         <!-- Main content area -->
         <div class="p-6 pb-16 max-w-7xl mx-auto w-full space-y-10">
             <!-- Header section -->
-            <div class="space-y-4">
-                <h1 class="text-4xl font-bold">Linear Regression Interactive Guide</h1>
-                <div class="text-lg text-base-content/70">
-                    Learn linear regression through interactive visualization and hands-on experimentation.
-                </div>
-            </div>
-
-            <!-- Interactive workspace -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body space-y-4">
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div class="card bg-base-100  p-4">
-                            <h2 class="text-xl font-semibold mb-4">Czym jest funkcja liniowa?</h2>
-                            <p class="text-base-content">
-                                Funkcja liniowa to równanie pierwszego stopnia, które przedstawia prostą linię na płaszczyźnie. 
-                                Składa się z dwóch kluczowych współczynników:
-                            </p>
-                            <ul class="list-disc pl-5 mt-2 text-gray-600">
-                                <li><strong>a</strong> - współczynnik kierunkowy, określający nachylenie prostej</li>
-                                <li><strong>b</strong> - wyraz wolny, który pokazuje punkt przecięcia z osią Y</li>
-                            </ul>
-                            <h1 class="text-3xl font-bold text-center mt-6 text-primary">y = <span id="aValue">a</span>x + <span id="bValue">b</span></h1>
-                        </div>
-                        
-                        <div class="card bg-base-100  p-4">
-                            <div class="form-control w-full">
-                                <label class="label">
-                                    <span class="label-text">Współczynnik a (nachylenie)</span>
-                                </label>
-                                {% csrf_token %}
-                                <input type="range" 
-                                name="value" 
-                                min="-5"
-                                step="0.01",
-                                max="5" 
-                                hx-post="{% url 'redis_post' app='linear_regression' key='a' %}" 
-                                hx-trigger="input" 
-                                hx-target="#aValue" 
-                                hx-swap="innerHTML",
-                                class="range range-primary">
-                                <label class="label">
-                                    <span id="aValue" class="label-text-alt">1.0</span>
-                                </label>
-                            </div>
-                            
-                            <div class="form-control w-full">
-                                <label class="label">
-                                    <span class="label-text">Współczynnik b (przesunięcie)</span>
-                                </label>
-                                <input type="range" 
-                                name="value" 
-                                min="-2"
-                                step="0.01",
-                                max="2" 
-                                hx-post="{% url 'redis_post' app='linear_regression' key='b' %}" 
-                                hx-trigger="input" 
-                                hx-target="#bValue" 
-                                hx-swap="innerHTML",
-                                class="range range-secondary">
-                                <label class="label">
-                                    <span id="bValue" class="label-text-alt">0.0</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                
-             
-                    <!-- Visualization area -->
-                    <iframe 
-                    src="http://localhost:8051"
-                    width="100%" 
-                    height="600px"
-                    frameborder="0"
-                    allow="same-origin"
-                    ></iframe>
-                
-                    
-                        
-                    <!-- Controls -->
-                    <div class="flex justify-end gap-2">
-                        <button class="btn btn-ghost">Reset</button>
-                        <button class="btn btn-primary">Run Model</button>
-                    </div>
-              
-                <!-- Controls -->
-            </div>
-        </div>
-        
-        <!-- Explanation section -->
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body prose max-w-none">
-                <h2>Understanding the Model</h2>
-                <p>
-                    As you adjust the parameters above, you'll see how the model's behavior changes in real-time. 
-                        The visualization shows both the raw data points and the regression line that best fits them.
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Performance metrics -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h2 class="text-2xl font-bold">Model Performance</h2>
-                    <div class="stats stats-vertical lg:stats-horizontal shadow">
-                        <div class="stat">
-                            <div class="stat-title">Mean Squared Error</div>
-                            <div class="stat-value">0.234</div>
-                            <div class="stat-desc">↘︎ 1.23% less than last run</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-title">R² Score</div>
-                            <div class="stat-value">0.89</div>
-                            <div class="stat-desc">↗︎ 2.1% better than last run</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text font-medium">Dataset</span>
-                    </label>
-                    <select class="select select-bordered w-full">
-                        <option>Hoousing Prices Dataset</option>
-                        <option>Student Performance Data</option>
-                        <option>Custom Dataset</option>
-                    </select>
-                </div>
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text font-medium">Learning Rate</span>
-                        <span class="label-text-alt">0.01</span>
-                    </label>
-                    <input type="range" min="0" max="100" class="range range-primary" />
-                </div>
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text font-medium">Iterations</span>
-                    </label>
-                    <input type="number" class="input input-bordered" value="100" />
-                </div>
-            </div>
+          {% block content %}
+          {% endblock %}
         </div>
     </div>
     
     <!-- Sidebar -->
     <div class="drawer-side">
         <label for="drawer-toggle" class="drawer-overlay"></label>
-        <aside class="bg-base-200 w-80 min-h-screen border-r">
+        <aside class="bg-base-200 w-96 min-h-screen border-r">
+          <div class="p-4">
             <!-- Sidebar content -->
-            <div class="sticky top-0 bg-base-200 z-20 bg-opacity-90 backdrop-blur px-6 py-4 hidden lg:block">
-                <h1 class="text-xl font-bold">ML Playground</h1>
-                
-            </div>
-            
-            <ul class="menu p-4 pt-2 text-base-content">
-                <li class="menu-title">Getting Started</li>
-                <li><a class="active">Introduction</a></li>
-                <li><a>Basic Concepts</a></li>
-                <li class="menu-title">Interactive Learning</li>
-                <li><a>Dataset Explorer</a></li>
-                <li><a>Parameter Tuning</a></li>
-                <li><a>Model Evaluation</a></li>
-                <li class="menu-title">Advanced Topics</li>
-                <li><a>Multiple Regression</a></li>
-                <li><a>Feature Engineering</a></li>
-            </ul>
-            
-            <div class="menu p-4 pt-2 text-base-content">
-              
-              <select data-choose-theme class="select select-bordered w-full max-w-xs">
-                <option value="light">light</option>
-                <option value="dark">dark</option>
-                <option value="cupcake">cupcake</option>
-                <option value="bumblebee">bumblebee</option>
-                <option value="emerald">emerald</option>
-                <option value="corporate">corporate</option>
-                <option value="synthwave">synthwave</option>
-                <option value="retro">retro</option>
-                <option value="cyberpunk">cyberpunk</option>
-                <option value="valentine">valentine</option>
-                <option value="halloween">halloween</option>
-                <option value="garden">garden</option>
-                <option value="forest">forest</option>
-                <option value="aqua">aqua</option>
-                <option value="lofi">lofi</option>
-                <option value="pastel">pastel</option>
-                <option value="fantasy">fantasy</option>
-                <option value="wireframe">wireframe</option>
-                <option value="black">black</option>
-                <option value="luxury">luxury</option>
-                <option value="dracula">dracula</option>
-                <option value="cmyk">cmyk</option>
-                <option value="autumn">autumn</option>
-                <option value="business">business</option>
-                <option value="acid">acid</option>
-                <option value="lemonade">lemonade</option>
-                <option value="night">night</option>
-                <option value="coffee">coffee</option>
-                <option value="winter">winter</option>
-                <option value="dim">dim</option>
-                <option value="nord">nord</option>
-                <option value="sunset">sunset</option>
-              </select>
-            </div>
+            {% block sidebar_controlls %}
+            {% endblock %}
+          </div>
         </aside>
     </div>
 </div>
+
+
+
+
+
 
 
 <footer class="footer footer-center bg-base-300 text-base-content p-4">
@@ -249,12 +67,24 @@
     <p>Copyright © 2024 - All right reserved</p>
   </aside>
 </footer>
+
 <script>
     document.body.addEventListener('htmx:configRequest', (event) => {
   event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
 });
 
-
 </script>
+
+{% block body_js %}
+{% endblock %}
+
 </body>
 </html>
+
+
+
+
+
+
+
+
