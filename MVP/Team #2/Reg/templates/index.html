@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Regresja Liniowa - Wizualizacja Uczenia Krok po Kroku</title>
+    <style>
+        img { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Regresja Liniowa - Wizualizacja Uczenia Krok po Kroku</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="file">Prześlij plik CSV z danymi:</label><br>
+        <input type="file" id="file" name="file" required><br><br>
+
+        <label for="lr">Współczynnik uczenia (np. 0.01):</label><br>
+        <input type="text" id="lr" name="lr" required><br><br>
+
+        <label for="iterations">Liczba iteracji:</label><br>
+        <input type="text" id="iterations" name="iterations" required><br><br>
+
+        <button type="submit">Rozpocznij uczenie</button>
+    </form>
+
+    {% if plot %}
+        <h2>Krok {{ step }} z {{ session.iterations }}</h2>
+        <form action="{{ url_for('next_step') }}" method="get">
+            <button type="submit">Kolejny krok</button>
+        </form>
+        <img src="data:image/png;base64,{{ plot }}" alt="Wykres regresji krok {{ step }}">
+    {% endif %}
+</body>
+</html>
