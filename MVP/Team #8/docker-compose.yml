@@ -43,6 +43,7 @@ services:
       - type: bind
         source: ./django_demo
         target: /app
+      - ./datasets:/app/datasets
 
     ports: 
       - "8050:8050"
