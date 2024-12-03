@@ -4,9 +4,6 @@ RUN apt-get update && apt-get install -y wget
 
 WORKDIR /deno
 
-RUN chown -R deno:deno /deno
-
-USER deno
 
 COPY . .
 
