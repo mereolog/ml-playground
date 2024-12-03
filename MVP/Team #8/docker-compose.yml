@@ -33,6 +33,8 @@ services:
         target: /fastapi
     env_file:
       - ./.env
+    depends_on:
+      - web
 
   web:
     build:
@@ -49,6 +51,15 @@ services:
       - "8050:8050"
     restart: "always"
     env_file: ./.env
+
+  lint:
+    build: 
+      context: .
+      dockerfile: Dockerfile.lint
+    volumes:
+      - ./fastapi:/fastapi
+      - ./django_demo:/django_demo
+ 
     
 
 volumes:
