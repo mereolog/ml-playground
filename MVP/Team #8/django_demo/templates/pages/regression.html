@@ -14,7 +14,7 @@
 {% block sidebar_controlls %}
 
 <!-- Data Controlls -->
-<div class="border-b pb-4">
+<div class= pb-4">
     <h3 class="text-lg font-bold mb-4 text-gray-700">Data</h3>
     <div role="tablist" class="tabs tabs-lifted">
         <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Generate" />
@@ -42,9 +42,24 @@
           
          
       
-        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Upload" checked="checked" />
+        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Datasets" checked="checked" />
         <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
             <label class="form-control w-full max-w-xs">
+                <div class="label">
+                    <span class="label-text">Select a dataset</span>
+                    <span class="label-text-alt">Stored datasets</span>
+                </div>
+                
+                <!-- Dropdown to select existing datasets -->
+                <select id="existing-dataset-select" class="select select-bordered w-full max-w-xs">
+                    <option disabled selected>Choose a dataset</option>
+                    {% for dataset in datasets %}
+                        <option value="{{ dataset }}">{{ dataset }}</option>
+                    {% endfor %}
+                </select>
+        
+                <div class="divider">OR</div>
+        
                 <div class="label">
                   <span class="label-text">Upload your dataset</span>
                   <span class="label-text-alt">Supported: <strong>.csv</strong></span>
@@ -58,18 +73,13 @@
             {% include 'partials/dataset-info.html' %}
         </div>
       
-        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Datasets" />
-        <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
-            {% include 'partials/dataset-info.html' %}
-        </div>
-      </div>
 
   </div>
 
   <!-- Parameter Controlls -->
   <div class="pb-4">
     <h3 class="text-lg font-semibold my-3 text-gray-700">Model Parameters</h3>
-    <div class="space-y-4 pb-4 border-b ">
+    <div class="space-y-4 pb-4 ">
         <div class="grid grid-cols-2 gap-4">
         <div class="">
             <label class="block text-sm font-medium text-gray-600 mb-2">Dependent Variable</label>
@@ -88,7 +98,7 @@
         </div>
         <!-- load data into plot -->
     </div>
-    <div class="space-y-4 pb-4 border-b ">
+    <div class="space-y-4 pb-4 ">
         <div class="grid grid-cols-2 gap-4">
             <div class="">
                 <label class="block text-sm font-medium text-gray-600 mb-2">Learning Rate</label>
@@ -114,14 +124,14 @@
             </div>
         </div>
         </div>
-        <div class="space-y-4 pb-4 border-b ">
+        <div class="space-y-4 pb-4 ">
             <div class="grid grid-cols-2 gap-4">
             <button class="btn btn-primary btn-sm" id="prepare-model" onclick="prepareModel(event)">Prepare Model</button>
             <button class="btn btn-secondary btn-sm" id="load-data" onclick="trainModel(event)">Train Model</button>
             </div>
             
         </div>
-        <div class="space-y-4 pb-4 border-b ">
+        <div class="space-y-4 pb-4 ">
         <h3 class="text-lg font-semibold my-3 text-gray-700">Trainig Progress</h3>
         <progress id="training-progress" class="progress w-80" value="1" max="100"></progress>
         </div>
@@ -248,7 +258,9 @@
                 xaxis4: {title: 'epochs'},
                 yaxis4: {title: 'MAE'}
                 };
-                var options = {displayModeBar: false}
+                var options = {displayModeBar: false,
+                               responsive: true,
+                }
                 Plotly.newPlot('metrics-plot', data, layout, options);
 
               </script>

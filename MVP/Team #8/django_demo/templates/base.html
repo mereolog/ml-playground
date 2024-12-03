@@ -44,9 +44,9 @@
     </div>
     
     <!-- Sidebar -->
-    <div class="drawer-side">
-        <label for="drawer-toggle" class="drawer-overlay"></label>
-        <aside class="bg-base-200 w-96 min-h-screen border-r">
+    <div class="drawer-side z-20">
+      <label for="drawer-toggle" aria-label="close sidebar" class="drawer-overlay"></label>
+        <aside id="controlls-sidebar" class="bg-base-200 w-96 min-h-screen border-r">
           <div class="p-4">
             <!-- Sidebar content -->
             {% block sidebar_controlls %}
@@ -73,6 +73,20 @@
   event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
 });
 
+function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
 
 {% block body_js %}

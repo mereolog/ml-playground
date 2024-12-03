@@ -1,4 +1,17 @@
-const socket = new WebSocket("ws://localhost:8000/ws");
+const address = 'ws://' + window.location.hostname + ':8000/ws';
+console.log('address', address);
+const socket = new WebSocket(address);
+
+
+
+
+function toggleDrawer() {
+  const drawer = document.querySelector('input[type="checkbox"].drawer-toggle');
+    if (drawer) {
+        drawer.checked = false; // This closes the drawer
+    }
+}
+
 
 function updatePlot(plotDOM, initialTrace, traceData) {
 
@@ -181,7 +194,7 @@ socket.onmessage = function(event) {
 
 
 function prepareModel(event) {
-
+  toggleDrawer();
   console.log("Preparing model...");
 
   dependentVariable = document.getElementById("dependent-variable").value;
@@ -199,7 +212,10 @@ function prepareModel(event) {
     "regularization": regularization
   }
 
-  datasetFile = document.getElementById("dataset-input").files[0];
+  datasetFile = window.dataset;
+
+
+
   const reader = new FileReader();
   reader.onload = function(event) {
     const fileContent = event.target.result;
@@ -212,7 +228,7 @@ function prepareModel(event) {
 }
 
 function trainModel(event) {
-
+  toggleDrawer();
   console.log("Training model...");
 
   parameters = {

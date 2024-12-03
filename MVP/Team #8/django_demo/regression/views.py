@@ -11,6 +11,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 import os
 import redis
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'redis')
 REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
@@ -36,7 +41,20 @@ def index(request):
     return render(request, 'regression/index.html')
 
 def regression(request):
-    return render(request, 'pages/regression.html')
+    
+    DATASET_DIR = os.getenv('DATASET_DIR', '/app/datasets')
+    
+    available_datasets = [f for f in os.listdir(DATASET_DIR) if f.endswith('.csv')]
+    
+    
+    
+    context = {
+        'datasets': available_datasets
+    }
+    
+    logger.debug(f"Available datasets: {available_datasets}")
+    
+    return render(request, 'pages/regression.html', context=context)
 
 def compute_regression(request):
     if request.method == 'POST':

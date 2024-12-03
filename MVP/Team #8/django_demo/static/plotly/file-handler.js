@@ -95,56 +95,79 @@ function updateTable(tableID, data) {
 
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('dataset-input').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            console.log('File selected:', file.name);
-            document.getElementById('csv-filename').textContent = `${file.name}`;
-            document.getElementById('csv-size').textContent = `Size: ${(file.size / 1024).toFixed(2)} KB`;
+function handleCSVData(file) {
+    
+    if (file) {
+        console.log('File selected:', file.name);
+        document.getElementById('csv-filename').textContent = `${file.name}`;
+        document.getElementById('csv-size').textContent = `Size: ${(file.size / 1024).toFixed(2)} KB`;
 
-            parseCSV(file).then(info => {
-                document.getElementById('csv-rows').textContent = `Rows: ${info.rows}`;
-                document.getElementById('csv-columns-count').textContent = `Columns: ${info.columns.length}`;
+        parseCSV(file).then(info => {
+            document.getElementById('csv-rows').textContent = `Rows: ${info.rows}`;
+            document.getElementById('csv-columns-count').textContent = `Columns: ${info.columns.length}`;
 
-                const dependentSelect = document.getElementById('dependent-variable');
-                const independentSelect = document.getElementById('independent-variable');
-                // dependentSelect.innerHTML = '<option value="">Select a column</option>';
-                // independentSelect.innerHTML = '<option value="">Select a column</option>';
+            const dependentSelect = document.getElementById('dependent-variable');
+            const independentSelect = document.getElementById('independent-variable');
+            dependentSelect.innerHTML = '<option value="">Select a column</option>';
+            independentSelect.innerHTML = '<option value="">Select a column</option>';
 
-                info.columns.forEach(column => {
-                    const option = document.createElement('option');
-                    option.value = column;
-                    option.textContent = column;
-                    dependentSelect.appendChild(option);
-                    independentSelect.appendChild(option.cloneNode(true));
-                });
-
-                // Update the table with column names and types
-                updateTable('dataset-spec-table', info);
-            }).catch(error => {
-                console.error('Error parsing CSV:', error);
+            info.columns.forEach(column => {
+                const option = document.createElement('option');
+                option.value = column;
+                option.textContent = column;
+                dependentSelect.appendChild(option);
+                independentSelect.appendChild(option.cloneNode(true));
             });
-        } else {
-            console.log('No file selected');
-        }
+
+            // Update the table with column names and types
+            updateTable('dataset-spec-table', info);
+        }).catch(error => {
+            console.error('Error parsing CSV:', error);
+        });
+    } else {
+        console.log('No file selected');
+    }
+}
+
+const DatasetInputDOM = document.getElementById('dataset-input');
+const ExistingDatasetSelectDOM = document.getElementById('existing-dataset-select');
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    DatasetInputDOM.addEventListener('change', function(event) {
+        ExistingDatasetSelectDOM.value = 0;
+        const file = event.target.files[0];
+        window.dataset = value;
+        handleCSVData(file);
     });
 
-
-    document.getElementById('load-data').addEventListener('click', function() {
-        const dependentVariable = document.getElementById('dependent-variable').value;
-        const independentVariable = document.getElementById('independent-variable').value;
-
-        if (dependentVariable && independentVariable) {
-            console.log('Loading data:', dependentVariable, independentVariable);
-            // Load the data
-        } else {
-            console.log('Please select both dependent and independent variables');
+    ExistingDatasetSelectDOM.addEventListener('change', function(event) {
+        DatasetInputDOM.value = '';
+        const value = event.target.value;
+        
+        function processDataset(dataset_file_name) {
+            fetch('http://' + window.location.hostname + ':8050/api/load_file/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie("csrftoken") // Assuming you're using Django
+                },
+                body: JSON.stringify({
+                    datasetFileName: dataset_file_name
+                })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const file = new File([blob], dataset_file_name, { type: 'text/csv' });
+                window.dataset = file;
+                handleCSVData(file);
+            });
         }
-    }
 
-    );
-
+        if (value) {
+            console.log('Selected dataset:', value);
+            processDataset(value);
+        }
+    });
 });
-
 
