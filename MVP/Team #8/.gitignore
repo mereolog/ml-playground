@@ -1,2 +1,6 @@
 
 django_demo/staticfiles/
+# add static/styles.css to the .gitignore file
+
+ 
+django_demo/static/styles.css
