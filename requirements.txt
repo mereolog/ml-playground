@@ -4,3 +4,4 @@ numpy
 pandas
 matplotlib
 flask
+PyQt5>=5.15.0

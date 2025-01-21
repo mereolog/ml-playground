@@ -13,23 +13,29 @@ class LinearRegressionApp(QWidget):
         super().__init__()
         self.init_ui()
 
-        # Backend variables
+        # Dataset-related attributes
         self.dataset = None
-        self.x = None
-        self.y = None
+        self.feature_data = None
+        self.target_data = None
+
+        # Model parameters
         self.learning_rate = 0.01
         self.num_iterations = 1000
-        self.cost_function = backend.m_s_e
+        self.cost_function = backend.mean_squared_error
         self.regularization = None
-        self.lambda_reg = 0.1
+        self.regularization_coefficient = 0.1
+        self.model_params = None
+
+        # History tracking
         self.cost_history = []
         self.predictions_history = []
-        self.model_params = None
+        self.r_squared_history = []
+
+        # UI-related attributes
         self.slider = None
         self.controls = None
         self.next_button = None
         self.previous_button = None
-        self.r_history = []
 
         # Set initial window size
         self.resize(700, 1000)  # Width x Height
@@ -64,10 +70,10 @@ class LinearRegressionApp(QWidget):
 
         # How long will it take ??
         self.iter_label = QLabel("Number of iterations:")
-        self.iter = QLineEdit("1000")
-        self.iter.textChanged.connect(self.set_iters)
+        self.iterations_input = QLineEdit("1000")
+        self.iterations_input.textChanged.connect(self.set_iters)
         self.layout.addWidget(self.iter_label)
-        self.layout.addWidget(self.iter)
+        self.layout.addWidget(self.iterations_input)
 
         # Regularization Type
         self.reg_label = QLabel("Regularization:")
@@ -132,18 +138,18 @@ class LinearRegressionApp(QWidget):
         file_path, _ = QFileDialog.getOpenFileName(self, "Load Dataset", "", "CSV Files (*.csv)")
         if file_path:
             try:
-                self.x, self.y = backend.load_dataset(file_path)
-                self.x, self.y = backend.standarization(self.x, self.y)
-                self.plot.plot_static(self.x, self.y)  # Plot the static elements once
+                self.feature_data, self.target_data = backend.load_dataset(file_path)
+                self.feature_data, self.target_data = backend.standarization(self.feature_data, self.target_data)
+                self.plot.plot_static(self.feature_data, self.target_data)  # Plot the static elements once
                 QMessageBox.information(self, "Success", "Dataset loaded successfully!")
             except Exception as e:
                 QMessageBox.critical(self, "Error", str(e))
 
     def select_cost_function(self, index):
         if index == 0:
-            self.cost_function = backend.m_s_e
+            self.cost_function = backend.mean_squared_error
         elif index == 1:
-            self.cost_function = backend.m_a_e
+            self.cost_function = backend.mean_absolute_error
         elif index == 2:
             self.cost_function = backend.r_squared
 
@@ -166,24 +172,24 @@ class LinearRegressionApp(QWidget):
 
     def set_lambda(self, text):
         try:
-            self.lambda_reg = float(text)
+            self.regularization_coefficient = float(text)
         except ValueError:
             pass
 
     def run_all_steps(self):
-        if self.x is None or self.y is None:
+        if self.feature_data is None or self.target_data is None:
             QMessageBox.warning(self, "Warning", "Please load a dataset first!")
             return
 
         try:
             # Call the gradient descent method and gather predictions
-            i, j, self.predictions_history, self.cost_history, self.r_history = backend.gradient_descent(
-                self.x, self.y,
+            i, j, self.predictions_history, self.cost_history, self.r_squared_history = backend.gradient_descent(
+                self.feature_data, self.target_data,
                 learning_rate=self.learning_rate,
                 num_iterations=self.num_iterations,
                 error_func=self.cost_function,
                 regularization=self.regularization,
-                lambda_reg=self.lambda_reg,
+                regularization_coefficient=self.regularization_coefficient,
             )
 
             self.plot_cost_curve()
@@ -231,13 +237,13 @@ class LinearRegressionApp(QWidget):
         # Get the current slider value that dictates which prediction to draw
         index = self.slider.value()
         m, b = self.predictions_history[index]
-        predictions = m * self.x + b
+        predictions = m * self.feature_data + b
 
         # Just update the line on the plot
-        self.plot.update_dynamic_line(self.x, predictions)
+        self.plot.update_dynamic_line(self.feature_data, predictions)
         self.params_output.setText(f"Model Parameters: m = {m:.4f}, b = {b:.4f}, iteration = {index}")
         self.cost_output.setText(f"Cost: {self.cost_history[index]:.4f}")
-        self.r_squared.setText(f"R-squared cost: {self.r_history[index]:.4f}")
+        self.r_squared.setText(f"R-squared cost: {self.r_squared_history[index]:.4f}")
 
     def plot_cost_curve(self):
         iterations = np.arange(len(self.cost_history))
