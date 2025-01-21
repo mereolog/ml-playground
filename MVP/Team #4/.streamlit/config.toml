@@ -1,6 +1,6 @@
 [theme]
-primaryColor = "#0D7377"  # Темно-сине-зеленый
-backgroundColor = "#EAF6F6"  # Светло-голубоватый фон
-secondaryBackgroundColor = "#32E0C4"  # Ярко-зеленый
-textColor = "#086972"  # Темно-зеленовато-синий текст
+primaryColor = "#0D7377"  #Dark teal, primary color
+backgroundColor = "#EAF6F6"  #Light bluish background
+secondaryBackgroundColor = "#32E0C4"  #Bright green, secondary background
+textColor = "#086972"  #Dark greenish-blue text color
 font = "sans serif"
