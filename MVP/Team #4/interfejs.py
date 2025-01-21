@@ -3,9 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from model import load_data, train_model, plot_training_steps
 
-st.set_page_config(page_title="Regresja liniowa", layout="wide")
+PAGE_TITLE = "Linear Regression"
+HEADER_TEXT = "Linear Regression"
+HEADER_COLOR = "#006699" #Dark Blue
 
-st.markdown("<h1 style='text-align: center; color: #006699;'>Regresja liniowa</h1>", unsafe_allow_html=True)
+st.set_page_config(page_title=PAGE_TITLE, layout="wide")
+
+#Add styled header using HTML
+st.markdown(f"<h1 style='text-align: center; color: {HEADER_COLOR};'>{HEADER_TEXT}</h1>", unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader("Prześlij plik CSV", type="csv", key="fileUploader")
 
