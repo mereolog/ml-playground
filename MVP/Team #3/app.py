@@ -1,10 +1,13 @@
+import io
+import os
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from flask import Flask, render_template, request, send_file
-import io
-import os
 from sklearn.linear_model import Lasso, Ridge
+
+from flask import Flask, render_template, request, send_file
+
 
 app = Flask(__name__)
 
