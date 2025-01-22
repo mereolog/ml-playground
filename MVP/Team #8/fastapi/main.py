@@ -1,4 +1,5 @@
 import logging
+from typing import List, Tuple, Dict, Any
 
 from io import StringIO
 from torch.autograd import Variable
@@ -16,31 +17,46 @@ logging.basicConfig(level=logging.INFO)
 
 connected_clients = []
 
-def mean_absolute_error(y_true, y_pred):
-    return torch.mean(torch.abs(y_true - y_pred)).item()
+class MetricsCalculator:
+    @staticmethod    
+    def mean_absolute_error(y_true, y_pred):
+        return torch.mean(torch.abs(y_true - y_pred)).item()
 
+    @staticmethod
+    def r2_score(y_true, y_pred):
 
-def r2_score(y_true, y_pred):
+        ss_total = torch.sum((y_true - torch.mean(y_true)) ** 2)
+        ss_residual = torch.sum((y_true - y_pred) ** 2)
+        return 1 - (ss_residual / ss_total).item()
 
-    ss_total = torch.sum((y_true - torch.mean(y_true)) ** 2)
-    ss_residual = torch.sum((y_true - y_pred) ** 2)
-    return 1 - (ss_residual / ss_total).item()
+    @staticmethod
+    def mean_squared_error(y_true, y_pred):
+        return torch.mean((y_true - y_pred) ** 2).item()
 
+    @staticmethod
+    def root_mean_squared_error(y_true, y_pred):
+        mse = torch.mean((y_true - y_pred) ** 2)  # Recalculate MSE as a tensor
+        return torch.sqrt(mse).item()
 
-def mean_squared_error(y_true, y_pred):
-    return torch.mean((y_true - y_pred) ** 2).item()
+class DataProcessor:
+    @staticmethod
+    def normalize_data(data):
+        normalized_data = (data - data.min()) / (data.max() - data.min())
+        return normalized_data
+    
+    @staticmethod
+    def prepare_data(csv_content: str, dependent_variable:str, independent_variable:str) -> Tuple[torch.Tensor, torch.Tensor]:
+        df = pd.read_csv(StringIO(csv_content))
 
+        if df.columns[0] == "Unnamed: 0":
+            df.rename(columns={"Unnamed: 0": "Index"}, inplace=True)
 
-def root_mean_squared_error(y_true, y_pred):
-    mse = torch.mean((y_true - y_pred) ** 2)  # Recalculate MSE as a tensor
-    return torch.sqrt(mse).item()
+        dependent_data = torch.from_numpy(df[dependent_variable].values).unsqueeze(1).float()
+        independent_data = torch.from_numpy(df[independent_variable].values).unsqueeze(1).float()
+        
+        return DataProcessor.normalize_data(dependent_data), DataProcessor.normalize_data(independent_data)
 
-
-def normalize_data(data):
-    normalized_data = (data - data.min()) / (data.max() - data.min())
-    return normalized_data
-
-
+        
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
@@ -49,17 +65,9 @@ async def websocket_endpoint(websocket: WebSocket):
         logging.info(f"Received data: {data}")
 
         if data["task"] == "prepare_model":
-            csvStringIO = StringIO(data["dataset"])
-            df = pd.read_csv(csvStringIO, sep=",")
-
-            if df.columns[0] == "Unnamed: 0":
-                df.rename(columns={"Unnamed: 0": "Index"}, inplace=True)
-
-            dependent_variable = data["dependent_variable"]
-            independent_variable = data["independent_variable"]
-
-            dependent_variable_data = df[dependent_variable].values
-            independent_variable_data = df[independent_variable].values
+            x_data_norm, y_data_norm = DataProcessor.prepare_data(csv_content=data["dataset"],
+                                                         dependent_variable=data["dependent_variable"],
+                                                         independent_variable=data["independent_variable"])
 
             model_parameters = {
                 "epochs": int(data["epochs"]),
@@ -72,24 +80,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 model.parameters(), lr=model_parameters["learning_rate"]
             )
 
-            x_data_torch = Variable(
-                torch.from_numpy(dependent_variable_data).unsqueeze(1).float()
-            )
-            y_data_torch = Variable(
-                torch.from_numpy(independent_variable_data).unsqueeze(1).float()
-            )
-            x_data_norm = normalize_data(x_data_torch)
-            y_data_norm = normalize_data(y_data_torch)
 
             with torch.no_grad():
                 y_plot = model(x_data_norm).detach().numpy().flatten()
 
             data = {
                 "task": "initialize_plots",
-                "dependent_variable": normalize_data(dependent_variable_data).tolist(),
-                "independent_variable": normalize_data(
-                    independent_variable_data
-                ).tolist(),
+                "dependent_variable": x_data_norm.tolist(),
+                "independent_variable":y_data_norm.tolist(), 
                 "x_plot": x_data_norm.flatten().tolist(),
                 "y_pred": y_plot.tolist(),
             }
@@ -114,19 +112,19 @@ async def websocket_endpoint(websocket: WebSocket):
                 optimizer.step()
                 loss_values.append(loss.item())
 
-                mae_values.append(mean_absolute_error(y_data_norm, pred_y))
-                mse_values.append(mean_squared_error(y_data_norm, pred_y))
-                rmse_values.append(root_mean_squared_error(y_data_norm, pred_y))
-                r2_values.append(r2_score(y_data_norm, pred_y))
+                mae_values.append(MetricsCalculator.mean_absolute_error(y_data_norm, pred_y))
+                mse_values.append(MetricsCalculator.mean_squared_error(y_data_norm, pred_y))
+                rmse_values.append(MetricsCalculator.root_mean_squared_error(y_data_norm, pred_y))
+                r2_values.append(MetricsCalculator.r2_score(y_data_norm, pred_y))
 
                 if epoch % 10 == 0:
                     logging.info(f"Epoch: {epoch}, Loss: {loss.item()}")
                     data = {
                         "task": "update_plot",
-                        "dependent_variable": normalize_data(
+                        "dependent_variable": DataProcessor.normalize_data(
                             dependent_variable_data
                         ).tolist(),
-                        "independent_variable": normalize_data(
+                        "independent_variable": DataProcessor.normalize_data(
                             independent_variable_data
                         ).tolist(),
                         "x_plot": x_data_norm.flatten().tolist(),
