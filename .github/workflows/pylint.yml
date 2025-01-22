@@ -18,4 +18,5 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
+        echo echo $(git ls-files './**/*.py')
         pylint --fail-under 5 $(git ls-files './**/*.py')
