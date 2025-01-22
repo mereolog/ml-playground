@@ -89,38 +89,18 @@ def calculate_cost(x, y, weights, cost_function, regularization, reg_param):
 def index():
     if request.method == "POST":
         try:
-            if 'file' not in request.files:
-                return "Nie przesłano pliku"
-            file = request.files['file']
-            if file.filename == '' or not file.filename.endswith('.csv'):
-                return "Prześlij plik w formacie CSV"
-            df = pd.read_csv(file)
-            if df.shape[1] < 2:
-                return "Plik musi zawierać co najmniej dwie kolumny z danymi"
+            file = validate_file(request.files)
+            df = process_file(file)
+            params = parse_form_data(request.form)
+            initialize_session(df, params)
 
-            x = df.iloc[:, 1].values
-            y = df.iloc[:, 2].values
-            column_names = df.columns.tolist()
-            lr = float(request.form["lr"])
-            iterations = int(request.form["iterations"])
-            cost_function = request.form["cost_function"]
-            regularization = request.form["regularization"]
-            reg_param = float(request.form["reg_param"])
-
-            session['x'] = x.tolist()
-            session['y'] = y.tolist()
-            session['lr'] = lr
-            session['iterations'] = iterations
-            session['current_step'] = 0
-            session['column_names'] = column_names
-            session['weights'] = [0.0, 0.0]
-            session['cost_function'] = cost_function
-            session['regularization'] = regularization
-            session['reg_param'] = reg_param
-            session['cost_history'] = []
-
-            weights = session['weights']
-            plot_url = generate_plot(np.array(x), np.array(y), weights, 0, column_names)
+            plot_url = generate_plot(
+                np.array(session['x']), 
+                np.array(session['y']), 
+                session['weights'], 
+                0, 
+                session['column_names']
+            )
 
             return render_template("index.html", plot=plot_url, step=session['current_step'])
 
@@ -128,6 +108,53 @@ def index():
             return str(e)
 
     return render_template("index.html")
+
+
+def validate_file(files):
+    """Sprawdza, czy plik został przesłany i czy ma poprawne rozszerzenie CSV."""
+    if 'file' not in files:
+        raise ValueError("Nie przesłano pliku")
+    
+    file = files['file']
+    if file.filename == '' or not file.filename.endswith('.csv'):
+        raise ValueError("Prześlij plik w formacie CSV")
+    
+    return file
+
+
+def process_file(file):
+    """Wczytuje plik CSV i sprawdza, czy zawiera co najmniej dwie kolumny danych."""
+    df = pd.read_csv(file)
+    if df.shape[1] < 2:
+        raise ValueError("Plik musi zawierać co najmniej dwie kolumny z danymi")
+    
+    return df
+
+
+def parse_form_data(form):
+    """Parsuje dane z formularza i zwraca je jako słownik."""
+    return {
+        "lr": float(form["lr"]),
+        "iterations": int(form["iterations"]),
+        "cost_function": form["cost_function"],
+        "regularization": form["regularization"],
+        "reg_param": float(form["reg_param"])
+    }
+
+
+def initialize_session(df, params):
+    """Inicjalizuje sesję, zapisując w niej dane i parametry modelu."""
+    session['x'] = df.iloc[:, 1].values.tolist()
+    session['y'] = df.iloc[:, 2].values.tolist()
+    session['lr'] = params["lr"]
+    session['iterations'] = params["iterations"]
+    session['current_step'] = 0
+    session['column_names'] = df.columns.tolist()
+    session['weights'] = [0.0, 0.0]
+    session['cost_function'] = params["cost_function"]
+    session['regularization'] = params["regularization"]
+    session['reg_param'] = params["reg_param"]
+    session['cost_history'] = []
 
 
 @app.route("/next_step")
@@ -146,7 +173,6 @@ def next_step():
         cost_history = session['cost_history']
 
         if current_step >= iterations:
-
             cost_plot_url = generate_cost_plot(cost_history)
             return render_template("index.html", cost_plot=cost_plot_url, step=current_step, is_finished=True)
 
