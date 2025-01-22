@@ -9,18 +9,12 @@ import pandas as pd
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 
-
 app = FastAPI()
-
-
-
-
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
 connected_clients = []
-
 
 def mean_absolute_error(y_true, y_pred):
     return torch.mean(torch.abs(y_true - y_pred)).item()
