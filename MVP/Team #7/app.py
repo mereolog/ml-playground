@@ -32,9 +32,15 @@ bias = None
 
 
 @app.route('/')
+# Route for rendering the home page
+@app.route('/')
 def index():
+    """
+    Render the home page of the application.
+    """
     return render_template('index.html')
 
+# Route for loading the dataset
 @app.route('/load_dataset', methods=['POST'])
 def load_dataset():
     global data, X, y, costs, current_epoch, weights, bias
