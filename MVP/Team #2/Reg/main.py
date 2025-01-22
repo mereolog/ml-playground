@@ -1,3 +1,6 @@
+from io import BytesIO
+import base64
+import os
 import matplotlib
 matplotlib.use('Agg')
 
@@ -5,9 +8,7 @@ from flask import Flask, render_template, request, session
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from io import BytesIO
-import base64
-import os
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
