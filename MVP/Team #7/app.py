@@ -30,33 +30,6 @@ learning_rate = 0.01
 weights = None
 bias = None
 
-def train_model_step():
-    global weights, bias, costs, current_epoch, X, y
-    
-    if X is None or y is None:
-        return None, None, "Data not initialized"
-    
-    if weights is None:
-        weights = np.zeros(X.shape[1])
-        bias = 0
-    
-    # Compute predictions
-    y_pred = np.dot(X, weights) + bias
-    
-    # Compute gradients
-    dw = (1/len(X)) * np.dot(X.T, (y_pred - y))
-    db = (1/len(X)) * np.sum(y_pred - y)
-    
-    # Update parameters
-    weights = weights - learning_rate * dw
-    bias = bias - learning_rate * db
-    
-    # Calculate cost
-    cost = np.mean((y_pred - y) ** 2)
-    costs.append(cost)
-    current_epoch += 1
-    
-    return y_pred, cost, None
 
 @app.route('/')
 def index():
@@ -126,6 +99,33 @@ def train_step():
         "cost": float(cost),
         "predictions": y_pred.tolist()
     })
+def train_model_step():
+    global weights, bias, costs, current_epoch, X, y
+    
+    if X is None or y is None:
+        return None, None, "Data not initialized"
+    
+    if weights is None:
+        weights = np.zeros(X.shape[1])
+        bias = 0
+    
+    # Compute predictions
+    y_pred = np.dot(X, weights) + bias
+    
+    # Compute gradients
+    dw = (1/len(X)) * np.dot(X.T, (y_pred - y))
+    db = (1/len(X)) * np.sum(y_pred - y)
+    
+    # Update parameters
+    weights = weights - learning_rate * dw
+    bias = bias - learning_rate * db
+    
+    # Calculate cost
+    cost = np.mean((y_pred - y) ** 2)
+    costs.append(cost)
+    current_epoch += 1
+    
+    return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
 def train_all():
