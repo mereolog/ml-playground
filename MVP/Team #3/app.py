@@ -23,30 +23,65 @@ def calculate_cost(X, y, m, b, cost_function):
         ss_res = np.sum((y - y_pred) ** 2)
         return 1 - (ss_res / ss_total)
 
-# Funkcja implementująca gradient descent z regularyzacją
-def gradient_descent(X, y, learning_rate, iterations, regularization_type, regularization_param, cost_function):
-    m = 0
-    b = 0
-    n = len(y)
+def gradient_descent_with_regularization(X, y, config):
+    """
+    Implements gradient descent with Lasso or Ridge regularization.
+
+    Parameters:
+        X (numpy.ndarray): Input feature array of shape (n_samples,).
+        y (numpy.ndarray): Target values of shape (n_samples,).
+        config (dict): Configuration dictionary containing:
+            - learning_rate (float): The step size for gradient descent updates.
+            - iterations (int): Number of iterations to run gradient descent.
+            - regularization_type (str): Type of regularization ('Lasso' or 'Ridge').
+            - regularization_param (float): Regularization parameter (lambda).
+            - cost_function (callable): Function to compute the cost/loss.
+
+    Returns:
+        tuple: (m, b, cost_history)
+            - m (float): Slope of the regression line.
+            - b (float): Intercept of the regression line.
+            - cost_history (list): List of cost values for each iteration.
+    """
+    # Initialize slope (m) and intercept (b) to zero
+    m = 0  # Slope of the regression line
+    b = 0  # Intercept of the regression line
+    n = len(y)  # Number of data points
+
+    # Extract configuration parameters
+    learning_rate = config['learning_rate']
+    iterations = config['iterations']
+    regularization_type = config['regularization_type']
+    regularization_param = config['regularization_param']
+    cost_function = config['cost_function']
+
+    # Store cost history for analysis
     cost_history = []
 
     for _ in range(iterations):
+        # Predicted values
         y_pred = m * X + b
-        dm = (-2/n) * np.sum(X * (y - y_pred))
-        db = (-2/n) * np.sum(y - y_pred)
 
+        # Gradients for m and b
+        dm = (-2 / n) * np.sum(X * (y - y_pred))  # Gradient w.r.t. slope
+        db = (-2 / n) * np.sum(y - y_pred)  # Gradient w.r.t. intercept
+
+        # Apply regularization to the gradient of m
         if regularization_type == 'Lasso':
-            dm += regularization_param * np.sign(m)
+            dm += regularization_param * np.sign(m)  # L1 penalty
         elif regularization_type == 'Ridge':
-            dm += regularization_param * m
+            dm += regularization_param * m  # L2 penalty
 
+        # Update parameters using gradients
         m -= learning_rate * dm
         b -= learning_rate * db
 
-        cost = calculate_cost(X, y, m, b, cost_function)
+        # Compute and store the cost
+        cost = cost_function(X, y, m, b)
         cost_history.append(cost)
 
     return m, b, cost_history
+
 
 # Funkcja do tworzenia wykresu regresji
 def plot_regression(X, y, m, b):
