@@ -157,45 +157,69 @@ def initialize_session(df, params):
     session['cost_history'] = []
 
 
+def get_session_data():
+    x = np.array(session['x'])
+    y = np.array(session['y'])
+    lr = session['lr']
+    weights = session['weights']
+    cost_function = session['cost_function']
+    regularization = session['regularization']
+    reg_param = session['reg_param']
+    column_names = session.get('column_names', ['x', 'y'])
+    current_step = session['current_step']
+    iterations = session['iterations']
+    cost_history = session['cost_history']
+    return x, y, lr, weights, cost_function, regularization, reg_param, column_names, current_step, iterations, cost_history
+
+def is_training_complete(current_step, iterations):
+    return current_step >= iterations
+
+def perform_optimization_step(x, y, weights, lr, regularization, reg_param):
+    return perform_single_step(x, y, weights, lr, regularization, reg_param)
+
+def update_session_data(weights, cost, cost_history, current_step):
+    session['weights'] = weights
+    session['cost_history'] = cost_history
+    session['current_step'] = current_step
+
+def generate_cost_plot_and_render(cost_history, current_step):
+    cost_plot_url = generate_cost_plot(cost_history)
+    return render_template("index.html", cost_plot=cost_plot_url, step=current_step, is_finished=True)
+
+def generate_plot_and_render(x, y, weights, current_step, column_names, cost, cost_function):
+    plot_url1 = generate_plot(x, y, weights, current_step, column_names)
+    return render_template(
+        "index.html",
+        plot=plot_url1,
+        step=current_step,
+        cost=cost,
+        cost_function=cost_function,
+        is_last_step=(current_step >= session['iterations'])
+    )
+
 @app.route("/next_step")
 def next_step():
     try:
-        x = np.array(session['x'])
-        y = np.array(session['y'])
-        lr = session['lr']
-        weights = session['weights']
-        cost_function = session['cost_function']
-        regularization = session['regularization']
-        reg_param = session['reg_param']
-        column_names = session.get('column_names', ['x', 'y'])
-        current_step = session['current_step']
-        iterations = session['iterations']
-        cost_history = session['cost_history']
+        # Retrieve session data
+        x, y, lr, weights, cost_function, regularization, reg_param, column_names, current_step, iterations, cost_history = get_session_data()
 
-        if current_step >= iterations:
-            cost_plot_url = generate_cost_plot(cost_history)
-            return render_template("index.html", cost_plot=cost_plot_url, step=current_step, is_finished=True)
+        # Check if the training process is finished
+        if is_training_complete(current_step, iterations):
+            return generate_cost_plot_and_render(cost_history, current_step)
 
-        weights = perform_single_step(x, y, weights, lr, regularization, reg_param)
-        session['weights'] = weights
-        session['current_step'] += 1
+        # Perform optimization step
+        weights = perform_optimization_step(x, y, weights, lr, regularization, reg_param)
 
+        # Update session data
         cost = calculate_cost(x, y, weights, cost_function, regularization, reg_param)
         cost_history.append(cost)
-        session['cost_history'] = cost_history
+        update_session_data(weights, cost, cost_history, current_step + 1)
 
-        plot_url1 = generate_plot(x, y, weights, session['current_step'], column_names)
+        # Generate and return the plot
+        return generate_plot_and_render(x, y, weights, current_step + 1, column_names, cost, cost_function)
 
-        return render_template(
-            "index.html",
-            plot=plot_url1,
-            step=session['current_step'],
-            cost=cost,
-            cost_function=cost_function,
-            is_last_step=(session['current_step'] >= iterations)
-        )
-    except Exception as e:
-        return str(e)
+    except ValueError as e:
+        return str(Value error: e)
 
 
 if __name__ == "__main__":
