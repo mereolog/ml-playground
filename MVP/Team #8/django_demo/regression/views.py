@@ -46,8 +46,6 @@ def regression(request):
     
     available_datasets = [f for f in os.listdir(DATASET_DIR) if f.endswith('.csv')]
     
-    
-    
     context = {
         'datasets': available_datasets
     }
@@ -71,10 +69,6 @@ def compute_regression(request):
         return JsonResponse({'intercept': intercept, 'coefficients': list(coefficients)})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-# regression/views.py
-
-
-
 @csrf_exempt
 def compute_regression(request):
     if request.method == 'POST':
@@ -91,7 +85,6 @@ def compute_regression(request):
         
         return JsonResponse({'intercept': intercept, 'coefficients': list(coefficients)})
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
 
 @require_http_methods(["POST"])
 def redis_post(request, app, key):
