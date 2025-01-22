@@ -48,7 +48,6 @@ def load_dataset():
     if file:
         try:
             data = pd.read_csv(file)
-            # Reset model state
             costs = []
             current_epoch = 0
             weights = None
