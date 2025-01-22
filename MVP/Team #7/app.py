@@ -52,7 +52,7 @@ def load_dataset():
             current_epoch = 0
             weights = None
             bias = None
-            # Check for required columns
+            # Route for loading the dataset
             if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
                 return jsonify({"error": "Dataset must contain 'YearsExperience' and 'Salary' columns"}), 400
             X = data[['YearsExperience']].values
