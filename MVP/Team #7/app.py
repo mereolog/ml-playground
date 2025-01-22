@@ -7,10 +7,18 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import json
+import logging
 
+# Initialize Flask app
 app = Flask(__name__)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
 # Global variables for model state
+
+
+
 data = None
 model = None
 X = None
