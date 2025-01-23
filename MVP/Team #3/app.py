@@ -11,7 +11,7 @@ from flask import Flask, render_template, request, send_file
 
 app = Flask(__name__)
 
-# Funkcja obliczająca MSE, MAE, R^2
+# Function calculates MSE, MAE, R^2
 def calculate_cost(X, y, m, b, cost_function):
     y_pred = m * X + b
     if cost_function == 'MSE':
