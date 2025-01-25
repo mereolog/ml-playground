@@ -65,9 +65,27 @@ async def websocket_endpoint(websocket: WebSocket):
         logging.info(f"Received data: {data}")
 
         if data["task"] == "prepare_model":
-            x_data_norm, y_data_norm = DataProcessor.prepare_data(csv_content=data["dataset"],
-                                                         dependent_variable=data["dependent_variable"],
-                                                         independent_variable=data["independent_variable"])
+            # First read the CSV and get raw data
+            csvStringIO = StringIO(data['dataset'])
+            df = pd.read_csv(csvStringIO)
+
+            if df.columns[0] == "Unnamed: 0":
+                df.rename(columns={"Unnamed: 0": "Index"}, inplace=True)
+
+            # Get raw data
+            dependent_variable = data['dependent_variable']
+            independent_variable = data['independent_variable']
+            
+            dependent_variable_data = df[dependent_variable].values
+            independent_variable_data = df[independent_variable].values
+
+            # Convert to torch tensors
+            x_data_torch = Variable(torch.from_numpy(dependent_variable_data).unsqueeze(1).float())
+            y_data_torch = Variable(torch.from_numpy(independent_variable_data).unsqueeze(1).float())
+            
+            # Normalize for model
+            x_data_norm = DataProcessor.normalize_data(x_data_torch)
+            y_data_norm = DataProcessor.normalize_data(y_data_torch)
 
             model_parameters = {
                 "epochs": int(data["epochs"]),
@@ -80,14 +98,13 @@ async def websocket_endpoint(websocket: WebSocket):
                 model.parameters(), lr=model_parameters["learning_rate"]
             )
 
-
             with torch.no_grad():
                 y_plot = model(x_data_norm).detach().numpy().flatten()
 
             data = {
                 "task": "initialize_plots",
-                "dependent_variable": x_data_norm.tolist(),
-                "independent_variable":y_data_norm.tolist(), 
+                "dependent_variable": DataProcessor.normalize_data(torch.from_numpy(dependent_variable_data)).tolist(),
+                "independent_variable": DataProcessor.normalize_data(torch.from_numpy(independent_variable_data)).tolist(),
                 "x_plot": x_data_norm.flatten().tolist(),
                 "y_pred": y_plot.tolist(),
             }
@@ -121,12 +138,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     logging.info(f"Epoch: {epoch}, Loss: {loss.item()}")
                     data = {
                         "task": "update_plot",
-                        "dependent_variable": DataProcessor.normalize_data(
-                            dependent_variable_data
-                        ).tolist(),
-                        "independent_variable": DataProcessor.normalize_data(
-                            independent_variable_data
-                        ).tolist(),
+                        "dependent_variable": DataProcessor.normalize_data(torch.from_numpy(dependent_variable_data)).tolist(),
+                        "independent_variable": DataProcessor.normalize_data(torch.from_numpy(independent_variable_data)).tolist(),
                         "x_plot": x_data_norm.flatten().tolist(),
                         "y_pred": pred_y.flatten().tolist(),
                         "loss_values": loss_values,
