@@ -83,7 +83,7 @@ def gradient_descent_with_regularization(X, y, config):
     return m, b, cost_history
 
 
-# Funkcja do tworzenia wykresu regresji
+# Create a regression plot
 def plot_regression(X, y, m, b):
     if not os.path.exists('static'):
         os.makedirs('static')
@@ -105,7 +105,7 @@ def plot_regression(X, y, m, b):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Pobierz dane z formularza
+        # Download data for the form
         file = request.files['dataset']
         learning_rate = float(request.form['learning_rate'])
         iterations = int(request.form['iterations'])
@@ -114,11 +114,11 @@ def index():
         cost_function = request.form['cost_function']
         step_by_step = 'step_by_step' in request.form
 
-        # Wczytaj dane z pliku
+        # Load data from the file
         if file:
             data = pd.read_csv(file)
         else:
-            # Użyj domyślnego zbioru danych
+            # Use a default dataset
             data = pd.read_csv('Salary_dataset.csv')
 
         X = data['YearsExperience'].values.reshape(-1, 1)
@@ -127,10 +127,10 @@ def index():
         # Gradient Descent
         m, b, cost_history = gradient_descent(X.flatten(), y, learning_rate, iterations, regularization_type, regularization_param, cost_function)
 
-        # Generowanie wykresu
+        # Generate a graph
         plot_path = plot_regression(X, y, m, b)
 
-        # Zwróć dane na stronę
+        # Return data to the website
         return render_template('index.html', plot_path=plot_path, m=m, b=b, cost_history=cost_history, cost_function=cost_function)
 
     return render_template('index.html', plot_path=None, cost_history=None)
