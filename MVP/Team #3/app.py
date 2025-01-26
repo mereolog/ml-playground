@@ -12,7 +12,7 @@ from flask import Flask, render_template, request, send_file
 app = Flask(__name__)
 
 # Function calculates MSE, MAE, R^2
-def calculate_cost(X, y, m, b, cost_function):
+def calculate_error_metric(X, y, m, b, cost_function):
     y_pred = m * X + b
     if cost_function == 'MSE':
         return np.mean((y - y_pred) ** 2)
@@ -97,7 +97,7 @@ def plot_regression(X, y, m, b):
     plt.legend()
     plt.grid()
 
-    plot_path = 'static/regression_plot.png'
+    plot_path = 'static/years_salary_linear_regression_plot.png'
     plt.savefig(plot_path)
     plt.close()
     return plot_path
