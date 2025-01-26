@@ -4,6 +4,8 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 from sklearn.linear_model import Lasso, Ridge
 
 from flask import Flask, render_template, request, send_file
