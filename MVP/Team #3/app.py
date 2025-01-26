@@ -85,8 +85,6 @@ def gradient_descent_with_regularization(X, y, config):
 
 # Create a regression plot
 def plot_regression(X, y, m, b):
-    if not os.path.exists('static'):
-        os.makedirs('static')
 
     plt.figure(figsize=(10, 6))
     plt.scatter(X, y, color='blue', label='Dane')
