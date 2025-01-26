@@ -106,7 +106,7 @@ def plot_regression(X, y, m, b):
 def index():
     if request.method == 'POST':
         # Download data for the form
-        file = request.files['dataset']
+        uploaded_dataset = request.files['dataset']
         learning_rate = float(request.form['learning_rate'])
         iterations = int(request.form['iterations'])
         regularization_type = request.form['regularization_type']
@@ -115,8 +115,8 @@ def index():
         step_by_step = 'step_by_step' in request.form
 
         # Load data from the file
-        if file:
-            data = pd.read_csv(file)
+        if uploaded_dataset:
+            data = pd.read_csv(uploaded_dataset)
         else:
             # Use a default dataset
             data = pd.read_csv('Salary_dataset.csv')
