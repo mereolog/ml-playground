@@ -115,11 +115,24 @@ def index():
         step_by_step = 'step_by_step' in request.form
 
         # Load data from the file
-        if uploaded_dataset:
+    if uploaded_dataset:
+        try:
             data = pd.read_csv(uploaded_dataset)
+        except pd.errors.ParserError:
+            return "Uploaded file is not a valid CSV format. Please upload a proper CSV file."
+        except Exception as e:
+            return f"An error occurred while processing the uploaded file: {str(e)}"
         else:
-            # Use a default dataset
-            data = pd.read_csv('Salary_dataset.csv')
+            try:
+                # Use a default dataset
+                data = pd.read_csv('Salary_dataset.csv')
+            except FileNotFoundError:
+                return "Default dataset 'Salary_dataset.csv' not found. Please upload a dataset."
+            except pd.errors.ParserError:
+                return "The default dataset 'Salary_dataset.csv' is not in a valid CSV format."
+            except Exception as e:
+                return f"An unexpected error occurred while loading the default dataset: {str(e)}"
+
 
         X = data['YearsExperience'].values.reshape(-1, 1)
         y = data['Salary'].values
