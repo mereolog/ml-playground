@@ -97,9 +97,26 @@ def plot_regression(X, y, m, b):
     plt.legend()
     plt.grid()
 
+    # Ensure the directory exists before saving
     plot_path = 'static/years_salary_linear_regression_plot.png'
-    plt.savefig(plot_path)
-    plt.close()
+    try:
+        # Check and create the directory if it doesn't exist
+        directory = os.path.dirname(plot_path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        # Save the plot
+        plt.savefig(plot_path)
+    except FileNotFoundError:
+        return "Error: The file path for saving the plot is invalid."
+    except PermissionError:
+        return "Error: Insufficient permissions to save the plot."
+    except Exception as e:
+        return f"An unexpected error occurred while saving the plot: {str(e)}"
+    finally:
+        # Always close the plot to free up memory
+        plt.close()
+
     return plot_path
 
 @app.route('/', methods=['GET', 'POST'])
