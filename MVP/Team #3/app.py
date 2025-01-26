@@ -122,63 +122,88 @@ def plot_regression(X, y, m, b):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        error_message = None
+
+        # Parse form inputs
         try:
-            # Parse and cast form inputs
             learning_rate = float(request.form['learning_rate'])
             iterations = int(request.form['iterations'])
             regularization_type = request.form['regularization_type']
             regularization_param = float(request.form['regularization_param'])
+            cost_function = request.form['cost_function']
+        except ValueError:
+            error_message = "Invalid input for learning rate, iterations, or regularization parameters."
+            return render_template('index.html', error_message=error_message)
 
-            # Proceed with the main logic
-            uploaded_dataset = request.files.get('dataset')
+        # Handle file upload
+        uploaded_dataset = request.files.get('dataset')
+        try:
+            data = pd.read_csv(uploaded_dataset) if uploaded_dataset else pd.read_csv('Salary_dataset.csv')
+        except pd.errors.ParserError:
+            error_message = "Uploaded file is not a valid CSV format."
+            return render_template('index.html', error_message=error_message)
+        except FileNotFoundError:
+            error_message = "Default dataset 'Salary_dataset.csv' not found."
+            return render_template('index.html', error_message=error_message)
+        except Exception as e:
+            error_message = f"Error while loading dataset: {str(e)}"
+            return render_template('index.html', error_message=error_message)
 
-            try:
-                # Load dataset
-                data = pd.read_csv(uploaded_dataset) if uploaded_dataset else pd.read_csv('Salary_dataset.csv')
-            except pd.errors.ParserError:
-                return "Error: Uploaded file is not a valid CSV format."
-            except FileNotFoundError:
-                return "Error: Default dataset 'Salary_dataset.csv' not found."
-            except Exception as e:
-                return f"An error occurred while loading the dataset: {str(e)}"
-
-            # Ensure required columns are present
-            if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
-                return "Error: Dataset must contain 'YearsExperience' and 'Salary' columns."
-
-            # Extract features and target
-            X = data['YearsExperience'].values.reshape(-1, 1)
-            y = data['Salary'].values
-
-            # Perform gradient descent
-            m, b, cost_history = gradient_descent_with_regularization(
-                X.flatten(),
-                y,
-                config={
-                    'learning_rate': learning_rate,
-                    'iterations': iterations,
-                    'regularization_type': regularization_type,
-                    'regularization_param': regularization_param,
-                    'cost_function': calculate_error_metric
-                }
-            )
-
-            # Generate regression plot
-            plot_path = plot_regression(X, y, m, b)
-
+        # If columns are not yet selected, display them
+        if 'x_column' not in request.form or 'y_column' not in request.form:
+            columns = data.columns.tolist()
             return render_template(
                 'index.html',
-                plot_path=plot_path,
-                m=m,
-                b=b,
-                cost_history=cost_history
+                columns=columns,
+                learning_rate=learning_rate,
+                iterations=iterations,
+                regularization_type=regularization_type,
+                regularization_param=regularization_param,
+                cost_function=cost_function
             )
-        except ValueError as e:
-            return f"Error: Invalid input - {str(e)}"
-        except Exception as e:
-            return f"An unexpected error occurred: {str(e)}"
 
-    return render_template('index.html', plot_path=None, cost_history=None)
+        # Use selected columns
+        x_column = request.form['x_column']
+        y_column = request.form['y_column']
+
+        if x_column not in data.columns or y_column not in data.columns:
+            error_message = "Selected columns do not exist in the dataset."
+            return render_template('index.html', error_message=error_message)
+
+        # Extract features and target
+        X = data[x_column].values.reshape(-1, 1)
+        y = data[y_column].values
+
+        # Perform gradient descent
+        m, b, cost_history = gradient_descent_with_regularization(
+            X.flatten(),
+            y,
+            config={
+                'learning_rate': learning_rate,
+                'iterations': iterations,
+                'regularization_type': regularization_type,
+                'regularization_param': regularization_param,
+                'cost_function': cost_function
+            }
+        )
+
+        # Generate regression plot
+        plot_path = plot_regression(X, y, m, b)
+
+        # Render results
+        return render_template(
+            'index.html',
+            plot_path=plot_path,
+            m=m,
+            b=b,
+            cost_history=cost_history,
+            cost_function=cost_function,
+            x_column=x_column,
+            y_column=y_column
+        )
+
+    # Render initial form if GET request
+    return render_template('index.html')
 
 
 if __name__ == '__main__':
