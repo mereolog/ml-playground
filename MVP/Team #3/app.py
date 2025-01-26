@@ -120,48 +120,64 @@ def plot_regression(X, y, m, b):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        # Download data for the form
-        uploaded_dataset = request.files['dataset']
-        learning_rate = float(request.form['learning_rate'])
-        iterations = int(request.form['iterations'])
-        regularization_type = request.form['regularization_type']
-        regularization_param = float(request.form['regularization_param'])
-        cost_function = request.form['cost_function']
-        step_by_step = 'step_by_step' in request.form
-
-        # Load data from the file
-    if uploaded_dataset:
         try:
-            data = pd.read_csv(uploaded_dataset)
-        except pd.errors.ParserError:
-            return "Uploaded file is not a valid CSV format. Please upload a proper CSV file."
-        except Exception as e:
-            return f"An error occurred while processing the uploaded file: {str(e)}"
-        else:
+            # Parse and cast form inputs
+            learning_rate = float(request.form['learning_rate'])
+            iterations = int(request.form['iterations'])
+            regularization_type = request.form['regularization_type']
+            regularization_param = float(request.form['regularization_param'])
+
+            # Proceed with the main logic
+            uploaded_dataset = request.files.get('dataset')
+
             try:
-                # Use a default dataset
-                data = pd.read_csv('Salary_dataset.csv')
-            except FileNotFoundError:
-                return "Default dataset 'Salary_dataset.csv' not found. Please upload a dataset."
+                # Load dataset
+                data = pd.read_csv(uploaded_dataset) if uploaded_dataset else pd.read_csv('Salary_dataset.csv')
             except pd.errors.ParserError:
-                return "The default dataset 'Salary_dataset.csv' is not in a valid CSV format."
+                return "Error: Uploaded file is not a valid CSV format."
+            except FileNotFoundError:
+                return "Error: Default dataset 'Salary_dataset.csv' not found."
             except Exception as e:
-                return f"An unexpected error occurred while loading the default dataset: {str(e)}"
+                return f"An error occurred while loading the dataset: {str(e)}"
 
+            # Ensure required columns are present
+            if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
+                return "Error: Dataset must contain 'YearsExperience' and 'Salary' columns."
 
-        X = data['YearsExperience'].values.reshape(-1, 1)
-        y = data['Salary'].values
+            # Extract features and target
+            X = data['YearsExperience'].values.reshape(-1, 1)
+            y = data['Salary'].values
 
-        # Gradient Descent
-        m, b, cost_history = gradient_descent(X.flatten(), y, learning_rate, iterations, regularization_type, regularization_param, cost_function)
+            # Perform gradient descent
+            m, b, cost_history = gradient_descent_with_regularization(
+                X.flatten(),
+                y,
+                config={
+                    'learning_rate': learning_rate,
+                    'iterations': iterations,
+                    'regularization_type': regularization_type,
+                    'regularization_param': regularization_param,
+                    'cost_function': calculate_error_metric
+                }
+            )
 
-        # Generate a graph
-        plot_path = plot_regression(X, y, m, b)
+            # Generate regression plot
+            plot_path = plot_regression(X, y, m, b)
 
-        # Return data to the website
-        return render_template('index.html', plot_path=plot_path, m=m, b=b, cost_history=cost_history, cost_function=cost_function)
+            return render_template(
+                'index.html',
+                plot_path=plot_path,
+                m=m,
+                b=b,
+                cost_history=cost_history
+            )
+        except ValueError as e:
+            return f"Error: Invalid input - {str(e)}"
+        except Exception as e:
+            return f"An unexpected error occurred: {str(e)}"
 
     return render_template('index.html', plot_path=None, cost_history=None)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
