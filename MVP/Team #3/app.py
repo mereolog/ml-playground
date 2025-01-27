@@ -79,7 +79,7 @@ def gradient_descent_with_regularization(X, y, config):
         b -= learning_rate * db
 
         # Compute and store the cost
-        cost = cost_function(X, y, m, b)
+        cost = calculate_error_metric(X, y, m, b, cost_function)
         cost_history.append(cost)
 
     return m, b, cost_history
