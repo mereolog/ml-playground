@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-6 pb-16 max-w-7xl mx-auto w-full space-y-10">
+    <!-- Header section -->
+    <div class="space-y-4">
+        <h1 class="text-4xl font-bold">Linear Regression Interactive Guide</h1>
+        <div class="text-lg text-base-content/70">
+            Learn linear regression through interactive visualization and hands-on experimentation.
+        </div>
+    </div>
+
+    <!-- Interactive workspace -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body space-y-4">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="card bg-base-100  p-4">
+                    <h2 class="text-xl font-semibold mb-4">Czym jest funkcja liniowa?</h2>
+                    <p class="text-base-content">
+                        Funkcja liniowa to równanie pierwszego stopnia, które przedstawia prostą linię na płaszczyźnie. Równanie to ma postać <strong>y = ax + b</strong>.
+                        Składa się z dwóch kluczowych współczynników:
+                    </p>
+                    <ul class="list-disc pl-5 mt-2 text-gray-600">
+                        <li><strong>a</strong> - współczynnik kierunkowy, określający nachylenie prostej</li>
+                        <li><strong>b</strong> - wyraz wolny, który pokazuje punkt przecięcia z osią Y</li>
+                    </ul>
+                    <h1 class="text-3xl font-bold text-center mt-6 text-primary">y = <span id="aValue">a</span>x + <span id="bValue">b</span></h1>
+                </div>
+                <div class="card bg-base-100 p-4">
+                    <div id="values-display"></div>
+                    <form hx-ext="htmx-plotly" 
+                          hx-trigger="input from:input[type='range']"
+                          plot-id="plot"
+                          hx-target="#values-display"
+                          hx-swap="innerHTML" >
+                        {% csrf_token %}
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Współczynnik a (nachylenie)</span>
+                            </label>
+                            <input id="aInput"
+                                   type="range"
+                                   name="a"
+                                   min="0"
+                                   step="0.1"
+                                   max="10"
+                                   value="3"
+                                   hx-target="#aValue"
+                                   hx-swap="innerHTML"
+                                   class="plotly-input range range-primary">
+                            <label class="label">
+                                <span id="aValue" class="label-text-alt">1.0</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Współczynnik b (przesunięcie)</span>
+                            </label>
+                            <input id="bInput"
+                                   type="range"
+                                   name="b"
+                                   min="0"
+                                   step="0.1"
+                                   max="10"
+                                   value="0"
+                                   hx-target="#bValue"
+                                   hx-swap="innerHTML"
+                                   class="plotly-input range range-secondary">
+                            <label class="label">
+                                <span id="bValue" class="label-text-alt">1.0</span>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+                <div class="card bg-base-100 p-4">
+                    <div id="plot">
+            
+                    </div>
+                </div>
+            
+                <div class="card bg-base-100 p-4">
+               
+                </div>
+            
+                
+</div>
+
+
+</div>
+
+    <!-- Performance metrics -->
+    <div class="card bg-base-100 shadow-xl mt-10">
+        <div class="card-body space-y-4">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="card bg-base-100 p-4">
+                    <h2 class="text-xl font-semibold mb-4">Co to jest regresja liniowa?</h2>
+                    <p class="text-base-content">
+                        Regresja liniowa to metoda statystyczna służąca do modelowania relacji między zmiennymi. Celem jest znalezienie linii prostej, która najlepiej pasuje do danych.
+                        Model ma postać <strong>y = mx + c</strong>, gdzie:
+                    </p>
+                    <ul class="list-disc pl-5 mt-2 text-gray-600">
+                        <li><strong>m</strong> - współczynnik kierunkowy (slope)</li>
+                        <li><strong>c</strong> - wyraz wolny (intercept)</li>
+                    </ul>
+                    <p class="text-base-content mt-2">
+                        Cel регresji liniowej jest minimizacja błędu między predykcjami a obserwowanymi wartościami.
+                    </p>
+                </div>
+                <div class="card bg-base-100 p-4">
+                    <!-- Controls for Linear Regression -->
+                    <form id="regression-form" class="space-y-4">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Dataset</span>
+                            </label>
+                            <select class="select select-primary w-full" id="dataset-select">
+                                <option value="linear">Linear Data</option>
+                                <option value="nonlinear">Non-linear Data</option>
+                                <option value="noisy">Noisy Data</option>
+                            </select>
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Epochs</span>
+                            </label>
+                            <input type="number" class="input input-primary w-full" id="epochs-input" value="100">
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text">Learning Rate</span>
+                            </label>
+                            <input type="number" class="input input-primary w-full" id="learning-rate-input" step="0.01" value="0.01">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="train-btn">Train Model</button>
+                    </form>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-6 mt-6">
+                <div class="card bg-base-100 p-4">
+                    <div id="regression-plot"></div>
+                </div>
+                <div class="card bg-base-100 p-4">
+                    <!-- Additional controls or information can be added here -->
+                    <p class="text-base-content">
+                        You can adjust the parameters and select different datasets to see how the model performs.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    // Function to generate sample datasets
+    function generateData(dataset) {
+        let x = [];
+        let y = [];
+        if (dataset === 'linear') {
+            for (let i = 0; i < 100; i++) {
+                x.push(i);
+                y.push(2 * i + 1 + Math.random() * 10); // y = 2x + 1 + noise
+            }
+        } else if (dataset === 'nonlinear') {
+            for (let i = 0; i < 100; i++) {
+                x.push(i);
+                y.push(i * i + Math.random() * 10); // y = x^2 + noise
+            }
+        } else if (dataset === 'noisy') {
+            for (let i = 0; i < 100; i++) {
+                x.push(i);
+                y.push(3 * i + 5 + Math.random() * 50); // y = 3x + 5 + noise
+            }
+        }
+        return {x: x, y: y};
+    }
+
+    // Function to plot data and model
+    function plotRegression(data, model) {
+        let trace1 = {
+            x: data.x,
+            y: data.y,
+            mode: 'markers',
+            type: 'scatter',
+            name: 'Data'
+        };
+        let trace2 = {
+            x: data.x,
+            y: model.map((m, c) => m * x + c),
+            mode: 'lines',
+            type: 'scatter',
+            name: 'Regression Line'
+        };
+        let dataPlot = [trace1, trace2];
+        Plotly.newPlot('regression-plot', dataPlot);
+    }
+
+    // Event listener for form submission
+    document.getElementById('train-btn').addEventListener('click', function() {
+        let dataset = document.getElementById('dataset-select').value;
+        let epochs = parseInt(document.getElementById('epochs-input').value);
+        let learningRate = parseFloat(document.getElementById('learning-rate-input').value);
+
+        // Generate data based on selected dataset
+        let data = generateData(dataset);
+
+        // Simple linear regression implementation
+        let m = 0;
+        let c = 0;
+        let n = data.x.length;
+        for (let epoch = 0; epoch < epochs; epoch++) {
+            let y_pred = data.x.map(x => m * x + c);
+            let error = data.y.map((y, i) => y - y_pred[i]);
+            let gradient_m = -2/n * data.x.reduce((acc, x, i) => acc + x * error[i], 0);
+            let gradient_c = -2/n * error.reduce((acc, e) => acc + e, 0);
+            m = m - learningRate * gradient_m;
+            c = c - learningRate * gradient_c;
+        }
+
+        // Plot the regression line
+        plotRegression(data, [m, c]);
+    });
+</script>
+{% endblock %}

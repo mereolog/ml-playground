@@ -1,0 +1,5 @@
+# default behavior
+text=auto
+
+# convert end of line sequence of .sh files to LF
+*.sh text eol=lf
