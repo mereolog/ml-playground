@@ -1,0 +1,20 @@
+FROM python:3.9-slim
+
+WORKDIR /lint
+
+# Explicitly copy requirements files from each project
+COPY fastapi/requirements.txt fastapi_requirements.txt
+COPY django_demo/requirements.txt django_requirements.txt
+
+# Install dependencies from both requirements files
+RUN pip install \
+    -r fastapi_requirements.txt \
+    -r django_requirements.txt \
+    pylint
+
+# Copy project files for linting
+COPY fastapi /fastapi
+COPY django_demo /django_demo
+
+# Run linting command
+CMD ["pylint", "/fastapi/**/*.py"]

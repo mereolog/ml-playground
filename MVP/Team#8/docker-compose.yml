@@ -1,18 +1,67 @@
 services:
+
+  deno:
+    build: ./deno
+    volumes:
+      - ./django_demo/templates:/templates
+      - ./django_demo/static:/static
+    env_file: ./.env
+    environment:
+      - DENO_DIR=/deno
+    container_name: deno
+    tty: true
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    env_file:
+      - ./.env
+
+  fastapi:
+    build: ./fastapi
+    container_name: fastapi-application
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./fastapi
+        target: /fastapi
+    env_file:
+      - ./.env
+    depends_on:
+      - web
+
   web:
     build:
       context: ./django_demo
       dockerfile: Dockerfile
-    container_name: django_demo
+    container_name: django
     volumes:
       - type: bind
         source: ./django_demo
         target: /app
+      - ./datasets:/app/datasets
+
     ports: 
       - "8050:8050"
-    restart: always
+    restart: "always"
     env_file: ./.env
 
+  lint:
+    build: 
+      context: .
+      dockerfile: Dockerfile.lint
+    volumes:
+      - ./fastapi:/fastapi
+      - ./django_demo:/django_demo
+ 
+    
+
 volumes:
-  db_data:
-  
+  django_templates:
+  django_static:

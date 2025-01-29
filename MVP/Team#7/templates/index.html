@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .form-control {
+            border-radius: 5px;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+        .plot-container {
+            margin-top: 30px;
+        }
+        .training-info {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #reg-param-container {
+            display: none;
+        }
+        .section {
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .data-section {
+            background-color: #e9f7ef;
+        }
+        .plot-section {
+            background-color: #fef9e7;
+        }
+        .training-section {
+            background-color: #f9ebea;
+        }
+        .btn {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center"><i class="fas fa-chart-line"></i> Linear Regression App</h1>
+        <form id="dataset-form" class="section data-section">
+            <div class="mb-3">
+                <label for="dataset" class="form-label">Upload Dataset</label>
+                <input type="file" id="dataset" class="form-control" accept=".csv">
+            </div>
+            <button type="submit" class="btn btn-primary">Load Dataset</button>
+        </form>
+
+        <div class="mt-3 mb-4">
+            <div class="table-responsive">
+                <table id="data-table" class="table table-striped table-hover table-sm">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div class="d-flex align-items-center">
+                        <span class="me-2">Rows per page:</span>
+                        <select id="rows-per-page" class="form-select form-select-sm" style="width: auto;">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="-1">All</option>
+                        </select>
+                    </div>
+                    <div class="btn-group">
+                        <button id="prev-page" class="btn btn-sm btn-outline-secondary">&lt; Previous</button>
+                        <button id="current-page" class="btn btn-sm btn-outline-secondary" disabled>Page 1</button>
+                        <button id="next-page" class="btn btn-sm btn-outline-secondary">Next &gt;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="plot-container section plot-section">
+            <h4>Experience vs Salary Plot</h4>
+            <div id="experience-salary-plot"></div>
+        </div>
+
+        <hr>
+        <div>
+            <h3>Model Parameters</h3>
+            <label for="cost-function">Cost Function:</label>
+            <select id="cost-function" class="form-select">
+                <option value="mse">Mean Squared Error</option>
+                <option value="mae">Mean Absolute Error</option>
+                <option value="r2">R-squared</option>
+            </select>
+
+            <label for="regularization" class="mt-3">Regularization Type:</label>
+            <select id="regularization" class="form-select">
+                <option value="none">None</option>
+                <option value="lasso">Lasso</option>
+                <option value="ridge">Ridge</option>
+            </select>
+
+            <div id="reg-param-container" class="mt-3">
+                <label for="reg-param">Regularization Parameter:</label>
+                <input type="number" id="reg-param" class="form-control" value="0.0" step="0.01" min="0">
+            </div>
+
+            <label for="learning-rate" class="mt-3">Learning Rate:</label>
+            <input type="number" id="learning-rate" class="form-control" value="0.01">
+
+            <label for="epochs" class="mt-3">Max Epochs:</label>
+            <input type="number" id="epochs" class="form-control" value="100">
+
+            <button id="initialize" class="btn btn-success mt-3">Initialize Model</button>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-12">
+                <button id="train-step" class="btn btn-warning">Train One Step</button>
+                <button id="train-all" class="btn btn-danger">Train All Epochs</button>
+            </div>
+        </div>
+        
+        <div class="training-info section training-section">
+            <h4>Training Progress</h4>
+            <div id="training-status"></div>
+        </div>
+
+        <div class="plot-container">
+            <div class="row">
+                <div class="col-12">
+                    <div id="training-plots"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let tableData = null;
+        let currentPage = 1;
+        let rowsPerPage = 5;
+
+        function updateTable() {
+            if (!tableData) return;
+
+            const start = rowsPerPage === -1 ? 0 : (currentPage - 1) * rowsPerPage;
+            const end = rowsPerPage === -1 ? tableData.data.length : start + rowsPerPage;
+            const pageData = rowsPerPage === -1 ? tableData.data : tableData.data.slice(start, end);
+            
+            const tbody = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = pageData.map(row => 
+                `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`
+            ).join('');
+
+            // Update pagination controls
+            const totalPages = rowsPerPage === -1 ? 1 : Math.ceil(tableData.data.length / rowsPerPage);
+            document.getElementById('current-page').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+        }
+
+        // Add event listeners for pagination controls
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updateTable();
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            const totalPages = Math.ceil(tableData.data.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateTable();
+            }
+        });
+
+        document.getElementById('rows-per-page').addEventListener('change', function() {
+            rowsPerPage = parseInt(this.value);
+            currentPage = 1;
+            updateTable();
+        });
+
+        // Show/hide regularization parameter based on regularization type
+        document.getElementById('regularization').addEventListener('change', function() {
+            const regParamContainer = document.getElementById('reg-param-container');
+            regParamContainer.style.display = 
+                (this.value === 'lasso' || this.value === 'ridge') ? 'block' : 'none';
+        });
+
+        document.getElementById('dataset-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('dataset');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            axios.post('/load_dataset', formData).then(response => {
+                document.getElementById('training-status').innerHTML = 
+                    `<div class="alert alert-success">${response.data.message}</div>`;
+                
+                // Load and display dataset
+                axios.get('/view_data').then(res => {
+                    tableData = res.data;
+                    
+                    // Create table headers
+                    const thead = document.getElementById('data-table').getElementsByTagName('thead')[0];
+                    thead.innerHTML = `<tr>${tableData.columns.map(col => `<th>${col}</th>`).join('')}</tr>`;
+                    
+                    // Initialize table with first page
+                    currentPage = 1;
+                    updateTable();
+                });
+                
+                // Plot the dataset
+                axios.get('/visualize_dataset').then(res => {
+                    // Removed plot
+                });
+                
+                // Plot YearsExperience vs Salary
+                plotExperienceVsSalary();
+            }).catch(error => {
+                document.getElementById('training-status').innerHTML = 
+                    `<div class="alert alert-danger">${error.response.data.error}</div>`;
+            });
+        });
+
+        // Function to plot YearsExperience vs Salary
+        function plotExperienceVsSalary() {
+            axios.get('/view_data').then(res => {
+                const data = res.data;
+                console.log('Data received:', data);  // Debug: Log data received
+                const trace = {
+                    x: data.data.map(row => row[0]),  // Extract YearsExperience
+                    y: data.data.map(row => row[1]),  // Extract Salary
+                    mode: 'markers',
+                    type: 'scatter',
+                    marker: { color: 'blue' }
+                };
+                const layout = {
+                    title: 'Years of Experience vs Salary',
+                    xaxis: { title: 'Years of Experience' },
+                    yaxis: { title: 'Salary' }
+                };
+                Plotly.newPlot('experience-salary-plot', [trace], layout);
+            }).catch(error => {
+                console.error('Error fetching data:', error);  // Debug: Log errors
+            });
+        }
+
+        document.getElementById('initialize').addEventListener('click', function() {
+            const params = {
+                cost_function: document.getElementById('cost-function').value,
+                regularization: document.getElementById('regularization').value,
+                reg_param: parseFloat(document.getElementById('reg-param').value),
+                learning_rate: parseFloat(document.getElementById('learning-rate').value),
+                max_epochs: parseInt(document.getElementById('epochs').value),
+            };
+            axios.post('/initialize', params).then(response => {
+                document.getElementById('training-status').innerHTML = 
+                    `<div class="alert alert-success">${response.data.message}</div>`;
+            });
+        });
+
+        document.getElementById('train-step').addEventListener('click', function() {
+            const costFunction = document.getElementById('cost-function').value;
+            axios.post('/train_step', { cost_function: costFunction }).then(response => {
+                document.getElementById('training-status').innerHTML = 
+                    `<div class="alert alert-info">Epoch: ${response.data.epoch}, Cost: ${response.data.cost.toFixed(6)}</div>`;
+                
+                // Update plots
+                axios.get('/visualize').then(res => {
+                    const plotData = res.data.plot_data;
+                    Plotly.newPlot('training-plots', plotData.data, plotData.layout);
+                }).catch(error => {
+                    console.error('Error updating plot:', error);
+                });
+            });
+        });
+
+        document.getElementById('train-all').addEventListener('click', function() {
+            const costFunction = document.getElementById('cost-function').value;
+            axios.post('/train_all', { cost_function: costFunction }).then(response => {
+                document.getElementById('training-status').innerHTML = 
+                    `<div class="alert alert-success">Training completed. Final cost: ${response.data.final_cost.toFixed(6)}</div>`;
+                
+                // Update plots
+                axios.get('/visualize').then(res => {
+                    const plotData = res.data.plot_data;
+                    Plotly.newPlot('training-plots', plotData.data, plotData.layout);
+                }).catch(error => {
+                    console.error('Error updating plot:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

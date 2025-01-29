@@ -1,0 +1,22 @@
+{
+    "imports": {
+      "tailwindcss": "npm:tailwindcss@latest",
+      "tailwindtypography": "npm:@tailwindcss/typography@latest",
+      "daisyui": "npm:daisyui@latest",
+      "autoprefixer": "npm:autoprefixer@latest",
+      "htmx": "npm:htmx.org@2.0.3",
+      "theme-change": "npm:theme-change@latest"
+      },
+    "tasks": {
+      "build:css": "deno run -A npm:tailwindcss -i /deno/src/styles.css -o /static/styles.css --watch",
+      "install:htmx": "cp /deno/node_modules/htmx.org/dist/htmx.min.js /static/htmx/htmx.min.js",
+      "install:theme-change": "cp /deno/node_modules/theme-change/index.js /static/theme-change/theme-change.js",
+      "install:deno": "deno install --config=/deno/deno.json --log-level=debug"
+    },
+
+    "exclude": [
+      "dist/"
+    ],
+    "nodeModulesDir": "auto"
+  }
+  
