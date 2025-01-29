@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Regression Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto+Slab:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #50c878;
+            --background-color: #f0f4f8;
+            --text-color: #333;
+            --card-background: #ffffff;
+        }
+
+        .sample-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sample-button {
+            flex: 1;
+            background-color: #f0f4f8;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+
+        .sample-button:hover {
+            background-color: #e0e7ef;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-color) 0%, #e6e9f0 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Poppins', serif;
+            font-size: 3rem;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        form {
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-5px);
+        }
+
+        .column-selector:hover {
+            transform: translateY(-5px);
+        }
+
+        label {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-input-container {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #f0f4f8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-label:hover {
+            background-color: #e0e7ef;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .column-selector {
+            background-color: var(--card-background);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .select-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .select-container select {
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-family: 'Poppins', sans-serif;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .select-container select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            form, #plot {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Linear Regression Visualization</h1>
+        <div class="file-input-container">
+            <label for="file-input" class="file-label">
+                Or upload a file (.txt or .csv):
+                <input type="file" id="file-input" accept=".txt,.csv" onchange="handleFileInput(event)" />
+            </label>
+        </div>
+        <div id="column-selector" style="display: none;" class="column-selector">
+            <div class="select-container">
+                <label for="x-column">X Variable:</label>
+                <select id="x-column" onchange="updateDataFromColumns()"></select>
+            </div>
+            <div class="select-container">
+                <label for="y-column">Y Variable:</label>
+                <select id="y-column" onchange="updateDataFromColumns()"></select>
+            </div>
+        </div>
+        <form id="data-form">
+            <label for="data">Enter data points (comma-separated, one per line):</label>
+            <textarea id="data" placeholder="Example:&#10;1,2&#10;2,4&#10;3,6" ></textarea>
+            <button type="button" onclick="computeRegression()">Compute Regression</button>
+        </form>
+
+        <div class="sample-buttons">
+            <button type="button" class="sample-button" onclick="loadSampleData('linear')">Linear Sample</button>
+            <button type="button" class="sample-button" onclick="loadSampleData('quadratic')">Quadrasadastic Sample</button>
+            <button type="button" class="sample-button" onclick="loadSampleData('random')">Random Sample</button>
+        </div>
+        <div id="plot"></div>
+    </div>
+
+    <script>
+        function computeRegression() {
+            const data = document.getElementById('data').value.split('\n');
+            fetch('/compute/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({data: data})
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    alert(result.error);
+                } else {
+                    plotRegression(result.intercept, result.coefficients);
+                }
+            });
+        }
+
+        function plotRegression(intercept, coefficients) {
+            const dataPoints = document.getElementById('data').value.split('\n').map(point => point.split(',').map(Number));
+            const X = dataPoints.map(point => point[0]);
+            const y = dataPoints.map(point => point[1]);
+
+            const regressionLine = X.map(x => intercept + coefficients[0] * x);
+
+            const trace1 = {
+                x: X,
+                y: y,
+                mode: 'markers',
+                type: 'scatter',
+                name: 'Data Points',
+                marker: {
+                    color: '#4a90e2',
+                    size: 10,
+                    line: {
+                        color: '#ffffff',
+                        width: 2
+                    }
+                }
+            };
+
+            const trace2 = {
+                x: X,
+                y: regressionLine,
+                mode: 'lines',
+                type: 'scatter',
+                name: 'Regression Line',
+                line: {
+                    color: '#50c878',
+                    width: 3
+                }
+            };
+
+            const layout = {
+                title: {
+                    text: 'Linear Regression Analysis',
+                    font: {
+                        family: 'Poppins, serif',
+                        size: 24,
+                        color: '#333'
+                    }
+                },
+                xaxis: {
+                    title: 'X',
+                    titlefont: {
+                        family: 'Poppins, sans-serif',
+                        size: 18,
+                        color: '#333'
+                    }
+                },
+                yaxis: {
+                    title: 'Y',
+                    titlefont: {
+                        family: 'Poppins, sans-serif',
+                        size: 18,
+                        color: '#333'
+                    }
+                },
+                plot_bgcolor: '#f8f9fa',
+                paper_bgcolor: '#ffffff',
+                font: {
+                    family: 'Poppins, sans-serif'
+                },
+                margin: {
+                    l: 50,
+                    r: 50,
+                    b: 50,
+                    t: 80,
+                    pad: 4
+                }
+            };
+
+            const config = {
+                responsive: true
+            };
+
+            const data = [trace1, trace2];
+            Plotly.newPlot('plot', data, layout, config);
+        }
+
+
+
+        function loadSampleData(type) {
+            const textarea = document.getElementById('data');
+            let data = '';
+            
+            switch(type) {
+                case 'linear':
+                    // Roughly linear trend with some noise
+                    data = '2,2.3\n4,3.8\n5,4.1\n7,5.9\n8,6.2\n10,7.8\n12,8.9\n15,10.2';
+                    break;
+                case 'quadratic':
+                    // Roughly quadratic with noise
+                    data = '1,1.2\n2,3.8\n3,8.1\n4,14.2\n5,22.8\n6,35.1\n7,48.9\n8,65.2';
+                    break;
+                case 'random':
+                    // More scattered pattern with a general upward trend
+                    data = '2,5.6\n4,4.9\n5,8.2\n7,6.8\n9,11.3\n11,9.7\n13,12.4\n15,13.9';
+                    break;
+            }
+            
+            textarea.value = data;
+        }
+
+        let fileData = null; // Store the parsed CSV data
+
+function handleFileInput(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        parseFileContent(content);
+    };
+    
+    reader.readAsText(file);
+}
+
+function parseFileContent(content) {
+    // Split into lines and detect delimiter
+    const lines = content.trim().split('\n');
+    const firstLine = lines[0];
+    const delimiter = firstLine.includes(',') ? ',' : /\s+/;
+    
+    // Parse header row
+    const headers = lines[0].split(delimiter).map(h => h.trim());
+    
+    // Parse data rows
+    fileData = lines.slice(1).map(line => {
+        const values = line.split(delimiter).map(v => v.trim());
+        return headers.reduce((obj, header, index) => {
+            obj[header] = values[index];
+            return obj;
+        }, {});
+    });
+
+    // Update column selectors
+    const xSelect = document.getElementById('x-column');
+    const ySelect = document.getElementById('y-column');
+    
+    // Clear existing options
+    xSelect.innerHTML = '';
+    ySelect.innerHTML = '';
+    
+    // Add options for each column
+    headers.forEach(header => {
+        const xOption = new Option(header, header);
+        const yOption = new Option(header, header);
+        xSelect.add(xOption);
+        ySelect.add(yOption);
+    });
+    
+    // Show column selector
+    document.getElementById('column-selector').style.display = 'flex';
+    
+    // Set default selections (first and second columns)
+    if (headers.length >= 2) {
+        xSelect.value = headers[0];
+        ySelect.value = headers[1];
+        updateDataFromColumns();
+    }
+}
+
+function updateDataFromColumns() {
+    if (!fileData) return;
+    
+    const xColumn = document.getElementById('x-column').value;
+    const yColumn = document.getElementById('y-column').value;
+    
+    // Format data for the regression
+    const formattedData = fileData
+        .map(row => `${row[xColumn]},${row[yColumn]}`)
+        .join('\n');
+    
+    document.getElementById('data').value = formattedData;
+}
+    </script>
+</body>
+</html>
