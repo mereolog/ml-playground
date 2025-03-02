@@ -6,5 +6,4 @@ urlpatterns = [
     path('redis-post/<str:app>/<str:key>/', redis_post, name='redis_post'),
     path('regression/', regression, name='regression'),
     path('compute/', compute_regression, name='compute_regression'),
-    
 ]
