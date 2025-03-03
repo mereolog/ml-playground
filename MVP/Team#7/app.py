@@ -1,3 +1,6 @@
+#pylint: disable=invalid-name
+#pylint: disable=global-statement,invalid-name
+
 from flask import Flask, request, render_template, jsonify
 import pandas as pd
 import numpy as np
@@ -66,36 +69,36 @@ def load_dataset():
 def initialize():
     global learning_rate, max_epochs, costs, current_epoch, weights, bias, X, y
     params = request.json
-    
+
     learning_rate = float(params.get('learning_rate', 0.01))
     max_epochs = int(params.get('max_epochs', 100))
-    
+
     # Reset model state
     costs = []
     current_epoch = 0
     weights = None
     bias = None
-    
+
     if X is None or y is None:
         return jsonify({"error": "Please load dataset first"}), 400
-    
+
     return jsonify({"message": "Model initialized successfully"})
 
 @app.route('/train_step', methods=['POST'])
 def train_step():
     if data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-    
+
     global current_epoch, max_epochs
-    
+
     if X is None or y is None:
         return jsonify({"error": "Please initialize model first"}), 400
-    
+
     if current_epoch >= max_epochs:
         return jsonify({"message": "Training completed", "epoch": current_epoch, "cost": costs[-1] if costs else None})
-    
+
     y_pred, cost, error = train_model_step()
-    
+
     if error:
         return jsonify({"error": error}), 400
     
@@ -106,53 +109,53 @@ def train_step():
     })
 def train_model_step():
     global weights, bias, costs, current_epoch, X, y
-    
+
     if X is None or y is None:
         return None, None, "Data not initialized"
-    
+
     if weights is None:
         weights = np.zeros(X.shape[1])
         bias = 0
-    
+
     # Compute predictions
     y_pred = np.dot(X, weights) + bias
-    
+
     # Compute gradients
     dw = (1/len(X)) * np.dot(X.T, (y_pred - y))
     db = (1/len(X)) * np.sum(y_pred - y)
-    
+
     # Update parameters
     weights = weights - learning_rate * dw
     bias = bias - learning_rate * db
-    
+
     # Calculate cost
     cost = np.mean((y_pred - y) ** 2)
     costs.append(cost)
     current_epoch += 1
-    
+
     return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
 def train_all():
     if data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-        
+
     global current_epoch, max_epochs
-    
+
     if X is None or y is None:
         return jsonify({"error": "Please initialize model first"}), 400
-    
+
     try:
         final_predictions = None
         final_cost = None
-        
+
         while current_epoch < max_epochs:
             y_pred, cost, error = train_model_step()
             if error:
                 return jsonify({"error": error}), 400
             final_predictions = y_pred
             final_cost = cost
-        
+
         return jsonify({
             "message": "Training completed",
             "final_cost": float(final_cost) if final_cost is not None else None,
@@ -186,11 +189,9 @@ def visualize():
     if weights is not None:
         X_line = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
         y_pred = np.dot(X_line, weights.reshape(-1, 1)) + bias
-        fig.add_trace(
-            go.Scatter(x=X_line.flatten(), y=y_pred.flatten(), mode='lines', 
-                      name='Predictions', line=dict(color='red')),
-            row=1, col=1
-        )
+        fig.add_trace(go.Scatter(x=X_line.flatten(), y=y_pred.flatten(), 
+                                 mode='lines', name='Predictions', 
+                                 line=dict(color='red')),row=1, col=1)
 
     # Add cost history plot
     fig.add_trace(
@@ -214,33 +215,33 @@ def visualize():
 def visualize_dataset():
     if data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-    
+
     # Create scatter plot of the dataset
     fig = px.scatter(data, x='YearsExperience', y='Salary',
                     title='Dataset Visualization',
                     labels={'YearsExperience': 'Years of Experience',
                            'Salary': 'Salary'})
-    
+
     return jsonify({"plot_data": json.loads(fig.to_json())})
 
 @app.route('/view_data')
 def view_data():
     if data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-        
+
     # Filter only required columns
     filtered_data = data[['YearsExperience', 'Salary']].copy()
-    
+
     # Format YearsExperience to 2 decimal places
     filtered_data['YearsExperience'] = filtered_data['YearsExperience'].round(2)
-    
+
     # Convert DataFrame to dictionary format suitable for display
     data_dict = {
         "columns": filtered_data.columns.tolist(),
         "data": filtered_data.values.tolist(),
         "shape": filtered_data.shape
     }
-    
+
     return jsonify(data_dict)
 
 @app.route('/upload', methods=['POST'])
