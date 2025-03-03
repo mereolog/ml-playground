@@ -143,6 +143,7 @@ def next_step():
         iterations = session['iterations']
         cost_history = session['cost_history']
 
+
         if current_step >= iterations:
 
             cost_plot_url = generate_cost_plot(cost_history)
