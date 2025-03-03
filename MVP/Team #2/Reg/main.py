@@ -1,13 +1,15 @@
-import matplotlib
-matplotlib.use('Agg')
-
-from flask import Flask, render_template, request, session
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 import os
+
+import matplotlib
+import numpy as np
+import pandas as pd
+
+from flask import Flask, render_template, request, session
+import matplotlib.pyplot as plt
+
+matplotlib.use('Agg')
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -87,38 +89,18 @@ def calculate_cost(x, y, weights, cost_function, regularization, reg_param):
 def index():
     if request.method == "POST":
         try:
-            if 'file' not in request.files:
-                return "Nie przesłano pliku"
-            file = request.files['file']
-            if file.filename == '' or not file.filename.endswith('.csv'):
-                return "Prześlij plik w formacie CSV"
-            df = pd.read_csv(file)
-            if df.shape[1] < 2:
-                return "Plik musi zawierać co najmniej dwie kolumny z danymi"
+            file = validate_file(request.files)
+            df = process_file(file)
+            params = parse_form_data(request.form)
+            initialize_session(df, params)
 
-            x = df.iloc[:, 1].values
-            y = df.iloc[:, 2].values
-            column_names = df.columns.tolist()
-            lr = float(request.form["lr"])
-            iterations = int(request.form["iterations"])
-            cost_function = request.form["cost_function"]
-            regularization = request.form["regularization"]
-            reg_param = float(request.form["reg_param"])
-
-            session['x'] = x.tolist()
-            session['y'] = y.tolist()
-            session['lr'] = lr
-            session['iterations'] = iterations
-            session['current_step'] = 0
-            session['column_names'] = column_names
-            session['weights'] = [0.0, 0.0]
-            session['cost_function'] = cost_function
-            session['regularization'] = regularization
-            session['reg_param'] = reg_param
-            session['cost_history'] = []
-
-            weights = session['weights']
-            plot_url = generate_plot(np.array(x), np.array(y), weights, 0, column_names)
+            plot_url = generate_plot(
+                np.array(session['x']),
+                np.array(session['y']),
+                session['weights'],
+                0,
+                session['column_names']
+            )
 
             return render_template("index.html", plot=plot_url, step=session['current_step'])
 
@@ -128,47 +110,122 @@ def index():
     return render_template("index.html")
 
 
+def validate_file(files):
+    """Sprawdza, czy plik został przesłany i czy ma poprawne rozszerzenie CSV."""
+    if 'file' not in files:
+        raise ValueError("Nie przesłano pliku")
+
+    file = files['file']
+    if file.filename == '' or not file.filename.endswith('.csv'):
+        raise ValueError("Prześlij plik w formacie CSV")
+
+    return file
+
+
+def process_file(file):
+    """Wczytuje plik CSV i sprawdza, czy zawiera co najmniej dwie kolumny danych."""
+    df = pd.read_csv(file)
+    if df.shape[1] < 2:
+        raise ValueError("Plik musi zawierać co najmniej dwie kolumny z danymi")
+
+    return df
+
+
+def parse_form_data(form):
+    """Parsuje dane z formularza i zwraca je jako słownik."""
+    return {
+        "lr": float(form["lr"]),
+        "iterations": int(form["iterations"]),
+        "cost_function": form["cost_function"],
+        "regularization": form["regularization"],
+        "reg_param": float(form["reg_param"])
+    }
+
+
+def initialize_session(df, params):
+    """Inicjalizuje sesję, zapisując w niej dane i parametry modelu."""
+    session['x'] = df.iloc[:, 1].values.tolist()
+    session['y'] = df.iloc[:, 2].values.tolist()
+    session['lr'] = params["lr"]
+    session['iterations'] = params["iterations"]
+    session['current_step'] = 0
+    session['column_names'] = df.columns.tolist()
+    session['weights'] = [0.0, 0.0]
+    session['cost_function'] = params["cost_function"]
+    session['regularization'] = params["regularization"]
+    session['reg_param'] = params["reg_param"]
+    session['cost_history'] = []
+
+
+def get_session_data():
+    x = np.array(session['x'])
+    y = np.array(session['y'])
+    lr = session['lr']
+    weights = session['weights']
+    cost_function = session['cost_function']
+    regularization = session['regularization']
+    reg_param = session['reg_param']
+    column_names = session.get('column_names', ['x', 'y'])
+    current_step = session['current_step']
+    iterations = session['iterations']
+    cost_history = session['cost_history']
+    return x, y, lr, weights, cost_function, regularization, reg_param, column_names, current_step, iterations, cost_history
+
+
+def is_training_complete(current_step, iterations):
+    return current_step >= iterations
+
+
+def perform_optimization_step(x, y, weights, lr, regularization, reg_param):
+    return perform_single_step(x, y, weights, lr, regularization, reg_param)
+
+
+def update_session_data(weights, cost, cost_history, current_step):
+    session['weights'] = weights
+    session['cost_history'] = cost_history
+    session['current_step'] = current_step
+
+
+def generate_cost_plot_and_render(cost_history, current_step):
+    cost_plot_url = generate_cost_plot(cost_history)
+    return render_template("index.html", cost_plot=cost_plot_url, step=current_step, is_finished=True)
+
+
+def generate_plot_and_render(x, y, weights, current_step, column_names, cost, cost_function):
+    plot_url1 = generate_plot(x, y, weights, current_step, column_names)
+    return render_template(
+        "index.html",
+        plot=plot_url1,
+        step=current_step,
+        cost=cost,
+        cost_function=cost_function,
+        is_last_step=(current_step >= session['iterations'])
+    )
+
+
 @app.route("/next_step")
 def next_step():
     try:
-        x = np.array(session['x'])
-        y = np.array(session['y'])
-        lr = session['lr']
-        weights = session['weights']
-        cost_function = session['cost_function']
-        regularization = session['regularization']
-        reg_param = session['reg_param']
-        column_names = session.get('column_names', ['x', 'y'])
-        current_step = session['current_step']
-        iterations = session['iterations']
-        cost_history = session['cost_history']
+        # Retrieve session data
+        x, y, lr, weights, cost_function, regularization, reg_param, column_names, current_step, iterations, cost_history = get_session_data()
 
+        # Check if the training process is finished
+        if is_training_complete(current_step, iterations):
+            return generate_cost_plot_and_render(cost_history, current_step)
 
-        if current_step >= iterations:
+        # Perform optimization step
+        weights = perform_optimization_step(x, y, weights, lr, regularization, reg_param)
 
-            cost_plot_url = generate_cost_plot(cost_history)
-            return render_template("index.html", cost_plot=cost_plot_url, step=current_step, is_finished=True)
-
-        weights = perform_single_step(x, y, weights, lr, regularization, reg_param)
-        session['weights'] = weights
-        session['current_step'] += 1
-
+        # Update session data
         cost = calculate_cost(x, y, weights, cost_function, regularization, reg_param)
         cost_history.append(cost)
-        session['cost_history'] = cost_history
+        update_session_data(weights, cost, cost_history, current_step + 1)
 
-        plot_url1 = generate_plot(x, y, weights, session['current_step'], column_names)
+        # Generate and return the plot
+        return generate_plot_and_render(x, y, weights, current_step + 1, column_names, cost, cost_function)
 
-        return render_template(
-            "index.html",
-            plot=plot_url1,
-            step=session['current_step'],
-            cost=cost,
-            cost_function=cost_function,
-            is_last_step=(session['current_step'] >= iterations)
-        )
-    except Exception as e:
-        return str(e)
+    except ValueError as e:
+        return "Value error: " + str(e)
 
 
 if __name__ == "__main__":
