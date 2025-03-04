@@ -1,20 +1,23 @@
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import Lasso, Ridge
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import streamlit as st
+from sklearn.linear_model import Lasso, Ridge
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+
 
 def load_data(uploaded_file):
+    """Load and preprocess the data from a CSV file."""
     data = pd.read_csv(uploaded_file)
     data = data.applymap(lambda x: str(x).replace(',', '.') if isinstance(x, str) else x)
-    X = data['YearsExperience'].values.reshape(-1, 1)
-    y = data['Salary'].values
-    return data, X, y
+    x_data = data['YearsExperience'].values.reshape(-1, 1)
+    y_data = data['Salary'].values
+    return data, x_data, y_data
 
-def train_model(X, y, model_type, alpha, epochs):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+def train_model(x_data, y_data, model_type, alpha, _epochs=None):
+    """Train a Lasso or Ridge regression model."""
+    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.2, random_state=42)
 
     if model_type == "Lasso":
         model = Lasso(alpha=alpha)
@@ -23,8 +26,8 @@ def train_model(X, y, model_type, alpha, epochs):
     else:
         return None, None, None, None
 
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    model.fit(x_train, y_train)
+    y_pred = model.predict(x_test)
 
     cost_function = st.selectbox("Wybierz funkcję kosztu",
                                  ["Błąd średniokwadratowy (MSE)", "Błąd średniobezwzględny (MAE)", "R2 Score"])
@@ -37,17 +40,18 @@ def train_model(X, y, model_type, alpha, epochs):
 
     return cost, y_test, y_pred, cost_function
 
-def plot_training_steps(X, y, learning_rate, epochs, cost_function):
+def plot_training_steps(x_data, y_data, learning_rate, epochs, cost_function):
+    """Visualize the training process and cost evolution."""
     theta = np.zeros(2)
-    X_train_bias = np.c_[np.ones(X.shape[0]), X]
+    x_train_bias = np.c_[np.ones(x_data.shape[0]), x_data]
     cost_history = []
 
     columns = st.columns(3)
 
     for epoch in range(epochs):
-        predictions = X_train_bias.dot(theta)
-        errors = predictions - y
-        gradient = X_train_bias.T.dot(errors) / len(y)
+        predictions = x_train_bias.dot(theta)
+        errors = predictions - y_data
+        gradient = x_train_bias.T.dot(errors) / len(y_data)
         theta -= learning_rate * gradient
 
         if cost_function == "Błąd średniokwadratowy (MSE)":
@@ -55,15 +59,15 @@ def plot_training_steps(X, y, learning_rate, epochs, cost_function):
         elif cost_function == "Błąd średniobezwzględny (MAE)":
             cost = np.mean(np.abs(errors))
         else:
-            cost = 1 - (np.sum(errors ** 2) / np.sum((y - np.mean(y)) ** 2))
+            cost = 1 - (np.sum(errors ** 2) / np.sum((y_data - np.mean(y_data)) ** 2))
         cost_history.append(cost)
 
         col_idx = epoch % 3
         with columns[col_idx]:
             st.write(f"Epoka {epoch + 1}, błąd: {cost:.4f}")
             fig2, ax2 = plt.subplots(figsize=(4, 3))
-            ax2.scatter(X, y, color='#0080ff', alpha=0.7)
-            ax2.plot(X, X_train_bias.dot(theta), color='#ff4d4d', linewidth=2)
+            ax2.scatter(x_data, y_data, color='#0080ff', alpha=0.7)
+            ax2.plot(x_data, x_train_bias.dot(theta), color='#ff4d4d', linewidth=2)
             ax2.set_xlabel("Lata doświadczenia")
             ax2.set_ylabel("Wynagrodzenie")
             ax2.set_title(f"Epoka {epoch + 1} - Predykcje")
