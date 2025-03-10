@@ -74,7 +74,7 @@ def train_step():
     if X is None or g.y is None:
         return jsonify({"error": "Please initialize model first"}), 400
     if CURRENT_EPOCH >= g.max_epochs:
-        return jsonify({"mesage": "Completed", "epoch": CURRENT_EPOCH, "cost": costs[-1] if costs else None})
+        return jsonify({"mesage":"Complet","epoch":CURRENT_EPOCH,"cost":costs[-1] if costs else None})
     y_pred, cost, error = train_model_step()
     if error:
         return jsonify({"error": error}), 400
@@ -106,7 +106,7 @@ def train_model_step():
     # Calculate cost
     cost = np.mean((y_pred - g.y) ** 2)
     costs.append(cost)
-    g.CURRENT_EPOCH += 1
+    CURRENT_EPOCH += 1
     return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
@@ -154,7 +154,7 @@ def visualize():
 
     # Add line plot of predictions if available
     if g.weights is not None:
-        X_line = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
+        x_line = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
         y_pred = np.dot(X_line, g.weights.reshape(-1, 1)) + g.bias
         fig.add_trace(go.Scatter(x=X_line.flatten(), y=y_pred.flatten(),
                                  mode='lines', name='Predictions',
@@ -251,15 +251,15 @@ def load_data(uploaded_file):
     return data, X, y
 
 def train_model(X, y, regularization_type, alpha):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     if regularization_type == "Lasso":
         model = Lasso(alpha=alpha)
     elif regularization_type == "Ridge":
         model = Ridge(alpha=alpha)
     else:
         model = LinearRegression()
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    model.fit(x_train, y_train)
+    y_pred = model.predict(x_test)
     return y_test, y_pred
 
 def calculate_cost(y_test, y_pred, cost_function):
@@ -273,7 +273,7 @@ def calculate_cost(y_test, y_pred, cost_function):
 
 def plot_training_steps(X, y, learning_rate, epochs, cost_function):
     theta = np.zeros(2)
-    X_train_bias = np.c_[np.ones(X.shape[0]), X]
+    x_train_bias = np.c_[np.ones(X.shape[0]), X]
     cost_history = []
     for g.epoch in range(epochs):
         predictions = X_train_bias.dot(theta)
