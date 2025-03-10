@@ -53,7 +53,7 @@ def load_dataset():
             g.X = data[['YearsExperience']].values
             g.y = data['Salary'].values
             return jsonify({"message": "Dataset loaded successfully"})
-        except Exception as e:
+        except pd.errors.EmptyDataError as e:
             return jsonify({"error": f"Error loading dataset: {str(e)}"}), 400
     return jsonify({"error": "No file uploaded"}), 400
 
@@ -248,10 +248,10 @@ def load_data(uploaded_file):
     data = data.applymap(lambda x: str(x).replace(',', '.') if isinstance(x, str) else x)
     g.x = data['YearsExperience'].values.reshape(-1, 1)
     y = data['Salary'].values
-    return data, x, y
+    return data, g.x, y
 
 def train_model(x, y, regularization_type, alpha):
-    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
     if regularization_type == "Lasso":
         model = Lasso(alpha=alpha)
     elif regularization_type == "Ridge":
@@ -273,7 +273,7 @@ def calculate_cost(y_test, y_pred, cost_function):
 
 def plot_training_steps(x, y, learning_rate, epochs, cost_function):
     theta = np.zeros(2)
-    x_train_bias = np.c_[np.ones(X.shape[0]), X]
+    x_train_bias = np.c_[np.ones(X.shape[0]), x]
     cost_history = []
     for g.epoch in range(epochs):
         predictions = x_train_bias.dot(theta)
