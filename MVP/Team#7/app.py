@@ -1,6 +1,3 @@
-#pylint: disable=invalid-name
-#pylint: disable=global-statement,invalid-name
-
 from flask import Flask, request, render_template, jsonify
 import pandas as pd
 import numpy as np
@@ -67,7 +64,6 @@ def load_dataset():
 
 @app.route('/initialize', methods=['POST'])
 def initialize():
-    global learning_rate, max_epochs, costs, current_epoch, weights, bias, X, y
     params = request.json
 
     learning_rate = float(params.get('learning_rate', 0.01))
