@@ -74,9 +74,7 @@ def train_step():
     if X is None or g.y is None:
         return jsonify({"error": "Please initialize model first"}), 400
     if CURRENT_EPOCH >= g.max_epochs:
-        return jsonify({"mesage": "Completed", 
-                        "epoch": CURRENT_EPOCH, 
-                        "cost": costs[-1] if costs else None})
+        return jsonify({"mesage": "Completed", "epoch": CURRENT_EPOCH, "cost": costs[-1] if costs else None})
     y_pred, cost, error = train_model_step()
     if error:
         return jsonify({"error": error}), 400
