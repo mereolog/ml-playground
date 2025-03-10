@@ -45,10 +45,6 @@ def load_dataset():
     if file:
         try:
             data = pd.read_csv(file)
-            costs = []
-            CURRENT_EPOCH = 0
-            WEIGHTS = None
-            BIAS = None
             # Route for loading the dataset
             if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
                 return jsonify({"error": "Dataset must contain 'YearsExperience' and 'Salary' columns"}), 400
