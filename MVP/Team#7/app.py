@@ -159,7 +159,7 @@ def visualize():
         y_pred = np.dot(X_line, g.weights.reshape(-1, 1)) + g.bias
         fig.add_trace(go.Scatter(x=X_line.flatten(), y=y_pred.flatten(),
                                  mode='lines', name='Predictions',
-                                 line={'color:'red'}),row=1, col=1)
+                                 line={'color':'red'}),row=1, col=1)
 
     # Add cost history plot
     fig.add_trace(
