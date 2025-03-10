@@ -85,12 +85,11 @@ def train_step():
     })
 
 def train_model_step():
-    global weights, bias, costs, CURRENT_EPOCH, X, y
     if X is None or y is None:
         return None, None, "Data not initialized"
-    if weights is None:
-        weights = np.zeros(X.shape[1])
-        bias = 0
+    if g.weights is None:
+        g.weights = np.zeros(X.shape[1])
+        g.bias = 0
 
     # Compute predictions
     y_pred = np.dot(X, weights) + bias
