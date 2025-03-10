@@ -48,8 +48,7 @@ def load_dataset():
             data = pd.read_csv(file)
             # Route for loading the dataset
             if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
-                return jsonify({"error": "Dataset must contain 'YearsExperience' 
-                and 'Salary' columns"}), 400
+                return jsonify({"error": "Data must contain 'YearExper' and 'Sala' column"}), 400
 
             g.X = data[['YearsExperience']].values
             g.y = data['Salary'].values
