@@ -85,18 +85,18 @@ def train_step():
     })
 
 def train_model_step():
-    if X is None or y is None:
+    if X is None or g.y is None:
         return None, None, "Data not initialized"
     if g.weights is None:
         g.weights = np.zeros(X.shape[1])
         g.bias = 0
 
     # Compute predictions
-    y_pred = np.dot(X, weights) + bias
+    y_pred = np.dot(X, g.weights) + g.bias
 
     # Compute gradients
-    dw = (1/len(X)) * np.dot(X.T, (y_pred - y))
-    db = (1/len(X)) * np.sum(y_pred - y)
+    dw = (1/len(X)) * np.dot(X.T, (y_pred - g.y))
+    db = (1/len(X)) * np.sum(y_pred - g.y)
 
     # Update parameters
     weights = weights - learning_rate * dw
@@ -105,14 +105,13 @@ def train_model_step():
     # Calculate cost
     cost = np.mean((y_pred - y) ** 2)
     costs.append(cost)
-    CURRENT_EPOCH += 1
+    g.CURRENT_EPOCH += 1
     return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
 def train_all():
     if data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-    global CURRENT_EPOCH, max_epochs
     if X is None or y is None:
         return jsonify({"error": "Please initialize model first"}), 400
     try:
