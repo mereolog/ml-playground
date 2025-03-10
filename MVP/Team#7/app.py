@@ -154,9 +154,9 @@ def visualize():
 
     # Add line plot of predictions if available
     if g.weights is not None:
-        x_line = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
-        y_pred = np.dot(X_line, g.weights.reshape(-1, 1)) + g.bias
-        fig.add_trace(go.Scatter(x=X_line.flatten(), y=y_pred.flatten(),
+        g.x_line = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
+        y_pred = np.dot(g.x_line, g.weights.reshape(-1, 1)) + g.bias
+        fig.add_trace(go.Scatter(x=g.x_line.flatten(), y=y_pred.flatten(),
                                  mode='lines', name='Predictions',
                                  line={'color':'red'}),row=1, col=1)
 
