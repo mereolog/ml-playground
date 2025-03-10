@@ -16,16 +16,16 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # Global variables for model state
-data = None
-model = None
+DATA = None
+MODEL = None
 X = None
-y = None
+Y = None
 costs = []
-current_epoch = 0
+CURRENT_EPOCH = 0
 MAX_EPOCHS = 10
-learning_rate = 0.01
-weights = None
-bias = None
+LEARNING_RATE = 0.01
+WEIGHTS = None
+BIAS = None
 
 
 @app.route('/')
@@ -41,7 +41,6 @@ def index():
 # Route for loading the dataset
 @app.route('/load_dataset', methods=['POST'])
 def load_dataset():
-    global data, X, y, costs, current_epoch, weights, bias
     file = request.files.get('file')
     if file:
         try:
@@ -62,7 +61,6 @@ def load_dataset():
 
 @app.route('/initialize', methods=['POST'])
 def initialize():
-    global learning_rate, max_epochs, costs, current_epoch, weights, bias, X, y
     params = request.json
 
     learning_rate = float(params.get('learning_rate', 0.01))
@@ -89,7 +87,7 @@ def train_step():
     y_pred, cost, error = train_model_step()
     if error:
         return jsonify({"error": error}), 400
-    
+
     return jsonify({
         "epoch": current_epoch,
         "cost": float(cost),
@@ -169,8 +167,8 @@ def visualize():
     if weights is not None:
         X_line = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
         y_pred = np.dot(X_line, weights.reshape(-1, 1)) + bias
-        fig.add_trace(go.Scatter(x=X_line.flatten(), y=y_pred.flatten(), 
-                                 mode='lines', name='Predictions', 
+        fig.add_trace(go.Scatter(x=X_line.flatten(), y=y_pred.flatten(),
+                                 mode='lines', name='Predictions',
                                  line=dict(color='red')),row=1, col=1)
 
     # Add cost history plot
