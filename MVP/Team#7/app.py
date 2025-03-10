@@ -74,7 +74,7 @@ def train_step():
     if X is None or g.y is None:
         return jsonify({"error": "Please initialize model first"}), 400
     if CURRENT_EPOCH >= g.max_epochs:
-        return jsonify({"mesage":"Complet","epoch":CURRENT_EPOCH,"cost":costs[-1] if costs else None})
+        return jsonify({"mess":"Complet","epoch":CURRENT_EPOCH,"cost":costs[-1] if costs else None})
     y_pred, cost, error = train_model_step()
     if error:
         return jsonify({"error": error}), 400
@@ -106,7 +106,7 @@ def train_model_step():
     # Calculate cost
     cost = np.mean((y_pred - g.y) ** 2)
     costs.append(cost)
-    CURRENT_EPOCH += 1
+    g.CURRENT_EPOCH += 1
     return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
@@ -246,11 +246,11 @@ def plot():
 def load_data(uploaded_file):
     data = pd.read_csv(uploaded_file)
     data = data.applymap(lambda x: str(x).replace(',', '.') if isinstance(x, str) else x)
-    g.X = data['YearsExperience'].values.reshape(-1, 1)
+    g.x = data['YearsExperience'].values.reshape(-1, 1)
     y = data['Salary'].values
-    return data, X, y
+    return data, x, y
 
-def train_model(X, y, regularization_type, alpha):
+def train_model(x, y, regularization_type, alpha):
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     if regularization_type == "Lasso":
         model = Lasso(alpha=alpha)
@@ -271,14 +271,14 @@ def calculate_cost(y_test, y_pred, cost_function):
         cost = r2_score(y_test, y_pred)
     return cost
 
-def plot_training_steps(X, y, learning_rate, epochs, cost_function):
+def plot_training_steps(x, y, learning_rate, epochs, cost_function):
     theta = np.zeros(2)
     x_train_bias = np.c_[np.ones(X.shape[0]), X]
     cost_history = []
     for g.epoch in range(epochs):
-        predictions = X_train_bias.dot(theta)
+        predictions = x_train_bias.dot(theta)
         errors = predictions - y
-        gradient = X_train_bias.T.dot(errors) / len(y)
+        gradient = x_train_bias.T.dot(errors) / len(y)
         theta -= learning_rate * gradient
         if cost_function == "Błąd średniokwadratowy (MSE)":
             cost = mean_squared_error(y, predictions)
