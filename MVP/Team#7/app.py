@@ -272,7 +272,7 @@ def calculate_cost(y_test, y_pred, cost_function):
         cost = r2_score(y_test, y_pred)
     return cost
 
-def plot_training_steps(g.X, y, learning_rate, epochs, cost_function):
+def plot_training_steps(X, y, learning_rate, epochs, cost_function):
     theta = np.zeros(2)
     X_train_bias = np.c_[np.ones(X.shape[0]), X]
     cost_history = []
