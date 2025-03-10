@@ -73,7 +73,7 @@ def train_step():
         return jsonify({"error": "Please upload a dataset first"}), 400
     if X is None or g.y is None:
         return jsonify({"error": "Please initialize model first"}), 400
-    if CURRENT_EPOCH >= g.max_epochs:
+    if g.CURRENT_EPOCH >= g.max_epochs:
         return jsonify({"mess":"Complet","epoch":CURRENT_EPOCH,"cost":costs[-1] if costs else None})
     y_pred, cost, error = train_model_step()
     if error:
@@ -129,8 +129,8 @@ def train_all():
             "final_cost": float(final_cost) if final_cost is not None else None,
             "predictions": final_predictions.tolist() if final_predictions is not None else None
         })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route('/visualize')
 def visualize():
