@@ -13,7 +13,6 @@ import logging
 # Initialize Flask app
 app = Flask(__name__)
 
-   
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
@@ -49,7 +48,8 @@ def load_dataset():
             data = pd.read_csv(file)
             # Route for loading the dataset
             if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
-                return jsonify({"error": "Dataset must contain 'YearsExperience' and 'Salary' columns"}), 400
+                return jsonify({"error": "Dataset must contain 'YearsExperience' 
+                and 'Salary' columns"}), 400
 
             g.X = data[['YearsExperience']].values
             g.y = data['Salary'].values
