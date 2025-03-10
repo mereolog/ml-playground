@@ -60,20 +60,19 @@ def load_dataset():
 def initialize():
     params = request.json
 
-    learning_rate = float(params.get('learning_rate', 0.01))
-    max_epochs = int(params.get('max_epochs', 100))
-    if X is None or y is None:
+    g.learning_rate = float(params.get('learning_rate', 0.01))
+    g.max_epochs = int(params.get('max_epochs', 100))
+    if X is None or g.y is None:
         return jsonify({"error": "Please load dataset first"}), 400
     return jsonify({"message": "Model initialized successfully"})
 
 @app.route('/train_step', methods=['POST'])
 def train_step():
-    if data is None:
+    if g.data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-    global CURRENT_EPOCH, max_epochs
-    if X is None or y is None:
+    if X is None or g.y is None:
         return jsonify({"error": "Please initialize model first"}), 400
-    if CURRENT_EPOCH >= max_epochs:
+    if g.CURRENT_EPOCH >= g.max_epochs:
         return jsonify({"message": "Training completed", "epoch": CURRENT_EPOCH, "cost": costs[-1] if costs else None})
     y_pred, cost, error = train_model_step()
     if error:
