@@ -1,3 +1,5 @@
+import json
+import logging
 from flask import Flask, request, render_template, jsonify, g
 import pandas as pd
 import numpy as np
@@ -7,8 +9,6 @@ from sklearn.model_selection import train_test_split
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import json
-import logging
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -74,7 +74,7 @@ def train_step():
     if X is None or g.y is None:
         return jsonify({"error": "Please initialize model first"}), 400
     if g.CURRENT_EPOCH >= g.max_epochs:
-        return jsonify({"message": "Training completed", "epoch": CURRENT_EPOCH, "cost": costs[-1] if costs else None})
+        return jsonify({"mesage": "Complet", "epoch": CURRENT_EPOCH, "cost": costs[-1] if costs else None})
     y_pred, cost, error = train_model_step()
     if error:
         return jsonify({"error": error}), 400
@@ -100,8 +100,8 @@ def train_model_step():
     db = (1/len(X)) * np.sum(y_pred - g.y)
 
     # Update parameters
-    weights = g.weights - g.learning_rate * dw
-    bias = g.bias - g.learning_rate * db
+    g.weights = g.weights - g.learning_rate * dw
+    g.bias = g.bias - g.learning_rate * db
 
     # Calculate cost
     cost = np.mean((y_pred - g.y) ** 2)
@@ -148,7 +148,7 @@ def visualize():
     # Add scatter plot of actual data
     fig.add_trace(
         go.Scatter(x=X.flatten(), y=g.y, mode='markers', name='Actual Data',
-                  marker=dict(color='blue')),
+                  marker={'color':'blue'}),
         row=1, col=1
     )
 
@@ -163,7 +163,7 @@ def visualize():
     # Add cost history plot
     fig.add_trace(
         go.Scatter(y=costs, mode='lines+markers', name='Cost',
-                  line=dict(color='green')),
+                  line={'color':'green'}),
         row=2, col=1
     )
     # Update layout
