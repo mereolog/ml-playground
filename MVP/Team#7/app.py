@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.model_selection import train_test_split
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -99,25 +100,25 @@ def train_model_step():
     db = (1/len(X)) * np.sum(y_pred - g.y)
 
     # Update parameters
-    weights = weights - learning_rate * dw
-    bias = bias - learning_rate * db
+    weights = g.weights - g.learning_rate * dw
+    bias = g.bias - g.learning_rate * db
 
     # Calculate cost
-    cost = np.mean((y_pred - y) ** 2)
+    cost = np.mean((y_pred - g.y) ** 2)
     costs.append(cost)
     g.CURRENT_EPOCH += 1
     return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
 def train_all():
-    if data is None:
+    if g.data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-    if X is None or y is None:
+    if X is None or g.y is None:
         return jsonify({"error": "Please initialize model first"}), 400
     try:
         final_predictions = None
         final_cost = None
-        while CURRENT_EPOCH < max_epochs:
+        while CURRENT_EPOCH < g.max_epochs:
             y_pred, cost, error = train_model_step()
             if error:
                 return jsonify({"error": error}), 400
@@ -137,7 +138,7 @@ def visualize():
         return jsonify({"error": "No training data available"}), 400
     print("Costs array:", costs)  # Debug print
     print("X shape:", X.shape if X is not None else None)  # Debug print
-    print("y shape:", y.shape if y is not None else None)  # Debug print
+    print("y shape:", g.y.shape if g.y is not None else None)  # Debug print
 
     # Create subplots
     fig = make_subplots(rows=2, cols=1,
@@ -146,18 +147,18 @@ def visualize():
 
     # Add scatter plot of actual data
     fig.add_trace(
-        go.Scatter(x=X.flatten(), y=y, mode='markers', name='Actual Data',
+        go.Scatter(x=X.flatten(), y=g.y, mode='markers', name='Actual Data',
                   marker=dict(color='blue')),
         row=1, col=1
     )
 
     # Add line plot of predictions if available
-    if weights is not None:
+    if g.weights is not None:
         X_line = np.linspace(X.min(), X.max(), 100).reshape(-1, 1)
-        y_pred = np.dot(X_line, weights.reshape(-1, 1)) + bias
+        y_pred = np.dot(X_line, g.weights.reshape(-1, 1)) + g.bias
         fig.add_trace(go.Scatter(x=X_line.flatten(), y=y_pred.flatten(),
                                  mode='lines', name='Predictions',
-                                 line=dict(color='red')),row=1, col=1)
+                                 line={'color:'red'}),row=1, col=1)
 
     # Add cost history plot
     fig.add_trace(
@@ -177,10 +178,10 @@ def visualize():
 
 @app.route('/visualize_dataset')
 def visualize_dataset():
-    if data is None:
+    if g.data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
     # Create scatter plot of the dataset
-    fig = px.scatter(data, x='YearsExperience', y='Salary',
+    fig = px.scatter(g.data, x='YearsExperience', y='Salary',
                     title='Dataset Visualization',
                     labels={'YearsExperience': 'Years of Experience',
                            'Salary': 'Salary'})
@@ -188,10 +189,10 @@ def visualize_dataset():
 
 @app.route('/view_data')
 def view_data():
-    if data is None:
+    if g.data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
     # Filter only required columns
-    filtered_data = data[['YearsExperience', 'Salary']].copy()
+    filtered_data = g.data[['YearsExperience', 'Salary']].copy()
     # Format YearsExperience to 2 decimal places
     filtered_data['YearsExperience'] = filtered_data['YearsExperience'].round(2)
     # Convert DataFrame to dictionary format suitable for display
@@ -209,13 +210,13 @@ def upload_file():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-    data, X, y = load_data(file)
+    g.data, g.X, g.y = load_data(file)
     return jsonify({'message': 'File successfully uploaded and data processed'}), 200
 
 @app.route('/train', methods=['POST'])
 def train():
     data = request.json
-    X = np.array(data['X']).reshape(-1, 1)
+    g.X = np.array(data['X']).reshape(-1, 1)
     y = np.array(data['y'])
     regularization_type = data['regularization_type']
     alpha = data['alpha']
@@ -234,7 +235,7 @@ def calculate_cost_endpoint():
 @app.route('/plot', methods=['POST'])
 def plot():
     data = request.json
-    X = np.array(data['X']).reshape(-1, 1)
+    g.X = np.array(data['X']).reshape(-1, 1)
     y = np.array(data['y'])
     learning_rate = data['learning_rate']
     epochs = data['epochs']
@@ -245,11 +246,11 @@ def plot():
 def load_data(uploaded_file):
     data = pd.read_csv(uploaded_file)
     data = data.applymap(lambda x: str(x).replace(',', '.') if isinstance(x, str) else x)
-    X = data['YearsExperience'].values.reshape(-1, 1)
+    g.X = data['YearsExperience'].values.reshape(-1, 1)
     y = data['Salary'].values
     return data, X, y
 
-def train_model(X, y, regularization_type, alpha):
+def train_model(g.X, y, regularization_type, alpha):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     if regularization_type == "Lasso":
         model = Lasso(alpha=alpha)
@@ -270,11 +271,11 @@ def calculate_cost(y_test, y_pred, cost_function):
         cost = r2_score(y_test, y_pred)
     return cost
 
-def plot_training_steps(X, y, learning_rate, epochs, cost_function):
+def plot_training_steps(g.X, y, learning_rate, epochs, cost_function):
     theta = np.zeros(2)
     X_train_bias = np.c_[np.ones(X.shape[0]), X]
     cost_history = []
-    for epoch in range(epochs):
+    for g.epoch in range(epochs):
         predictions = X_train_bias.dot(theta)
         errors = predictions - y
         gradient = X_train_bias.T.dot(errors) / len(y)
