@@ -48,6 +48,7 @@ def load_dataset():
             # Route for loading the dataset
             if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
                 return jsonify({"error": "Dataset must contain 'YearsExperience' and 'Salary' columns"}), 400
+            global X
             X = data[['YearsExperience']].values
             y = data['Salary'].values
             return jsonify({"message": "Dataset loaded successfully"})
@@ -61,12 +62,6 @@ def initialize():
 
     learning_rate = float(params.get('learning_rate', 0.01))
     max_epochs = int(params.get('max_epochs', 100))
-
-    # Reset model state
-    costs = []
-    CURRENT_EPOCH = 0
-    weights = None
-    bias = None
     if X is None or y is None:
         return jsonify({"error": "Please load dataset first"}), 400
     return jsonify({"message": "Model initialized successfully"})
