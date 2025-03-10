@@ -106,7 +106,7 @@ def train_model_step():
     # Calculate cost
     cost = np.mean((y_pred - g.y) ** 2)
     costs.append(cost)
-    CURRENT_EPOCH += 1
+    g.CURRENT_EPOCH += 1
     return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
