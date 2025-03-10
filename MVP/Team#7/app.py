@@ -68,7 +68,7 @@ def initialize():
 
     # Reset model state
     costs = []
-    current_epoch = 0
+    CURRENT_EPOCH = 0
     weights = None
     bias = None
     if X is None or y is None:
@@ -79,23 +79,23 @@ def initialize():
 def train_step():
     if data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-    global current_epoch, max_epochs
+    global CURRENT_EPOCH, max_epochs
     if X is None or y is None:
         return jsonify({"error": "Please initialize model first"}), 400
-    if current_epoch >= max_epochs:
-        return jsonify({"message": "Training completed", "epoch": current_epoch, "cost": costs[-1] if costs else None})
+    if CURRENT_EPOCH >= max_epochs:
+        return jsonify({"message": "Training completed", "epoch": CURRENT_EPOCH, "cost": costs[-1] if costs else None})
     y_pred, cost, error = train_model_step()
     if error:
         return jsonify({"error": error}), 400
 
     return jsonify({
-        "epoch": current_epoch,
+        "epoch": CURRENT_EPOCH,
         "cost": float(cost),
         "predictions": y_pred.tolist()
     })
 
 def train_model_step():
-    global weights, bias, costs, current_epoch, X, y
+    global weights, bias, costs, CURRENT_EPOCH, X, y
     if X is None or y is None:
         return None, None, "Data not initialized"
     if weights is None:
@@ -116,20 +116,20 @@ def train_model_step():
     # Calculate cost
     cost = np.mean((y_pred - y) ** 2)
     costs.append(cost)
-    current_epoch += 1
+    CURRENT_EPOCH += 1
     return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
 def train_all():
     if data is None:
         return jsonify({"error": "Please upload a dataset first"}), 400
-    global current_epoch, max_epochs
+    global CURRENT_EPOCH, max_epochs
     if X is None or y is None:
         return jsonify({"error": "Please initialize model first"}), 400
     try:
         final_predictions = None
         final_cost = None
-        while current_epoch < max_epochs:
+        while CURRENT_EPOCH < max_epochs:
             y_pred, cost, error = train_model_step()
             if error:
                 return jsonify({"error": error}), 400
