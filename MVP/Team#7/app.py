@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, g
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
@@ -48,9 +48,9 @@ def load_dataset():
             # Route for loading the dataset
             if 'YearsExperience' not in data.columns or 'Salary' not in data.columns:
                 return jsonify({"error": "Dataset must contain 'YearsExperience' and 'Salary' columns"}), 400
-            global X
-            X = data[['YearsExperience']].values
-            y = data['Salary'].values
+
+            g.X = data[['YearsExperience']].values
+            g.y = data['Salary'].values
             return jsonify({"message": "Dataset loaded successfully"})
         except Exception as e:
             return jsonify({"error": f"Error loading dataset: {str(e)}"}), 400
