@@ -73,14 +73,14 @@ def train_step():
         return jsonify({"error": "Please upload a dataset first"}), 400
     if X is None or g.y is None:
         return jsonify({"error": "Please initialize model first"}), 400
-    if g.CURRENT_EPOCH >= g.max_epochs:
+    if CURRENT_EPOCH >= g.max_epochs:
         return jsonify({"mess":"Complet","epoch":CURRENT_EPOCH,"cost":costs[-1] if costs else None})
     y_pred, cost, error = train_model_step()
     if error:
         return jsonify({"error": error}), 400
 
     return jsonify({
-        "epoch": g.CURRENT_EPOCH,
+        "epoch": CURRENT_EPOCH,
         "cost": float(cost),
         "predictions": y_pred.tolist()
     })
@@ -106,7 +106,7 @@ def train_model_step():
     # Calculate cost
     cost = np.mean((y_pred - g.y) ** 2)
     costs.append(cost)
-    g.CURRENT_EPOCH += 1
+    CURRENT_EPOCH += 1
     return y_pred, cost, None
 
 @app.route('/train_all', methods=['POST'])
