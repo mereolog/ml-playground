@@ -80,7 +80,7 @@ def train_step():
         return jsonify({"error": error}), 400
 
     return jsonify({
-        "epoch": CURRENT_EPOCH,
+        "epoch": g.CURRENT_EPOCH,
         "cost": float(cost),
         "predictions": y_pred.tolist()
     })
