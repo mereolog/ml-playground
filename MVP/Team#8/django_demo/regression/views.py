@@ -2,10 +2,9 @@ import os
 import json
 import logging
 import numpy as np
-import redis
 
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
@@ -31,7 +30,7 @@ def get_redis_connection():
         redis_client.ping()  # Test connection
         return redis_client
     except redis.ConnectionError as e:
-        logger.error(f"Redis Connection Error: {e}")
+        logger.error("Redis Connection Error: %s", e)
         raise
 
 
@@ -86,14 +85,17 @@ def redis_post(request, app, key):
         value = request.POST.get('value')
 
         if not key or not value:
-            return JsonResponse({'status': 'error', 'message': 'Key and value are required'}, status=400)
+            return JsonResponse({'status': 'error', 'message': 'Key and value are required'},
+                                status=400)
 
         redis_client = get_redis_connection()
         redis_key = f'{app}:{key}'
 
         redis_client.set(redis_key, value)
 
-        return JsonResponse({'status': 'success', 'message': f'Stored {redis_key}: {value} in Redis'})
+        return JsonResponse({
+            'status': 'success',
+            'message': f'Stored {redis_key}: {value} in Redis'})
 
     except Exception as e:
         logger.error("Redis error: %s", e)
