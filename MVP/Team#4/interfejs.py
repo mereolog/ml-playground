@@ -1,7 +1,8 @@
-import streamlit as st
-import pandas as pd
 import matplotlib.pyplot as plt
-from model import load_data, train_model, plot_training_steps
+import pandas as pd
+import streamlit as st
+
+from model import load_data, plot_training_steps, train_model
 
 PAGE_TITLE = "Linear Regression"
 HEADER_TEXT = "Linear Regression"
