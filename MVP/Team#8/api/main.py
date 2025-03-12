@@ -175,5 +175,5 @@ async def websocket_endpoint(websocket: WebSocket):
 
                     await websocket.send_json(update_data)
 
-        logging.info("Sending data: %s", data[:50])
+        logging.info("Sending data..")
         await websocket.send_json(data)
