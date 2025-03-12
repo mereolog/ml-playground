@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Regresja liniowa{% endblock %}
+{% block head_js %}
+    <script src="{% static 'js/src/plots/linear_regression.js' %}"></script>
+    <script src="{% static 'js/websocket.js' %}"></script>
+{% endblock %}
+{% block head_css %}{% endblock %}
+{% block sidebar_controlls %}
+    <!-- Data Controlls -->
+    <div class= pb-4">
+        <h3 class="text-lg font-bold mb-4 text-gray-700">Data</h3>
+        <div role="tablist" class="tabs tabs-lifted">
+            <input type="radio"
+                   name="my_tabs_2"
+                   role="tab"
+                   class="tab"
+                   aria-label="Generate" />
+            <div role="tabpanel"
+                 class="tab-content bg-base-100 border-base-300 rounded-box p-6">
+                <label class="block text-sm font-medium text-gray-600 mb-2">Number of Points</label>
+                <input type="range"
+                       min="10"
+                       max="200"
+                       value="100"
+                       class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                <div class="flex justify-between text-sm text-gray-500 mt-1">
+                    <span>10</span>
+                    <span>100</span>
+                    <span>200</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-2">Noise Level</label>
+                    <input type="range"
+                           min="0"
+                           max="100"
+                           value="20"
+                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-sm text-gray-500 mt-1">
+                        <span>0%</span>
+                        <span>20%</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+            </div>
+            <input type="radio"
+                   name="my_tabs_2"
+                   role="tab"
+                   class="tab"
+                   aria-label="Datasets"
+                   checked="checked" />
+            <div role="tabpanel"
+                 class="tab-content bg-base-100 border-base-300 rounded-box p-6">
+                <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                        <span class="label-text">Select a dataset</span>
+                        <span class="label-text-alt">Stored datasets</span>
+                    </div>
+                    <!-- Dropdown to select existing datasets -->
+                    <select id="existing-dataset-select"
+                            class="select select-bordered w-full max-w-xs">
+                        <option disabled selected>Choose a dataset</option>
+                        {% for dataset in datasets %}<option value="{{ dataset }}">{{ dataset }}</option>{% endfor %}
+                    </select>
+                    <div class="divider">OR</div>
+                    <div class="label">
+                        <span class="label-text">Upload your dataset</span>
+                        <span class="label-text-alt">Supported: <strong>.csv</strong></span>
+                    </div>
+                    <input id="dataset-input"
+                           name="dataset-file"
+                           type="file"
+                           accept=".csv"
+                           class="file-input file-input-xs file-input-bordered w-full max-w-xs" />
+                    <div class="label"></div>
+                </label>
+                {% include 'partials/dataset-info.html' %}
+            </div>
+        </div>
+        <!-- Parameter Controlls -->
+        <div class="pb-4">
+            <h3 class="text-lg font-semibold my-3 text-gray-700">Model Parameters</h3>
+            <div class="space-y-4 pb-4 ">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Dependent Variable</label>
+                        <select id="dependent-variable"
+                                name="dependent-variable"
+                                class="select select-xs select-bordered w-full"
+                                required>
+                            <option disabled selected>Select a variable</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Independent Variable</label>
+                        <select id="independent-variable"
+                                name="independent-variable"
+                                class="select select-xs select-bordered w-full"
+                                required>
+                            <option disabled selected>Select a variable</option>
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <!-- load data into plot -->
+            </div>
+            <div class="space-y-4 pb-4 ">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Learning Rate</label>
+                        <input type="number"
+                               id="learning-rate"
+                               name="learning-rate"
+                               class="input input-xs input-bordered w-full"
+                               value="0.01"
+                               step="0.01"
+                               min="0.001"
+                               max="1">
+                    </div>
+                    <div class="">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Epochs</label>
+                        <input type="number"
+                               id="epochs"
+                               name="epochs"
+                               class="input input-xs input-bordered w-full"
+                               value="1000"
+                               min="1"
+                               max="10000">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Batch Size</label>
+                        <input type="number"
+                               id="batch-size"
+                               name="batch-size"
+                               class="input input-xs input-bordered w-full"
+                               value="32"
+                               min="1"
+                               max="512">
+                    </div>
+                    <div class="">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Regularization</label>
+                        <select id="regularization"
+                                name="regularization"
+                                class="select select-xs select-bordered w-full">
+                            <option value="none" selected>None</option>
+                            <option value="l1">L1</option>
+                            <option value="l2">L2</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-4 pb-4 ">
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="btn btn-primary btn-sm"
+                            id="prepare-model"
+                            onclick="prepareModel(event)">Prepare Model</button>
+                    <button class="btn btn-secondary btn-sm"
+                            id="load-data"
+                            onclick="trainModel(event)">Train Model</button>
+                </div>
+            </div>
+            <div class="space-y-4 pb-4 ">
+                <h3 class="text-lg font-semibold my-3 text-gray-700">Trainig Progress</h3>
+                <progress id="training-progress" class="progress w-80" value="1" max="100"></progress>
+            </div>
+        </div>
+        <div class="mt-4"></div>
+        <div id="response"></div>
+        <div id="response2"></div>
+    {% endblock %}
+    {% block content %}
+        <!-- Main Content Area -->
+        <div class="lg:col-span-3 space-y-6">
+            <!-- Primary Visualization -->
+            <div class="bg-white rounded-xl shadow p-6">
+                <div class="card-title mb-4 flex justify-between items-center">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center">
+                        <i class="fas fa-chart-line mr-3 text-primary"></i>Linear Regression Visualization
+                    </h2>
+                </div>
+                <div id="regression-plot" class="w-full h-[400px]"></div>
+                <!-- <div class="stats">
+            <div class="stat">
+                <div class="stat-title">Root Mean Square Error</div>
+                <div class="stat-value text-secondary" id="rmseValue">0.00</div>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-title">Mean Absolute Error</div>
+                <div class="stat-value text-secondary" id="maeValue">0.00</div>
+            </div>
+        </div> -->
+            </div>
+            <!-- Metrics and Subplots -->
+            <!-- Model Metrics Card -->
+            <div class="bg-white rounded-xl shadow p-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-700 flex items-center">
+                    <i class="fas fa-calculator mr-3 text-secondary"></i>Model Metrics
+                </h3>
+                <div class="grid grid-cols-1 lg:grid-cols-4">
+                    <div class="col-span-1 stats lg:stats-vertical stats-horizontal">
+                        <div class="stat">
+                            <div class="stat-title">R-Squared</div>
+                            <div id="r2-metric"  class="stat-value">0.00</div>
+                            <div class="stat-desc">R2</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-title">Mean Squared Error</div>
+                            <div id="mse-metric"  class="stat-value">0.00</div>
+                            <div class="stat-desc">MSE</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-title">Root Mean Squared Error</div>
+                            <div id="rmse-metric"  class="stat-value">0.00</div>
+                            <div class="stat-desc">RMSE</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-title">Mean Absolute Error</div>
+                            <div id="mae-metric"  class="stat-value">0.00</div>
+                            <div class="stat-desc">MAE</div>
+                        </div>
+                    </div>
+                    <div class="col-span-1 lg:col-span-3" id="metrics-plot"></div>
+                    <script>
+                var trace1 = {
+                x: [],
+                y: [],
+                type: 'scatter'
+                };
+
+                var trace2 = {
+                x: [],
+                y: [],
+                xaxis: 'x2',
+                yaxis: 'y2',
+                type: 'scatter'
+                };
+
+                var trace3 = {
+                x: [],
+                y: [],
+                xaxis: 'x3',
+                yaxis: 'y3',
+                type: 'scatter'
+                };
+
+                var trace4 = {
+                x: [],
+                y: [],
+                xaxis: 'x4',
+                yaxis: 'y4',
+                type: 'scatter'
+                };
+
+                var data = [trace1, trace2, trace3, trace4];
+
+                var layout = {
+                grid: {rows: 2, columns: 2, pattern: 'independent'},
+                showlegend: false,
+                margin: { l: 60, r: 60, b: 30, t: 30, pad: 4 },
+                xaxis: {title: 'epochs'},
+                yaxis: {title: 'R2'},
+                xaxis2: {title: 'epochs'},
+                yaxis2: {title: 'MSE'},
+                xaxis3: {title: 'epochs'},
+                yaxis3: {title: 'RMSE'},
+                xaxis4: {title: 'epochs'},
+                yaxis4: {title: 'MAE'}
+                };
+                var options = {displayModeBar: false,
+                               responsive: true,
+                }
+                Plotly.newPlot('metrics-plot', data, layout, options);
+
+                    </script>
+                </div>
+            </div>
+            <!-- Residuals Plot -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-700 flex items-center">
+                    <i class="fas fa-wave-square mr-3 text-accent"></i>Loss
+                </h3>
+                <div id="loss-plot"></div>
+                <script>
+                var trace1 = {
+                x: [],
+                y: [],
+                type: 'scatter'
+                };
+
+                var data = [trace1];
+
+                var layout = {
+                showlegend: false,
+                };
+                var options = {displayModeBar: false}
+                Plotly.newPlot('loss-plot', data, layout, options);
+                </script>
+            </div>
+            <!-- Error Distribution -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-700 flex items-center">
+                    <i class="fas fa-chart-bar mr-3 text-info"></i>Others
+                </h3>
+                <div id="errorDistributionPlot" class="w-full h-[250px]"></div>
+            </div>
+        </div>
+    {% endblock %}
+    {% block body_js %}
+        <script src="{% static 'js/src/utils/file-handler.js' %}"></script>
+    {% endblock %}
