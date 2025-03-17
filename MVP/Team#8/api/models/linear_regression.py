@@ -1,10 +1,14 @@
-import torch
+from typing import Any, Dict
 
-class LinearRegressionModel(torch.nn.Module):
-    def __init__(self):
-        super(LinearRegressionModel, self).__init__()
-        self.linear = torch.nn.Linear(1, 1)  # One in and one out
+import numpy as np
+from configs.model_parameters_configs import LinearRegressionParams
+from models.base_model import SupervisedAlgorithm
 
-    def forward(self, x):
-        y_pred = self.linear(x)
-        return y_pred
+
+class LinearRegression(SupervisedAlgorithm):
+    """Linear Regression implementation."""
+
+    def __init__(self, params: LinearRegressionParams = None):
+        super().__init__(params or LinearRegressionParams())
+        self.model = None
+        self.history = {"loss": []}
