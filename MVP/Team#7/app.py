@@ -160,12 +160,10 @@ def visualize():
                                  mode='lines', name='Predictions',
                                  line={'color':'red'}),row=1, col=1)
 
-    # Add cost history plot
-    fig.add_trace(
-        go.Scatter(y=costs, mode='lines+markers', name='Cost',
-                  line={'color':'green'}),
-        row=2, col=1
-    )
+    fig.add_trace(go.Scatter(x=X_line.flatten(), y=y_pred.flatten(), 
+                                 mode='lines', name='Predictions', 
+                                 line=dict(color='red')),row=1, col=1)
+
     # Update layout
     fig.update_layout(height=800, showlegend=True)
     fig.update_xaxes(title_text='Years of Experience', row=1, col=1)
