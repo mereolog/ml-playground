@@ -1,6 +1,0 @@
-
-staticfiles/
-# add static/styles.css to the .gitignore file
-
- 
-app/static/styles.css
