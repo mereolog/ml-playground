@@ -95,10 +95,10 @@ def index():
             initialize_session(df, params)
 
             plot_url = generate_plot(
-                np.array(session['x']), 
-                np.array(session['y']), 
-                session['weights'], 
-                0, 
+                np.array(session['x']),
+                np.array(session['y']),
+                session['weights'],
+                0,
                 session['column_names']
             )
 
@@ -114,11 +114,11 @@ def validate_file(files):
     """Sprawdza, czy plik został przesłany i czy ma poprawne rozszerzenie CSV."""
     if 'file' not in files:
         raise ValueError("Nie przesłano pliku")
-    
+
     file = files['file']
     if file.filename == '' or not file.filename.endswith('.csv'):
         raise ValueError("Prześlij plik w formacie CSV")
-    
+
     return file
 
 
@@ -127,7 +127,7 @@ def process_file(file):
     df = pd.read_csv(file)
     if df.shape[1] < 2:
         raise ValueError("Plik musi zawierać co najmniej dwie kolumny z danymi")
-    
+
     return df
 
 
@@ -171,20 +171,25 @@ def get_session_data():
     cost_history = session['cost_history']
     return x, y, lr, weights, cost_function, regularization, reg_param, column_names, current_step, iterations, cost_history
 
+
 def is_training_complete(current_step, iterations):
     return current_step >= iterations
 
+
 def perform_optimization_step(x, y, weights, lr, regularization, reg_param):
     return perform_single_step(x, y, weights, lr, regularization, reg_param)
+
 
 def update_session_data(weights, cost, cost_history, current_step):
     session['weights'] = weights
     session['cost_history'] = cost_history
     session['current_step'] = current_step
 
+
 def generate_cost_plot_and_render(cost_history, current_step):
     cost_plot_url = generate_cost_plot(cost_history)
     return render_template("index.html", cost_plot=cost_plot_url, step=current_step, is_finished=True)
+
 
 def generate_plot_and_render(x, y, weights, current_step, column_names, cost, cost_function):
     plot_url1 = generate_plot(x, y, weights, current_step, column_names)
@@ -196,6 +201,7 @@ def generate_plot_and_render(x, y, weights, current_step, column_names, cost, co
         cost_function=cost_function,
         is_last_step=(current_step >= session['iterations'])
     )
+
 
 @app.route("/next_step")
 def next_step():
@@ -219,7 +225,7 @@ def next_step():
         return generate_plot_and_render(x, y, weights, current_step + 1, column_names, cost, cost_function)
 
     except ValueError as e:
-        return str(Value error: e)
+        return "Value error: " + str(e)
 
 
 if __name__ == "__main__":
