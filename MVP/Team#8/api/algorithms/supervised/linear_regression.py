@@ -26,14 +26,11 @@ class LinearRegression(SupervisedAlgorithm[LinearRegressionParams]):
         super().__init__()
         self._params = params if params is not None else LinearRegressionParams()
 
-        # Model parameters to be learned
         self.weights = None
         self.bias = None
 
-        # Training history
         self.loss_history = []
 
-        # Setup logging
         self.logger = logging.getLogger(__name__)
         if self.params.verbose:
             self.logger.setLevel(logging.INFO)
@@ -51,11 +48,9 @@ class LinearRegression(SupervisedAlgorithm[LinearRegressionParams]):
         Args:
             n_features: Number of input features
         """
-        # Set random seed for reproducibility if specified
         if self.params.random_state is not None:
             np.random.seed(self.params.random_state)
 
-        # Initialize weights and bias
         self.weights = np.random.randn(n_features) * 0.01
         self.bias = 0.0
 
@@ -73,10 +68,8 @@ class LinearRegression(SupervisedAlgorithm[LinearRegressionParams]):
         n_samples = X.shape[0]
         predictions = self._predict_raw(X)
 
-        # Calculate mean squared error
         mse = np.mean((predictions - y) ** 2)
 
-        # Add L2 regularization if specified
         if self.params.regularization is not None:
             l2_reg = self.params.regularization * np.sum(self.weights**2)
             mse += l2_reg
@@ -99,11 +92,9 @@ class LinearRegression(SupervisedAlgorithm[LinearRegressionParams]):
         n_samples = X.shape[0]
         predictions = self._predict_raw(X)
 
-        # Calculate gradients
         dw = (1 / n_samples) * np.dot(X.T, (predictions - y))
         db = (1 / n_samples) * np.sum(predictions - y)
 
-        # Add L2 regularization gradient if specified
         if self.params.regularization is not None:
             dw += 2 * self.params.regularization * self.weights
 
@@ -147,20 +138,15 @@ class LinearRegression(SupervisedAlgorithm[LinearRegressionParams]):
         """
         n_samples, n_features = X.shape
 
-        # Initialize model parameters
         self._initialize_parameters(n_features)
 
-        # Clear loss history from previous training
         self.loss_history = []
 
-        # Training loop
         for epoch in range(self.params.epochs):
             if self.params.batch_size is None:
-                # Full batch gradient descent
                 dw, db = self._compute_gradients(X, y)
                 self._update_parameters(dw, db)
             else:
-                # Mini-batch gradient descent
                 batch_size = min(self.params.batch_size, n_samples)
                 batch_indices = self._get_batch_indices(n_samples, batch_size)
 
@@ -225,7 +211,6 @@ class LinearRegression(SupervisedAlgorithm[LinearRegressionParams]):
 
         y_pred = self.predict(X)
 
-        # Calculate R^2
         ss_total = np.sum((y - np.mean(y)) ** 2)
         ss_residual = np.sum((y - y_pred) ** 2)
 
