@@ -2,19 +2,15 @@ FROM pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
 
 WORKDIR /lint
 
-# Explicitly copy requirements files from each project
 COPY api/requirements.txt fastapi_requirements.txt
 COPY app/requirements.txt django_requirements.txt
 
-# Install dependencies from both requirements files
 RUN pip install \
     -r fastapi_requirements.txt \
     -r django_requirements.txt \
     pylint
 
-# Copy project files for linting
 COPY api /fastapi
 COPY app /django_demo
 
-# Run linting command
 CMD ["pylint", "/api/**/*.py"]
