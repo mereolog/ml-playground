@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import numpy as np
+from django.core.cache.backends import redis
 
 from django.shortcuts import render
 from django.http import JsonResponse
