@@ -3,17 +3,12 @@
 
 import numpy as np
 import pytest
-
-# --- Assuming your project structure allows these imports ---
 from algorithms.supervised.linear_regression import LinearRegression
 from numpy.testing import assert_allclose
 from schemas.configs.algorithms_configs import LinearRegressionParams
 from utils.losses import MeanAbsoluteError, MeanSquaredError
 
-# -----------------------------------------------------------
 
-
-# --- Fixture for simple data ---
 @pytest.fixture(scope="module")
 def simple_linear_dataset():
     """Generates a simple dataset for linear regression testing."""
@@ -27,9 +22,6 @@ def simple_linear_dataset():
     noise = np.random.randn(n_samples) * 0.5
     y = np.dot(X, true_weights) + true_bias + noise
     return X, y, true_weights, true_bias
-
-
-# -----------------------------
 
 
 class TestLinearRegression:
