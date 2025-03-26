@@ -23,7 +23,14 @@ https://docs.python.org/3/library/dataclasses.html
 """
 
 from dataclasses import dataclass, field
-from typing import Optional  # will need to import other types
+from typing import Literal, Optional  # will need to import other types
+
+# its mostly for type checkers
+# now they will warn us if we try to assign invalid string
+LossType = Literal["mse", "mae"]
+
+# the Optional type tells us that the regularization is optional and can be equal None
+RegType = Optional[Literal["l1", "l2", "elasticnet"]]
 
 
 @dataclass
@@ -85,12 +92,28 @@ class LinearRegressionParams(SupervisedAlgorithmsParams):
         epochs: Number of complete passes through the training dataset (default: 100)
         regularization: L2 regularization strength to prevent overfitting (default: None)
         batch_size: Number of samples per gradient update, None means full batch (default: None)
+
+        loss: Loss function to use ('mse', 'mae') (default: 'mse')
+
+        reg_type: Regularization type to use ('l1', 'l2', 'elasticnet') (default: None)
+        reg_strenght: Strength (lambda/alpha) of the regularization. Must be > 0 to have an effect.
+        mixing_ratio: Mixing parameter for ElasticNet regularization. Must be 0 <= mixing_ratio <= 1.
+                      0.0 value corresponds to L2 only, and 1.0 to L1 only.
+                      Only used if reg_type='elasticnet'. (default: 0.5)
     """
 
     learning_rate: float = 0.01
     epochs: int = 100
     regularization: Optional[float] = None
     batch_size: Optional[int] = None
+
+    # -- loss function config --
+    loss: LossType = "mse"
+
+    # -- regularization config --
+    reg_type: RegType = None
+    reg_strenght: float = 0.01
+    mixing_ratio: float = 0.5  # default mixing ratio for ElasticNet
 
 
 @dataclass
