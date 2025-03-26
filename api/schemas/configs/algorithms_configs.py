@@ -69,6 +69,14 @@ class SupervisedAlgorithmsParams(BaseAlgorithmParams):
     shuffle: bool = True
     stratify: bool = False
 
+    def __post_init__(self):
+        # validation logic goes here
+
+        if not (0 < self.test_size < 1):
+            raise ValueError(
+                f"test_size must be between 0 and 1 (exclusive), got {self.test_size}"
+            )
+
 
 @dataclass
 class UnsupervisedAlgorithmsParams(BaseAlgorithmParams):
@@ -81,6 +89,9 @@ class UnsupervisedAlgorithmsParams(BaseAlgorithmParams):
 
     n_init: int = 10
     max_iter: int = 300
+
+    def __post_init__(self):
+        pass
 
 
 @dataclass
@@ -114,6 +125,10 @@ class LinearRegressionParams(SupervisedAlgorithmsParams):
     reg_type: RegType = None
     reg_strenght: float = 0.01
     mixing_ratio: float = 0.5  # default mixing ratio for ElasticNet
+
+    def __post_init__(self):
+        super().__post_init__()
+        # validation goes here, we also have to run init on parent class
 
 
 @dataclass
