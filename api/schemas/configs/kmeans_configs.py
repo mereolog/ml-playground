@@ -9,7 +9,7 @@ class KMeansParams(UnsupervisedAlgorithmsParams):
         n_clusters: Number of clusters to form (default: 8)
         max_iter: Maximum number of iterations of the k-means algorithm (default: 300)
         tol: Tolerance to declare convergence (default: 1e-4)
-        init: Method for initialization ('k-means++', 'random') (default: 'random')
+        init: Method for initialization of centroids ('k-means++', 'random') (default: 'random')
         n_init: Number of times the k-means algorithm will be run with different centroid seeds (default: 10)
         metric: Distance metric to use ('euclidean', 'manhattan') (default: 'euclidean')
     """
