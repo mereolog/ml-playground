@@ -23,4 +23,15 @@ class KMeansParams(UnsupervisedAlgorithmsParams):
 
 
 def __post_init__(self):
-        super().__post_init__()
+    if self.n_clusters <= 0:
+        raise ValueError("n_clusters must be a positive integer")
+    if self.max_iter <= 0:
+        raise ValueError("max_iter must be a positive integer")
+    if self.tol <= 0:
+        raise ValueError("tol must be a positive float")
+    if self.init not in {"k-means++", "random"}:
+        raise ValueError("init must be 'k-means++' or 'random'")
+    if self.n_init <= 0:
+        raise ValueError("n_init must be a positive integer")
+    if self.metric not in {"euclidean", "manhattan"}:
+        raise ValueError("metric must be 'euclidean' or 'manhattan'")
