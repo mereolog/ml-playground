@@ -19,4 +19,4 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         echo echo $(git ls-files './**/*.py')
-        pylint --extension-pkg-whitelist=numpy --fail-under 7 $(git ls-files './**/*.py')
+        pylint --extension-pkg-whitelist=numpy --fail-under 7 --fail-on E $(git ls-files './**/*.py')
