@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html data-theme="light" lang="pl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>
+            {% block title %}{% endblock %}
+        </title>
+        <link rel="shortcut icon"
+              type="image/png"
+              href="{% static 'img/favicon.ico' %}">
+        <!-- css -->
+        <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+        <!-- js -->
+        <script src="{% static 'js/libs/theme-change.js' %}"></script>
+        <script src="https://cdn.plot.ly/plotly-2.27.0.js" charset="utf-8"></script>
+        <script src="https://kit.fontawesome.com/ca43eda49a.js"
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+        {% block head_js %}{% endblock %}
+    </head>
+    <body>
+        <div class="drawer lg:drawer-open">
+            <!-- Drawer toggle for mobile -->
+            <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
+            <!-- Page content -->
+            <div class="drawer-content flex flex-col">
+                <!-- Navbar -->
+                {% include 'partials/navbar.html' %}
+                <!-- Main content area -->
+                <div class="p-6 pb-16 max-w-7xl mx-auto w-full space-y-10">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+            <!-- Sidebar -->
+            <div class="drawer-side z-20">
+                <label for="drawer-toggle" aria-label="close sidebar" class="drawer-overlay"></label>
+                <aside id="controlls-sidebar" class="bg-base-200 w-96 min-h-screen border-r">
+                    <div class="p-4">
+                        {% block sidebar_controlls %}{% endblock %}
+                    </div>
+                </aside>
+            </div>
+        </div>
+        <footer class="footer footer-center bg-base-300 text-base-content p-4">
+            <aside>
+                <p>Copyright © 2024 - All right reserved</p>
+            </aside>
+        </footer>
+        <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            let cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+        </script>
+        <!-- body js-->
+        {% block body_js %}{% endblock %}
+    </body>
+</html>

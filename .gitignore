@@ -162,3 +162,7 @@ cython_debug/
 .idea/
 
 .DS_Store
+
+app/staticfiles/
+app/static/css/styles.css
+

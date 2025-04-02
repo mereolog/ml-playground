@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+numpy<2.0
+pydantic
+pandas
+pytest

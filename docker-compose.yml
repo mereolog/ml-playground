@@ -1,0 +1,56 @@
+services:
+
+  deno:
+    build: ./deno
+    volumes:
+      - ./app/templates:/templates
+      - ./app/static:/static
+    env_file: ./.env
+    environment:
+      - DENO_DIR=/deno
+    container_name: deno
+    tty: true
+
+  fastapi:
+    build: ./api
+    container_name: fastapi-application
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./api
+        target: /api
+    env_file:
+      - ./.env
+    depends_on:
+      - django 
+
+  django:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: django
+    volumes:
+      - type: bind
+        source: ./app
+        target: /app
+      - ./datasets:/app/datasets
+
+    ports: 
+      - "8050:8050"
+    restart: "always"
+    env_file: ./.env
+
+  #  lint:
+  #    build: 
+  #      context: .
+  #      dockerfile: Dockerfile.lint
+  #    volumes:
+  #      - ./api:/fastapi
+  #      - ./app:/app
+ 
+    
+
+volumes:
+  django_templates:
+  django_static:

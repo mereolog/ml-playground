@@ -8,5 +8,5 @@ streamlit
 scikit-learn
 plotly
 PyQt5>=5.15.0
-torch
 fastapi
+pytest

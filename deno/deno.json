@@ -1,0 +1,18 @@
+{
+    "imports": {
+        "tailwindcss": "npm:tailwindcss@next",
+        "tailwindcss_cli": "npm:@tailwindcss/cli@next",
+        "tailwindtypography": "npm:@tailwindcss/typography@latest",
+        "daisyui": "npm:daisyui@latest",
+        "autoprefixer": "npm:autoprefixer@latest",
+        "theme-change": "npm:theme-change@latest",
+        "plotly": "npm:plotly.js@latest",
+    },
+    "tasks": {
+        "install:theme-change": "cp /deno/node_modules/.deno/theme-change@2.5.0/node_modules/theme-change/index.js /static/js/libs/theme-change.js",
+        "install:deno": "deno install --config=deno.json --log-level=debug",
+        "build:css": "deno run -A npm:@tailwindcss/cli@next -i /deno/src/styles.css -o /static/css/styles.css --watch"
+    },
+    "exclude": ["dist/"],
+    "nodeModulesDir": "auto"
+}
