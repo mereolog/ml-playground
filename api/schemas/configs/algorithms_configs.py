@@ -137,12 +137,6 @@ class DecisionTreeParams(SupervisedAlgorithmsParams):
     pass
 
 
-@dataclass
-class KMeansParams(UnsupervisedAlgorithmsParams):
-    # same here
-    pass
-
-
 # and the rest of the dataclasses for our models
 # think about what parameters will your algorithm need to consume to work
 
