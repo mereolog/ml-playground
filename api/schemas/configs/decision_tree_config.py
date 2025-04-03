@@ -1,4 +1,4 @@
-from algorithms_configs import SupervisedAlgorithmsParams
+from api.schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
 from dataclasses import dataclass
 from typing import Optional
 
