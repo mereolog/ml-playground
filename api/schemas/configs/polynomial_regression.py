@@ -1,66 +1,93 @@
+import sys  
+from dataclasses import dataclass
+from typing import Optional, Literal
+
+# --- Assumed base configuration class ---
+@dataclass
+class SupervisedAlgorithmsParams:
+    """Base class for supervised algorithm parameters."""
+    def __post_init__(self):
+        """Perform basic validation if needed."""
+        pass # Base validation, if any
+
+# --- Define helper types ---
+# Using Literal for simplicity, could be replaced with an Enum
+LossType = Literal['mse', 'mae']
+RegType = Literal['l1', 'l2', 'elasticnet']
+
 @dataclass
 class PolynomialRegressionParams(SupervisedAlgorithmsParams):
     """
-    Ta konfiguracja parametrów modelu definiuje typy i możliwe domyślne argumenty
-    używane przez model Regresji Wielomianowej.
+    This model parameter configuration defines the types and possible default arguments
+    used by the Polynomial Regression model.
 
-    Regresja wielomianowa zazwyczaj przekształca cechy wejściowe na cechy wielomianowe,
-    a następnie stosuje regresję liniową. Dlatego wiele parametrów jest podobnych
-    do regresji liniowej, ale z dodatkiem stopnia wielomianu.
+    Polynomial regression typically transforms input features into polynomial features
+    and then applies linear regression. Therefore, many parameters are similar
+    to linear regression, but with the addition of the polynomial degree.
 
     Attributes:
-        degree: Stopień wielomianu używany do transformacji cech (domyślnie: 2).
-        include_bias: Czy dołączać kolumnę biasu (jedynki) podczas transformacji cech (domyślnie: True).
-                      Często obsługiwane przez bazowy model regresji liniowej.
+        degree: The degree of the polynomial features to generate (default: 2).
+        include_bias: Whether to include a bias column (column of ones) during feature transformation (default: True).
+                      This is often handled by the underlying linear regression model itself.
 
-        # Parametry odziedziczone lub zaadaptowane z regresji liniowej,
-        # stosowane do modelu liniowego na przekształconych cechach:
-        learning_rate: Rozmiar kroku dla optymalizacji gradientowej (jeśli używana) (domyślnie: 0.01).
-        epochs: Liczba epok dla optymalizacji gradientowej (jeśli używana) (domyślnie: 100).
-        batch_size: Rozmiar batcha dla optymalizacji gradientowej (jeśli używana) (domyślnie: None).
+        # Parameters inherited or adapted from linear regression,
+        # applied to the linear model on the transformed features:
+        learning_rate: Step size for gradient optimization (if used) (default: 0.01).
+        epochs: Number of epochs for gradient optimization (if used) (default: 100).
+        batch_size: Batch size for gradient optimization (if used) (default: None).
 
-        loss: Funkcja straty używana przez bazową regresję liniową ('mse', 'mae') (domyślnie: 'mse').
+        loss: Loss function used by the underlying linear regression ('mse', 'mae') (default: 'mse').
 
-        reg_type: Typ regularyzacji ('l1', 'l2', 'elasticnet') stosowany do regresji liniowej (domyślnie: None).
-        reg_strenght: Siła regularyzacji (lambda/alpha) (domyślnie: 0.01).
-        mixing_ratio: Parametr mieszania dla ElasticNet (domyślnie: 0.5).
+        reg_type: Type of regularization ('l1', 'l2', 'elasticnet') applied to the linear regression (default: None).
+        reg_strength: Strength (lambda/alpha) of the regularization (default: 0.01). 
+        mixing_ratio: Mixing parameter for ElasticNet (default: 0.5).
     """
 
     degree: int = 2
     include_bias: bool = True
 
-    # -- Parametry bazowej regresji liniowej (jeśli implementacja ich używa) --
+    # -- Parameters for the underlying linear regression (if the implementation uses them) --
     learning_rate: float = 0.01
     epochs: int = 100
     batch_size: Optional[int] = None
 
-    # -- Konfiguracja funkcji straty --
-    loss: LossType = "mse" # MSE jest standardem dla regresji
+    # -- Loss function configuration --
+    loss: LossType = "mse" # MSE is standard for regression
 
-    # -- Konfiguracja regularyzacji --
-    reg_type: RegType = None
-    reg_strenght: float = 0.01
-    mixing_ratio: float = 0.5
+    # -- Regularization configuration --
+    reg_type: Optional[RegType] = None 
+    reg_strength: float = 0.01       
 
     def __post_init__(self):
-        """Walidacja parametrów po inicjalizacji."""
-        super().__post_init__() # Wywołaj __post_init__ klasy bazowej
+        """Validate parameters after initialization."""
+        super().__post_init__() 
+
         if self.degree < 1:
-            raise ValueError("degree musi być liczbą całkowitą >= 1")
+            raise ValueError("degree must be an integer >= 1")
+
+        # --- Validation for underlying linear model parameters ---
         if self.learning_rate <= 0:
-             raise ValueError("learning_rate musi być większe od 0")
+             raise ValueError("learning_rate must be greater than 0")
         if self.epochs <= 0:
-             raise ValueError("epochs musi być dodatnią liczbą całkowitą")
+             raise ValueError("epochs must be a positive integer")
         if self.batch_size is not None and self.batch_size <= 0:
-             raise ValueError("batch_size musi być dodatnią liczbą całkowitą lub None")
-        if self.loss not in ["mse", "mae"]:
-             raise ValueError(f"Nieprawidłowa funkcja straty dla regresji: {self.loss}. Dozwolone: 'mse', 'mae'.")
-        if self.reg_type is not None and self.reg_strenght <= 0:
-            raise ValueError("reg_strenght musi być większe od 0, gdy używana jest regularyzacja")
+             raise ValueError("batch_size must be a positive integer or None")
+
+        # --- Loss validation ---
+        # The Literal type hint already provides some level of check if using static analysis tools,
+        # but runtime check is still good.
+        allowed_losses = LossType.__args__ 
+        if self.loss not in allowed_losses:
+             raise ValueError(f"Invalid loss function for regression: {self.loss}. Allowed: {allowed_losses}.")
+
+        # --- Regularization validation (using corrected reg_strength) ---
+        if self.reg_type is not None and self.reg_strength <= 0:
+            raise ValueError("reg_strength must be greater than 0 when regularization is used")
+
         if self.reg_type == "elasticnet":
             if not (0.0 <= self.mixing_ratio <= 1.0):
-                raise ValueError("mixing_ratio musi być pomiędzy 0 a 1 dla ElasticNet")
-        elif self.reg_type is not None and self.mixing_ratio != 0.5:
-             print(f"Ostrzeżenie: parametr 'mixing_ratio' ({self.mixing_ratio}) jest ustawiony, "
-                   f"ale ma znaczenie tylko gdy reg_type='elasticnet'. Aktualny typ: {self.reg_type}",
+                raise ValueError("mixing_ratio must be between 0 and 1 for ElasticNet")
+        elif self.reg_type is not None and self.mixing_ratio != 0.5: 
+             print(f"Warning: parameter 'mixing_ratio' ({self.mixing_ratio}) is set, "
+                   f"but it only has an effect when reg_type='elasticnet'. Current type: {self.reg_type}",
                    file=sys.stderr)
