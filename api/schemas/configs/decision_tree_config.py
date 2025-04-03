@@ -20,5 +20,6 @@ class DecisionTreeParams(SupervisedAlgorithmsParams):
 
     def __post_init__(self):
         super().__post_init__()
-        if self.max_tree_depth <= 0:
-            raise ValueError("Must be positive integer.")
+        if self.max_tree_depth is not None:
+            if not isinstance(self.max_tree_depth, int) or self.max_tree_depth <= 0:
+                raise ValueError("Tree depth must be a positive integer")
