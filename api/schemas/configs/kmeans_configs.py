@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Literal
 from configs.algorithms_configs import UnsupervisedAlgorithmsParams
 
 @dataclass
@@ -23,16 +23,16 @@ class KMeansParams(UnsupervisedAlgorithmsParams):
     metric: Literal["euclidean", "manhattan"] = "euclidean"
 
 
-def __post_init__(self):
-    if self.n_clusters <= 0:
-        raise ValueError("n_clusters must be a positive integer")
-    if self.max_iter <= 0:
-        raise ValueError("max_iter must be a positive integer")
-    if self.tol <= 0:
-        raise ValueError("tol must be a positive float")
-    if self.init_method not in {"k-means++", "random"}:
-        raise ValueError("init must be 'k-means++' or 'random'")
-    if self.initialization_runs <= 0:
-        raise ValueError("n_init must be a positive integer")
-    if self.metric not in {"euclidean", "manhattan"}:
-        raise ValueError("metric must be 'euclidean' or 'manhattan'")
+    def __post_init__(self):
+        if self.n_clusters <= 0:
+            raise ValueError("n_clusters must be a positive integer")
+        if self.max_iter <= 0:
+            raise ValueError("max_iter must be a positive integer")
+        if self.tol <= 0:
+            raise ValueError("tol must be a positive float")
+        if self.init_method not in {"k-means++", "random"}:
+            raise ValueError("init must be 'k-means++' or 'random'")
+        if self.initialization_runs <= 0:
+            raise ValueError("n_init must be a positive integer")
+        if self.metric not in {"euclidean", "manhattan"}:
+            raise ValueError("metric must be 'euclidean' or 'manhattan'")
