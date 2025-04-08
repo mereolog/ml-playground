@@ -1,5 +1,5 @@
 scikit-learn
-django==4.2.20
+django==5.2
 django-cors-headers
 numpy
 pandas
