@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Literal
-from configs.algorithms_configs import UnsupervisedAlgorithmsParams
+from schemas.configs.algorithms_configs import UnsupervisedAlgorithmsParams
 
 @dataclass
 class KMeansParams(UnsupervisedAlgorithmsParams):
