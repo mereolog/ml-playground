@@ -6,18 +6,6 @@ KNNWeightType = Literal['uniform', 'distance']
 KNNAlgorithmType = Literal['auto', 'ball_tree', 'kd_tree', 'brute']
 KNNMetricType = Literal['minkowski', 'euclidean', 'manhattan', 'chebyshev']
 
-# Base class for common algorithm parameters
-@dataclass
-class BaseAlgorithmParams:
-    """Base parameters common to all ML models.
-    This class provides common configuration parameters that are relevant across different algorithm types.
-    Attributes:
-        random_state: Seed for random number generation (for reproducibility).
-        verbose: Flag to control logging verbosity.
-    """
-    random_state: Optional[int] = None
-    verbose: bool = False
-
 # Base class for supervised algorithm parameters
 @dataclass
 class SupervisedAlgorithmsParams(BaseAlgorithmParams):
@@ -74,34 +62,3 @@ class KNeighborsParams(SupervisedAlgorithmsParams):
         # Validation for `metric` and `p`
         if self.metric == 'minkowski' and self.p < 1:
             raise ValueError(f"p must be >= 1 for Minkowski metric, got {self.p}")
-
-# Example usage of the KNN parameters class
-if __name__ == "__main__":
-    print("--- KNN Examples ---")
-
-    # Default KNN params
-    default_knn = KNeighborsParams()
-    print(f"Default KNN params: {default_knn}")
-
-    # Custom KNN params
-    custom_knn = KNeighborsParams(
-        n_neighbors=3,
-        weights='distance',
-        metric='manhattan',  # p is ignored if metric is not 'minkowski' in some implementations
-        p=1,  # Explicitly setting p=1 for Manhattan metric consistency
-        test_size=0.3,
-        stratify=True,  # Good idea for classification
-        random_state=42
-    )
-    print(f"Custom KNN params: {custom_knn}")
-
-    # Try invalid KNN params (this should raise an error)
-    try:
-        invalid_knn = KNeighborsParams(n_neighbors=0)
-    except ValueError as e:
-        print(f"\nCaught expected validation error: {e}")
-
-    try:
-        invalid_knn_p = KNeighborsParams(metric='minkowski', p=0)
-    except ValueError as e:
-        print(f"Caught expected validation error for p: {e}")
