@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field 
 from typing import Literal, Optional 
-from algorithms_configs import SupervisedAlgorithmsParams
+from schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
+
+
 
 @dataclass
 class NaiveBayesParams(SupervisedAlgorithmsParams):
