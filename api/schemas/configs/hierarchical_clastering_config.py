@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Literal, Optional
 
 LinkageType = Literal["single", "complete", "average"]
+MetricType = Literal["euclidean", "manhattan", "cosine", "chebyshev", "minkowski"] 
 
 @dataclass
 class HierarchicalClusteringParams(SupervisedAlgorithmsParams):
@@ -26,3 +27,7 @@ class HierarchicalClusteringParams(SupervisedAlgorithmsParams):
             raise ValueError("n_clusters must be >= 1 or None if using distance_threshold.")
         if self.distance_threshold is not None and self.distance_threshold <= 0:
             raise ValueError("distance_threshold must be greater than 0 if set.")
+        if self.metric not in get_args(MetricType):
+            raise ValueError(f"Invalid metric '{self.metric}'. Must be one of: {get_args(MetricType)}.")
+        if self.linkage not in get_args(LinkageType):
+            raise ValueError(f"Invalid linkage '{self.linkage}'. Must be one of: {get_args(LinkageType)}.")
