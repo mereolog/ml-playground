@@ -3,10 +3,10 @@ This module provides functions for calculating common evaluation metrics
 for machine learning models.
 """
 
-from typing import Dict, Literal, Optional, Tuple, Union
-
 import numpy as np
+
 from utils.losses import MeanAbsoluteError, MeanSquaredError
+
 
 # Optional: Some metrics are already implemented in the loss classes
 # example: MSE/MAE are both losses and metrics

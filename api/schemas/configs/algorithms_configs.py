@@ -22,7 +22,7 @@ Dataclasses documentation:
 https://docs.python.org/3/library/dataclasses.html
 """
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Literal, Optional  # will need to import other types
 
 # its mostly for type checkers

@@ -6,6 +6,7 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
 from algorithms.base.supervised import SupervisedAlgorithm
 from schemas.configs.algorithms_configs import LinearRegressionParams
 from utils.losses import LossFunction, MeanAbsoluteError, MeanSquaredError
@@ -119,7 +120,7 @@ class LinearRegression(SupervisedAlgorithm[LinearRegressionParams]):
 
         # add regularization penalty (applied only to weights)
         # here we need to implement regularization logic
-        reg_strength = self.params.reg_strenght
+        reg_strength = self.params.reg_strength
         reg_type = self.params.reg_type
         # loss = base_loss + reg_penealty or something like that
 
