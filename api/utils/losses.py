@@ -102,3 +102,67 @@ class BinaryCrossEntropy(LossFunction):
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
         # implementation
         pass
+
+class LogLoss:
+    """Implementation of the logarithmic Loss (Log Loss) function.
+    Log loss is used to evaluate the performance of a classification model where
+    the output is a probability value between 0 and 1.
+
+    Formula:
+     LogLoss = -1/N * Σ (y_true * log(y_pred) + (1 - y_true) * log(1 - y_pred))
+
+    Attributes:
+        None
+    """
+    @staticmethod
+    def compute(y_true: np.ndarray, y_pred:np.ndarray) -> float:
+        """
+        Compute the Log Loss value
+
+         Args:
+            y_true: Ground truth labels, shape (n_samples,).
+                    Labels should be binary (0 or 1) or one-hot encoded for multi-class problems.
+            y_pred: Predicted probabilities, shape (n_samples,) for binary
+                    or (n_samples, n_classes) for multi-class.
+
+        Returns:
+            Log Loss value (scalar).
+        """
+        # Ensure predictions are clipped to avoid log(0) or log(1) errors
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+
+        # For binary classification
+        if y_true.ndim == 1 or y_true.shape[1] == 1:
+            log_loss = -np.mean(
+                y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred)
+            )
+        else:  # For multi-class classification
+            log_loss = -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
+
+        return log_loss
+
+    @staticmethod
+    def gradient(y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        """
+        Compute the gradient of the Log Loss with respect to the predictions.
+
+        Args:
+            y_true: Ground truth labels, shape (n_samples,).
+                    Labels should be binary (0 or 1) or one-hot encoded for multi-class problems.
+            y_pred: Predicted probabilities, shape (n_samples,) for binary
+                    or (n_samples, n_classes) for multi-class.
+
+        Returns:
+            Gradient of Log Loss with respect to predictions, shape as y_pred.
+        """
+        # Ensure predictions are clipped to avoid division by zero
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+
+        # Gradient computation
+        return -(y_true / y_pred) + (1 - y_true) / (1 - y_pred)
+
+
+
+
