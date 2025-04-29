@@ -1,34 +1,12 @@
 from dataclasses import dataclass
-from typing import Optional, Literal
+from typing import Literal, Optional
 
-from schemas.configs.algorithms_configs import BaseAlgorithmParams
+from schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
 
 # Define custom types for clarity
 KNNWeightType = Literal['uniform', 'distance']
 KNNAlgorithmType = Literal['auto', 'ball_tree', 'kd_tree', 'brute']
 KNNMetricType = Literal['minkowski', 'euclidean', 'manhattan', 'chebyshev']
-
-# Base class for supervised algorithm parameters
-@dataclass
-class SupervisedAlgorithmsParams(BaseAlgorithmParams):
-    """Base parameters for all supervised algorithms.
-    Attributes:
-        test_size: Proportion of the dataset to include in the test split.
-        validation_size: Proportion of the TRAINING DATA to use as validation.
-        shuffle: Whether to shuffle the dataset before splitting.
-        stratify: Whether to stratify the datasets based on the target values (y).
-    """
-    test_size: float = 0.2
-    validation_size: Optional[float] = None
-    shuffle: bool = True
-    stratify: bool = False
-
-    def __post_init__(self):
-        # Validation logic goes here
-        if not (0 < self.test_size < 1):
-            raise ValueError(f"test_size must be between 0 and 1 (exclusive), got {self.test_size}")
-        if self.validation_size is not None and not (0 < self.validation_size < 1):
-            raise ValueError(f"validation_size must be None or between 0 and 1 (exclusive), got {self.validation_size}")
 
 # K-Nearest Neighbors parameters
 @dataclass
