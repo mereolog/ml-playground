@@ -1,6 +1,8 @@
-from schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
 from dataclasses import dataclass
 from typing import Optional
+
+from schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
+
 
 @dataclass
 class DecisionTreeParams(SupervisedAlgorithmsParams):

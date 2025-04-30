@@ -1,6 +1,7 @@
 """Tests for Naive Bayes configuration dataclasses."""
 
 import pytest
+
 from schemas.configs.naive_bayes_configs import NaiveBayesParams
 
 
