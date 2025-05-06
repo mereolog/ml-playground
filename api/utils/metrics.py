@@ -42,3 +42,13 @@ def mean_absolute_error(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     mae_loss_calculator = MeanAbsoluteError()
 
     return mae_loss_calculator(y_true, y_pred)
+
+
+
+def accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    return np.mean(y_true == y_pred)
+
+def log_loss(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    epsilon = 1e-15
+    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+    return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
