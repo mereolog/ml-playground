@@ -63,6 +63,18 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
             self.logger.warning("Fitting skipped: Received empty training data.")
             return self
 
+        # Validate that the data is binary
+        if not np.array_equal(X, X.astype(bool)):
+            raise ValueError(
+                "Input features (X) must be binary (0 or 1). "
+                "Non-binary values detected in the input data."
+            )
+        if not np.array_equal(y, y.astype(bool)):
+            raise ValueError(
+                "Target values (y) must be binary (0 or 1). "
+                "Non-binary values detected in the target data."
+            )
+
         # Calculate class probabilities (P(y=0) and P(y=1))
         classes, class_counts = np.unique(y, return_counts=True)
         self.class_probs = class_counts / n_samples
