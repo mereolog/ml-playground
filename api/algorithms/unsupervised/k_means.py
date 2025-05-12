@@ -1,9 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 class KMeans:
-    def __init__(self, k=3, max_iters=100, tol=1e-4,
+    def __init__(self, k=3, max_iters=100, tol=0,
                  init_method='random', metric='euclidean'):
         self.k = k
         self.max_iters = max_iters
@@ -14,6 +13,7 @@ class KMeans:
         self.centroids = None
         self.labels = None
         self.inertia_ = None
+        self.history = []
 
     def _initialize_centroids(self, X):
         if self.init_method == 'random':
@@ -39,25 +39,14 @@ class KMeans:
         else:
             raise ValueError("Invalid metric. Use 'euclidean' or 'manhattan'.")
 
-    def plot_step(self, X, centroids, labels, iteration):
-        plt.figure(figsize=(6, 5))
-        for i in range(self.k):
-            plt.scatter(X[labels == i, 0], X[labels == i, 1], label=f'Cluster {i}')
-        plt.scatter(centroids[:, 0], centroids[:, 1], c='black', marker='X', s=200, label='Centroids')
-        plt.title(f'Iteration {iteration}')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-
-    def fit(self, X, visualize=True):
+    def fit(self, X, visualize=False):
         self.centroids = self._initialize_centroids(X)
 
         for iteration in range(self.max_iters):
             distances = self._compute_distances(X, self.centroids)
             labels = np.argmin(distances, axis=1)
 
-            if visualize:
-                self.plot_step(X, self.centroids, labels, iteration)
+            self.history.append((self.centroids.copy(), labels.copy()))
 
             new_centroids = np.array([
                 X[labels == i].mean(axis=0) if np.any(labels == i) else self.centroids[i]
