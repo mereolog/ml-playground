@@ -5,12 +5,12 @@ import logging
 import numpy as np
 from typing import Any, Dict, List, Optional, Tuple
 
-from algorithms.base.supervised import SupervisedAlgorithm
+from api.algorithms.base.supervised import SupervisedAlgorithm
 from schemas.configs.logistic_regression import LogisticRegressionParams
 from utils.losses import BinaryCrossEntropy
 from utils.metrics import accuracy_score, log_loss
 
-class LogisticRegression(SupervisedAlgorithm[LogisticRegressionParams]):
+class LogisticRegression(SupervisedAlgorithm):
     """
     Logistic Regression implementation using gradient descent.
     This class implements logistic regression for binary classification
@@ -28,7 +28,6 @@ class LogisticRegression(SupervisedAlgorithm[LogisticRegressionParams]):
         self.weights: Optional[np.ndarray] = None
         self.bias: Optional[float] = None
         self.loss_history: List[float] = []
-
         
         self.logger = logging.getLogger(__name__)
         if self.params.verbose:
