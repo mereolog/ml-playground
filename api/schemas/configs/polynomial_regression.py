@@ -26,11 +26,11 @@ class PolynomialRegressionParams(GradientBasedParams):
 
     degree: int = 2
     include_bias: bool = True
-    loss: LossType = "mse" # MSE is standard for regression
+    loss: LossType = "mse" 
 
     def __post_init__(self):
         """Validate parameters after initialization."""
-        super().__post_init__() # Call base class __post_init__ (includes GD validation)
+        super().__post_init__() 
 
         # --- Specific validation for Polynomial Regression ---
         if self.degree < 1:

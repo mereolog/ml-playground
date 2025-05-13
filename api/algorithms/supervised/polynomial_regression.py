@@ -30,20 +30,16 @@ class PolynomialRegression(LinearRegression):
         """
         super().__init__(params=params)
 
-        # Теперь явно указываем тип для params
         self._params: PolynomialRegressionParams = (
             params if params is not None else PolynomialRegressionParams()
         )
 
-        # Сохраняем степень полинома
         self.degree = self._params.degree
         self.include_bias = self._params.include_bias
 
-        # Для нормализации
         self._mean = None
         self._std = None
 
-        # Логгер
         self.logger = logging.getLogger(__name__)
         if self.params.verbose:
             self.logger.setLevel(logging.INFO)
