@@ -1,8 +1,7 @@
 from schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal, Optional, get_args
 
-import get_args
 
 
 LinkageType = Literal["single", "complete", "average"]
