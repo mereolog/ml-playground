@@ -2,6 +2,9 @@ from schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
 from dataclasses import dataclass
 from typing import Literal, Optional
 
+import get_args
+
+
 LinkageType = Literal["single", "complete", "average"]
 MetricType = Literal["euclidean", "manhattan", "cosine", "chebyshev", "minkowski"] 
 
