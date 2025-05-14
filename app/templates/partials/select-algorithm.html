@@ -1,26 +1,26 @@
-
-
 <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 
-<label class="form-control w-full max-w-xs">
-  <div class="label">
-    <span class="label-text">Select a model or algorithm</span>
-  </div>
+<div class="label">
+  <span class="label-text">Select algorithm</span>
+</div>
 
-  <select
-    id="algorithm-select"
-    hx-get="/algorithm-form/"   
-    hx-trigger="change"
-    hx-target="#algorithm-form-container"
-    hx-on::config-request="
+<select
+  class="select select-bordered w-full max-w-xs"
+  id="algorithm-select"
+  hx-get="/algorithm-form/"
+  hx-trigger="change"
+  hx-target="#algorithm-form-container"
+  hx-on::config-request="
       event.detail.path = `/algorithm-form/${this.value}/`
     "
-  >
-    <option disabled selected>Select the algorithm</option>
-    <option value="linear_regression">Linear Regression</option>
-    <option value="xyz">XYZ Algorithm</option>
-  </select>
+>
+  <option disabled selected>Select the algorithm</option>
+  {% for algorithm in algorithms %}
 
-  <div id="algorithm-form-container"></div>
-</label>
-
+  <option value="{{ algorithm.internal_name }}">
+    {{ algorithm.display_name }}
+  </option>
+  {% endfor %}
+</select>
+<div class="divider"></div>
+<div id="algorithm-form-container"></div>
