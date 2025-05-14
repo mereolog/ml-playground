@@ -10,3 +10,4 @@ plotly
 PyQt5>=5.15.0
 fastapi
 pytest
+get_args
