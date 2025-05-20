@@ -6,9 +6,10 @@ from pydantic_schemas.configs.decision_tree_config import DecisionTreeParams
 from pydantic_schemas.configs.k_nearest_neighbour_config import KNeighborsParams
 from pydantic_schemas.configs.kmeans_config import KMeansParams
 from pydantic_schemas.configs.linear_regression_configs import LinearRegressionParams
-from pydantic_schemas.configs.logistic_regression_config import (
-    LogisticRegressionParams,
-)  # Added import
+from pydantic_schemas.configs.logistic_regression_config import LogisticRegressionParams
+from pydantic_schemas.configs.polynomial_regression_configs import (
+    PolynomialRegressionParams,
+)
 from pydantic_schemas.interface.algorithm_interface import AlgorithmInfo
 
 app = FastAPI(
@@ -64,6 +65,14 @@ ALGORITHM_REGISTRY: Dict[str, AlgorithmRegistryEntry] = {
             description="A logistic regression algorithm for binary classification.",
         ),
         LogisticRegressionParams,
+    ),
+    "polynomial_regression": AlgorithmRegistryEntry(
+        AlgorithmInfo(
+            internal_name="polynomial_regression",
+            display_name="Polynomial Regression",
+            description="A polynomial regression algorithm for non-linear relationships.",
+        ),
+        PolynomialRegressionParams,
     ),
 }
 # Configure logging

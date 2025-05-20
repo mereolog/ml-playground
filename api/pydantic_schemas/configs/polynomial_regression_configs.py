@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 
 from pydantic import Field
-from schemas.configs.algorithms_configs import GradientBasedParams, LossType
+from pydantic_schemas.configs.algorithm_configs import GradientBasedParams, LossType
 
 
 class PolynomialRegressionParams(GradientBasedParams):
     """
+    Pydantic model for Polynomial Regression parameters.
     This model parameter configuration defines the types and possible default arguments
     used by the Polynomial Regression model. Inherits GradientBasedParams.
 
