@@ -19,5 +19,5 @@ jobs:
         pip install pylint pylint-django
     - name: Analysing the code with pylint
       run: |
-        echo echo $(git ls-files './**/*.py')
-        pylint --extension-pkg-whitelist=numpy --fail-under 7 --fail-on E $(git ls-files './**/*.py')
+        echo $(git ls-files './**/*.py')
+        pylint --rcfile=.pylintrc --extension-pkg-whitelist=numpy --fail-under 7 --fail-on E $(git ls-files './**/*.py')
