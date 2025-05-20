@@ -3,7 +3,7 @@ from configs.k_nearest_neighbour_algorithm import KNeighborsParams
 import numpy as np
 from typing import Optional
 from sklearn.metrics.pairwise import pairwise_distances
-
+from collections import Counter
 
 class KNearestNeighbor(SupervisedAlgorithm):
     def __init__(self, config: KNeighborsParams):
@@ -27,9 +27,16 @@ class KNearestNeighbor(SupervisedAlgorithm):
         nearest_labels = self.y_train[nearest_indices]
 
         if self.config.weights == 'uniform':
-            predictions = np.apply_along_axis(
-                lambda x: np.bincount(x).argmax(), axis=1, arr=nearest_labels
-            )
+            for i in range(n_samples):
+                neighbor_labels = nearest_labels[i]
+                label_counts = Counter(neighbor_labels)
+
+                print(f"Punkt {i}: sąsiedzi = {neighbor_labels.tolist()}")
+                print(f"Zliczone klasy: {dict(label_counts)}")
+
+                predicted_label = label_counts.most_common(1)[0][0]
+                predictions[i] = predicted_label
+
         elif self.config.weights == 'distance':
             predictions = self._weighted_majority_vote(nearest_indices, distances, nearest_labels)
         else:
@@ -56,9 +63,13 @@ class KNearestNeighbor(SupervisedAlgorithm):
             neighbor_dists = distances[i, indices[i]]
             neighbor_labels = labels[i]
             weights = 1.0 / (neighbor_dists + 1e-8)
+
             label_weights = {}
             for label, weight in zip(neighbor_labels, weights):
                 label_weights[label] = label_weights.get(label, 0) + weight
+
+            print(f"Punkt {i} (ważone): {dict(label_weights)}")
+
             predictions[i] = max(label_weights, key=label_weights.get)
 
         return predictions
