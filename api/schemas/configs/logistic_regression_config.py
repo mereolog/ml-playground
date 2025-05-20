@@ -1,5 +1,5 @@
 from pydantic import Field
-from pydantic_schemas.configs.algorithm_configs import GradientBasedParams
+from schemas.configs.algorithm_configs import GradientBasedParams
 
 
 class LogisticRegressionParams(GradientBasedParams):

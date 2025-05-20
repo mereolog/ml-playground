@@ -1,7 +1,7 @@
 from typing import Literal
 
 from pydantic import Field
-from pydantic_schemas.configs.algorithm_configs import UnsupervisedAlgorithmsParams
+from schemas.configs.algorithm_configs import UnsupervisedAlgorithmsParams
 
 # Define custom types for clarity, mirroring the dataclass version
 InitMethodType = Literal["k-means++", "random"]

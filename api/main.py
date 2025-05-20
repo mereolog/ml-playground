@@ -2,15 +2,13 @@ import logging
 from typing import Dict, List, Type
 
 from fastapi import FastAPI, HTTPException, WebSocket
-from pydantic_schemas.configs.decision_tree_config import DecisionTreeParams
-from pydantic_schemas.configs.k_nearest_neighbour_config import KNeighborsParams
-from pydantic_schemas.configs.kmeans_config import KMeansParams
-from pydantic_schemas.configs.linear_regression_configs import LinearRegressionParams
-from pydantic_schemas.configs.logistic_regression_config import LogisticRegressionParams
-from pydantic_schemas.configs.polynomial_regression_configs import (
-    PolynomialRegressionParams,
-)
-from pydantic_schemas.interface.algorithm_interface import AlgorithmInfo
+from schemas.configs.decision_tree_config import DecisionTreeParams
+from schemas.configs.k_nearest_neighbour_config import KNeighborsParams
+from schemas.configs.kmeans_config import KMeansParams
+from schemas.configs.linear_regression_configs import LinearRegressionParams
+from schemas.configs.logistic_regression_config import LogisticRegressionParams
+from schemas.configs.polynomial_regression_configs import PolynomialRegressionParams
+from schemas.interface.algorithm_interface import AlgorithmInfo
 
 app = FastAPI(
     title="ML Playground API",

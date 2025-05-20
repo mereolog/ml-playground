@@ -1,6 +1,7 @@
-from pydantic_schemas.configs.algorithm_configs import GradientBasedParams, LossType
+from typing import Literal, Optional
+
 from pydantic import Field
-from typing import Optional, Literal
+from schemas.configs.algorithm_configs import GradientBasedParams, LossType
 
 
 class LinearRegressionParams(GradientBasedParams):
@@ -11,9 +12,9 @@ class LinearRegressionParams(GradientBasedParams):
         loss: Loss function to use ('mse', 'mae') (default: 'mse')
         # Removed the redundant 'regularization' attribute from the original file.
     """
+
     # -- loss function config --
-    loss: LossType = Field(default="mse",
-                           description="Loss function to use for regression. Options: 'mse' (Mean Squared Error), 'mae' (Mean Absolute Error)."
-                           )
-
-
+    loss: LossType = Field(
+        default="mse",
+        description="Loss function to use for regression. Options: 'mse' (Mean Squared Error), 'mae' (Mean Absolute Error).",
+    )

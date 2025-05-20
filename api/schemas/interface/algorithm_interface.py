@@ -1,8 +1,8 @@
+from typing import List, Literal, Optional, Type
+
 from pydantic import BaseModel, Field
-from typing import Optional, Literal, List, Type
-from pydantic_schemas.configs.algorithm_configs import (
-    BaseAlgorithmParams,
-)
+from schemas.configs.algorithm_configs import BaseAlgorithmParams
+
 
 class AlgorithmInfo(BaseModel):
     internal_name: str = Field(
@@ -17,4 +17,3 @@ class AlgorithmInfo(BaseModel):
         default="",
         description="Description of the algorithm, providing details about its functionality.",
     )
-

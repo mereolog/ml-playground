@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from pydantic import Field
-from pydantic_schemas.configs.algorithm_configs import GradientBasedParams, LossType
+from schemas.configs.algorithm_configs import GradientBasedParams, LossType
 
 
 class PolynomialRegressionParams(GradientBasedParams):

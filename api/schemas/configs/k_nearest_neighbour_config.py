@@ -1,7 +1,7 @@
 from typing import Literal, Optional
 
 from pydantic import Field
-from pydantic_schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
+from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
 # Define custom types for clarity, mirroring the dataclass version
 KNNWeightType = Literal["uniform", "distance"]

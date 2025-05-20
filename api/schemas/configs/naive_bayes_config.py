@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from pydantic import Field
-from pydantic_schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
+from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
 
 class NaiveBayesParams(SupervisedAlgorithmsParams):
