@@ -1,5 +1,5 @@
 from pydantic import Field
-from api.pydantic_schemas.configs.algorithm_configs import GradientBasedParams
+from pydantic_schemas.configs.algorithm_configs import GradientBasedParams
 
 
 class LogisticRegressionParams(GradientBasedParams):
@@ -20,5 +20,5 @@ class LogisticRegressionParams(GradientBasedParams):
         default=0.5,
         description="Decision threshold for converting probabilities to class labels.",
         gt=0.0,
-        lt=1.0
+        lt=1.0,
     )

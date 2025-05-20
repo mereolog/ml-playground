@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pydantic import Field
-from api.pydantic_schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
+from pydantic_schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
 
 class DecisionTreeParams(SupervisedAlgorithmsParams):
@@ -17,15 +17,13 @@ class DecisionTreeParams(SupervisedAlgorithmsParams):
     max_tree_depth: Optional[int] = Field(
         default=None,
         description="Maximum depth of a tree. If set, must be a positive integer.",
-        gt=0
+        gt=0,
     )
     min_leaf_samples: int = Field(
         default=1,
         description="Minimal number of samples needed to create new leaf.",
-        gt=0
+        gt=0,
     )
     min_split_samples: int = Field(
-        default=2,
-        description="Minimal number of samples needed to make a split.",
-        gt=0
+        default=2, description="Minimal number of samples needed to make a split.", gt=0
     )
