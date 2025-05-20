@@ -3,6 +3,10 @@ import logging
 from fastapi import FastAPI, WebSocket, HTTPException
 
 from pydantic_schemas.configs.linear_regression_configs import LinearRegressionParams
+from api.pydantic_schemas.configs.decision_tree_config import DecisionTreeParams
+from api.pydantic_schemas.configs.k_nearest_neighbour_config import KNeighborsParams
+from api.pydantic_schemas.configs.kmeans_config import KMeansParams
+from api.pydantic_schemas.configs.logistic_regression_config import LogisticRegressionParams # Added import
 from pydantic_schemas.interface.algorithm_interface import AlgorithmInfo
 
 from typing import Dict, List, Type
@@ -26,6 +30,38 @@ ALGORITHM_REGISTRY: Dict[str, AlgorithmRegistryEntry] = {
             description="A simple linear regression model."
         ),
         LinearRegressionParams
+    ),
+    "decision_tree": AlgorithmRegistryEntry(
+        AlgorithmInfo(
+            internal_name="decision_tree",
+            display_name="Decision Tree",
+            description="A decision tree algorithm for classification and regression."
+        ),
+        DecisionTreeParams
+    ),
+    "k_nearest_neighbours": AlgorithmRegistryEntry(
+        AlgorithmInfo(
+            internal_name="k_nearest_neighbours",
+            display_name="K-Nearest Neighbours",
+            description="A k-nearest neighbours algorithm for classification and regression."
+        ),
+        KNeighborsParams
+    ),
+    "kmeans": AlgorithmRegistryEntry(
+        AlgorithmInfo(
+            internal_name="kmeans",
+            display_name="K-Means Clustering",
+            description="A k-means clustering algorithm to partition data into k clusters."
+        ),
+        KMeansParams
+    ),
+    "logistic_regression": AlgorithmRegistryEntry(
+        AlgorithmInfo(
+            internal_name="logistic_regression",
+            display_name="Logistic Regression",
+            description="A logistic regression algorithm for binary classification."
+        ),
+        LogisticRegressionParams
     ),
 }
 # Configure logging
