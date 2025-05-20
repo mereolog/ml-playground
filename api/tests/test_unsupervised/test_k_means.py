@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 from api.algorithms.unsupervised.k_means import KMeans
 import numpy as np
+import pandas as pd
 
 
 class KMeansVisualizer:
@@ -35,15 +36,10 @@ class KMeansVisualizer:
             self.plot_step()
 
 
-np.random.seed(42)
+df = pd.read_csv("C:\ml_pl\pythonProject1\ml-playground\datasets\Live.csv")
+X = df[['num_reactions', 'num_likes']].values
 
-X = np.vstack((
-    np.random.normal([2, 2], 0.4, size=(50, 2)),
-    np.random.normal([7, 7], 0.4, size=(50, 2)),
-    np.random.normal([2, 7], 0.4, size=(50, 2))
-))
-
-kmeans = KMeans(k=4, init_method='random', max_iters=6, tol=0)
+kmeans = KMeans(k=3, max_iters=10, init_method='k-means++', metric='euclidean')
 kmeans.fit(X)
 
 visualizer = KMeansVisualizer(kmeans, X)
