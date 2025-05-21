@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict
 from typing import Any, Dict, Generic, TypeVar
 
-from schemas.configs.algorithms_configs import BaseAlgorithmParams
+from schemas.configs.algorithm_configs import BaseAlgorithmParams
 
 P = TypeVar("P", bound=BaseAlgorithmParams)
 

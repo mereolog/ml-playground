@@ -20,11 +20,6 @@ def home_view(request):
     return render(request, "pages/playground.html", context=context)
 
 
-def linear_regression(request):
-
-    return render(request, "algorithms/linear_regression.html", context=context)
-
-
 def algorithm_form(request, algorithm_name):
     resp = requests.get(f"{FASTAPI_URL}/algorithms/{algorithm_name}/config_schema")
     if resp.status_code != 200:
