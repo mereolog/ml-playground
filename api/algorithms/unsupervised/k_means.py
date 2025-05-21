@@ -12,7 +12,6 @@ class KMeans:
 
         self.centroids = None
         self.labels = None
-        self.inertia_ = None
         self.history = []
 
     def _initialize_centroids(self, X):
@@ -60,7 +59,6 @@ class KMeans:
             if shift < self.tol:
                 break
 
-        self.inertia_ = np.sum(np.min(self._compute_distances(X, self.centroids), axis=1) ** 2)
 
     def predict(self, X):
         distances = self._compute_distances(X, self.centroids)
