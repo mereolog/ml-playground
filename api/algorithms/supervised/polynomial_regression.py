@@ -8,7 +8,6 @@ import logging
 import numpy as np
 from typing import Dict, List, Optional, Any
 
-# Local imports
 from api.algorithms.base.supervised import SupervisedAlgorithm
 from schemas.configs.polynomial_regression import PolynomialRegressionParams
 from api.algorithms.supervised.linear_regression import LinearRegression

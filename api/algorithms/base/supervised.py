@@ -34,3 +34,5 @@ class SupervisedAlgorithm(ABC, Generic[P]):
     @abstractmethod
     def get_training_history(self) -> Dict[str, List[float]]:
         pass
+
+    
