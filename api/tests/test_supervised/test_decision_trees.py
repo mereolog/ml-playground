@@ -1,4 +1,4 @@
-from api.algorithms.supervised.decision_trees import DecisionTree, TreeNode
+from algorithms.supervised.decision_trees import DecisionTree, TreeNode
 import pandas as pd
 import pytest
 
