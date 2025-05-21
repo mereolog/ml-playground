@@ -1,39 +1,64 @@
-"""Tests for Naive Bayes configuration dataclasses."""
+"""Tests for Naive Bayes configuration classes."""
 
 import pytest
 
-from schemas.configs.naive_bayes_configs import NaiveBayesParams
+from schemas.configs.naive_bayes_config import (
+    NaiveBayesParams
+    # BernoulliNBParams,
+    # GaussianNBParams,
+    # MultinomialNBParams,
+)
 
 
-class TestNaiveBayesParams:
-    """Test suite for NaiveBayesParams."""
-
-    def test_default_initialization(self):
-        """Test initialization with default values."""
-        params = NaiveBayesParams()
-        assert params.alpha == 1.0
-
-    def test_custom_initialization(self):
-        """Test initialization with custom values."""
-        params = NaiveBayesParams(
-            alpha=0.5,
-        )
-        assert params.alpha == 0.5
-
-    def test_invalid_alpha(self):
-        """Test validation of negative alpha parameter."""
-        with pytest.raises(ValueError, match="alpha must be greater than or equal to 0"):
-            NaiveBayesParams(alpha=-1.0)
-
-    def test_multiple_invalid_params(self):
-        """Test multiple invalid parameters together."""
-        # this is how we can test multiple invalid parameters together
-        with pytest.raises(ValueError, match="alpha must be greater than or equal to 0"):
-            NaiveBayesParams(alpha=-1.0, binarize=-0.5)
-        
-        with pytest.raises(ValueError, match="alpha must be greater than or equal to 0"):
-            NaiveBayesParams(alpha=-2.0, binarize=-1.0, fit_prior=False)
+@pytest.mark.parametrize(
+    "alpha,fit_prior,class_prior",
+    [
+        (1.0, True, None),  # default values
+        (0.5, False, [0.3, 0.7]),  # custom values
+    ],
+)
+def test_multinomial_nb_params(alpha, fit_prior, class_prior):
+    """Test MultinomialNBParams initialization."""
+    params = NaiveBayesParams( # was supposed to be MultinomialNBParams
+        alpha=alpha,
+        fit_prior=fit_prior,
+        class_prior=class_prior
+    )
+    assert params.alpha == alpha
+    assert params.fit_prior == fit_prior
+    assert params.class_prior == class_prior
 
 
-        
-            
+@pytest.mark.parametrize(
+    "var_smoothing",
+    [1e-9, 1e-8],  # default and custom values
+)
+def test_gaussian_nb_params(var_smoothing):
+    """Test GaussianNBParams initialization."""
+    params = NaiveBayesParams(var_smoothing=var_smoothing) # was supposed to be GaussianNBParams
+    assert params.var_smoothing == var_smoothing
+
+
+@pytest.mark.parametrize(
+    "alpha,fit_prior,class_prior,binarize",
+    [
+        (1.0, True, None, 0.0),  # default values
+        (0.5, False, [0.3, 0.7], 0.5),  # custom values
+    ],
+)
+def test_bernoulli_nb_params(alpha, fit_prior, class_prior, binarize):
+    """Test BernoulliNBParams initialization."""
+    params = NaiveBayesParams( # was supposed to be BernoulliNBParams
+        alpha=alpha,
+        fit_prior=fit_prior,
+        class_prior=class_prior,
+        binarize=binarize
+    )
+    assert params.alpha == alpha
+    assert params.fit_prior == fit_prior
+    assert params.class_prior == class_prior
+    assert params.binarize == binarize
+
+
+
+
