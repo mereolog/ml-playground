@@ -19,7 +19,7 @@ jobs:
         pip install pylint pylint-django
     - name: Analysing the code with pylint
       env:
-          PYTHONPATH: ./api/
+          PYTHONPATH: ./api
       run: |
         cp .env.example .env
         echo $(git ls-files './**/*.py')
