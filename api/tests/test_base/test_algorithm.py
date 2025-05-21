@@ -7,7 +7,6 @@ from algorithms.base.algorithm import Algorithm
 from schemas.configs.algorithm_configs import BaseAlgorithmParams
 
 
-@dataclass
 class MockParams(BaseAlgorithmParams):
     """Mock parameter class for testing.
     
