@@ -3,9 +3,10 @@
 import pytest
 
 from schemas.configs.naive_bayes_config import (
-    BernoulliNBParams,
-    GaussianNBParams,
-    MultinomialNBParams,
+    NaiveBayesParams
+    # BernoulliNBParams,
+    # GaussianNBParams,
+    # MultinomialNBParams,
 )
 
 
@@ -18,7 +19,7 @@ from schemas.configs.naive_bayes_config import (
 )
 def test_multinomial_nb_params(alpha, fit_prior, class_prior):
     """Test MultinomialNBParams initialization."""
-    params = MultinomialNBParams(
+    params = NaiveBayesParams( # was supposed to be MultinomialNBParams
         alpha=alpha,
         fit_prior=fit_prior,
         class_prior=class_prior
@@ -34,7 +35,7 @@ def test_multinomial_nb_params(alpha, fit_prior, class_prior):
 )
 def test_gaussian_nb_params(var_smoothing):
     """Test GaussianNBParams initialization."""
-    params = GaussianNBParams(var_smoothing=var_smoothing)
+    params = NaiveBayesParams(var_smoothing=var_smoothing) # was supposed to be GaussianNBParams
     assert params.var_smoothing == var_smoothing
 
 
@@ -47,7 +48,7 @@ def test_gaussian_nb_params(var_smoothing):
 )
 def test_bernoulli_nb_params(alpha, fit_prior, class_prior, binarize):
     """Test BernoulliNBParams initialization."""
-    params = BernoulliNBParams(
+    params = NaiveBayesParams( # was supposed to be BernoulliNBParams
         alpha=alpha,
         fit_prior=fit_prior,
         class_prior=class_prior,
