@@ -10,6 +10,7 @@ class KMeans:
         self.init_method = init_method
         self.metric = metric
 
+        self.inertia_ = None
         self.centroids = None
         self.labels = None
         self.history = []
@@ -45,7 +46,8 @@ class KMeans:
             distances = self._compute_distances(X, self.centroids)
             labels = np.argmin(distances, axis=1)
 
-            self.history.append((self.centroids.copy(), labels.copy()))
+            step_inertia = np.sum(np.min(distances, axis=1) ** 2)
+            self.history.append((self.centroids.copy(), labels.copy(), step_inertia))
 
             new_centroids = np.array([
                 X[labels == i].mean(axis=0) if np.any(labels == i) else self.centroids[i]
@@ -59,6 +61,7 @@ class KMeans:
             if shift < self.tol:
                 break
 
+        self.inertia_ = step_inertia
 
     def predict(self, X):
         distances = self._compute_distances(X, self.centroids)
