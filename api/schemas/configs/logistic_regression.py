@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-
 from schemas.configs.algorithms_configs import GradientBasedParams
 
 
@@ -12,19 +11,23 @@ class LogisticRegressionParams(GradientBasedParams):
 
     Attributes:
         threshold: Decision threshold for converting probabilities to class labels (default: 0.5).
-        # Note: Loss is typically binary cross-entropy/log loss for logistic regression
-        # and is usually not configurable in the same way as regression loss.
-        # It's not included here, assuming the model implementation handles it.
+        regularization: Type of regularization to apply ("l1", "l2", or None).
+        lambda_: Regularization strength (must be non-negative).
     """
-    # Parameters learning_rate, epochs, batch_size, reg_type, reg_strength, mixing_ratio
-    # are inherited from GradientBasedParams
-
     threshold: float = 0.5
+    regularization: str = None  # "l1", "l2", or None
+    lambda_: float = 0.01       # Regularization strength
 
     def __post_init__(self):
         """Validate parameters after initialization."""
-        super().__post_init__() # Call base class __post_init__ (includes GD validation)
+        super().__post_init__()  # Call base class __post_init__ (includes GD validation)
 
-        # --- Threshold validation (specific to Logistic Regression) ---
         if not (0.0 < self.threshold < 1.0):
             raise ValueError("threshold must be a value between 0 and 1 (exclusive)")
+
+        # --- Regularization validation ---
+        if self.regularization not in (None, "l1", "l2"):
+            raise ValueError("regularization must be one of: None, 'l1', or 'l2'")
+
+        if self.lambda_ < 0.0:
+            raise ValueError("lambda_ must be a non-negative float")
