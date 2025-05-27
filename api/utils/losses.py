@@ -102,3 +102,25 @@ class BinaryCrossEntropy(LossFunction):
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
         # implementation
         pass
+class LogLoss:
+    @staticmethod
+    def compute(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        y_true = y_true.astype(float)
+
+        # Binary or multiclass (one-hot)
+        if y_true.ndim == 1 or (y_true.ndim == 2 and y_true.shape[1] == 1):
+            log_loss = -np.mean(
+                y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred)
+            )
+        else:
+            log_loss = -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
+        return log_loss
+
+    @staticmethod
+    def gradient(y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        y_true = y_true.astype(float)
+        return -(y_true / y_pred) + ((1 - y_true) / (1 - y_pred))
