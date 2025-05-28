@@ -5,12 +5,12 @@ import logging
 from typing import Any, Dict, Optional
 
 import numpy as np
-from algorithms.base.supervised import SupervisedAlgorithm
-from schemas.configs.naive_bayes_configs import NaiveBayesParams
+import plotly.express as px
+import plotly.graph_objects as go
 from utils.losses import LossFunction, LogLoss
 
-import plotly.graph_objects as go
-import plotly.express as px
+from algorithms.base.supervised import SupervisedAlgorithm
+from schemas.configs.naive_bayes_configs import NaiveBayesParams
 
 
 class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
