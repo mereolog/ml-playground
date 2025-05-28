@@ -17,9 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from playgrounds.views import home_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", home_view, name="home"),
     path("", include("playgrounds.urls")),
     path("api/", include("endpoints.urls")),
     path("__reload__/", include("django_browser_reload.urls")),

@@ -1,3 +1,27 @@
+<label class="form-control w-full max-w-xs">
+  <div class="label">
+      <span class="label-text">Select a dataset</span>
+      <span class="label-text-alt">Stored datasets</span>
+  </div>
+  <!-- Dropdown to select existing datasets -->
+  <select id="existing-dataset-select"
+          class="select select-bordered w-full max-w-xs">
+      <option disabled selected>Choose a dataset</option>
+      {% for dataset in datasets %}<option value="{{ dataset }}">{{ dataset }}</option>{% endfor %}
+  </select>
+  <div class="divider">OR</div>
+  <div class="label">
+      <span class="label-text">Upload your dataset</span>
+      <span class="label-text-alt">Supported: <strong>.csv</strong></span>
+  </div>
+  <input id="dataset-input"
+         name="dataset-file"
+         type="file"
+         accept=".csv"
+         class="file-input file-input-xs file-input-bordered w-full max-w-xs" />
+  <div class="label"></div>
+</label>
+
 <div id="csv-info">
   <h4 class="text-md font-semibold text-gray-700 mb-1">Dataset file</h4>
   

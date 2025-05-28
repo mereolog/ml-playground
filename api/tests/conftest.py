@@ -18,24 +18,17 @@ sys.path.insert(0, str(root_dir))
 # something called "fixtures"
 
 
-@pytest.fixture
-def simple_linear_dataset():
-    """Create a simple linear dataset for regression."""
-    np.random.seed(42)
-    X = np.random.rand(100, 3)
-    true_weights = np.array([1.5, -0.8, 2.0])
-    true_bias = 0.5
-    y = np.dot(X, true_weights) + true_bias + np.random.normal(0, 0.1, size=100)
-    return X, y, true_weights, true_bias
+@pytest.fixture(scope="function")
+def simple_linear_dataset() -> tuple[np.ndarray, np.ndarray]:
+    """Generate a simple linear dataset for testing."""
+    X = np.array([[i] for i in range(0, 10)], dtype=np.float32)
+    y = 2 * X + 1  # y = 2x + 1
+    return X, y.flatten()
 
 
-@pytest.fixture
-def simple_classification_dataset():
-    """Create a simple dataset for binary classificationg."""
-    pass
-
-
-@pytest.fixture
-def simple_clustering_dataset():
-    """Create a simple dataset for clustering."""
-    pass
+@pytest.fixture(scope="function")
+def simple_polynomial_dataset() -> tuple[np.ndarray, np.ndarray]:
+    """Generate a simple polynomial dataset for testing."""
+    X = np.array([[i] for i in range(0, 10)], dtype=np.float32)
+    y = 2 * X**2 + 3 * X + 1  # y = 2x^2 + 3x + 1
+    return X, y.flatten()
