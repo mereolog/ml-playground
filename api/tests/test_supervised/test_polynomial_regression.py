@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
-from api.algorithms.supervised.polynomial_regression import PolynomialRegression
+from algorithms.supervised.polynomial_regression import PolynomialRegression
+
 from schemas.configs.polynomial_regression import PolynomialRegressionParams
 
 

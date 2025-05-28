@@ -108,15 +108,15 @@ function handleCSVData(file) {
 
             const dependentSelect = document.getElementById('dependent-variable');
             const independentSelect = document.getElementById('independent-variable');
-            dependentSelect.innerHTML = '<option value="">Select a column</option>';
-            independentSelect.innerHTML = '<option value="">Select a column</option>';
-
+            // dependentSelect.innerHTML = '<option value="">Select a column</option>';
+            // independentSelect.innerHTML = '<option value="">Select a column</option>';
+            //
             info.columns.forEach(column => {
                 const option = document.createElement('option');
                 option.value = column;
                 option.textContent = column;
-                dependentSelect.appendChild(option);
-                independentSelect.appendChild(option.cloneNode(true));
+                // dependentSelect.appendChild(option);
+                // independentSelect.appendChild(option.cloneNode(true));
             });
 
             // Update the table with column names and types

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from schemas.configs.algorithms_configs import GradientBasedParams
+
+from schemas.configs.algorithm_configs import GradientBasedParams
 
 
 # --- ADDED and UPDATED Logistic Regression Params (Inherits GradientBasedParams) ---

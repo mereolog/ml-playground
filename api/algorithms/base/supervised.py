@@ -1,14 +1,20 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from typing import Generic, TypeVar, Dict, Any, List
 import numpy as np
-from typing import Dict, List, Any, Generic
-from typing import TypeVar
 
-P = TypeVar("P") 
+from algorithms.base.algorithm import Algorithm, P
+from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
-class SupervisedAlgorithm(ABC, Generic[P]):
+SP = TypeVar("SP", bound=SupervisedAlgorithmsParams)
 
-    def __init__(self):
-        self._params = None  
+
+class SupervisedAlgorithm(Algorithm[SP], Generic[SP]):
+    """
+    Base class for supervised algorithms
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
 
     @property
     @abstractmethod
@@ -35,4 +41,3 @@ class SupervisedAlgorithm(ABC, Generic[P]):
     def get_training_history(self) -> Dict[str, List[float]]:
         pass
 
-    

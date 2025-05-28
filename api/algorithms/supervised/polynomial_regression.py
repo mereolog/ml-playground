@@ -5,14 +5,12 @@ the independent variables and the dependent variable is modelled as an nth degre
 """
 
 import logging
-import numpy as np
 from typing import Dict, List, Optional, Any
 
-from api.algorithms.base.supervised import SupervisedAlgorithm
-from schemas.configs.polynomial_regression import PolynomialRegressionParams
-from api.algorithms.supervised.linear_regression import LinearRegression
-from schemas.configs.linear_regression import LinearRegressionParams
+import numpy as np
 
+from algorithms.supervised.linear_regression import LinearRegression
+from schemas.configs.polynomial_regression import PolynomialRegressionParams
 
 
 class PolynomialRegression(LinearRegression):
