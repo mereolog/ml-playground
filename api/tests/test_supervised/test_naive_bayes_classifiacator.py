@@ -1,64 +1,68 @@
-import unittest
 import numpy as np
-from algorithms.supervised.naive_bayes_classificator import NaiveBernoulliClassifier
+import pytest
 from schemas.configs.naive_bayes_configs import NaiveBayesParams
+from algorithms.supervised.naive_bayes_classificator import NaiveBernoulliClassifier
 
+def test_fit_predict_score_basic():
+    # Simple dataset: AND logic gate
+    # X: [A, B], y: A AND B
+    X = np.array([
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1]
+    ])
+    y = np.array([0, 0, 0, 1])
 
-class TestNaiveBernoulliClassifier(unittest.TestCase):
+    params = NaiveBayesParams(alpha=1.0, verbose=False)
+    clf = NaiveBernoulliClassifier(params)
+    clf.fit(X, y)
+    probs = clf.predict_proba(X)
+    preds = clf.predict(X)
+    scores = clf.score(X, y)
+    params_dict = clf.get_parameters()
 
-    def setUp(self):
-        """Set up test data and initialize the classifier."""
-        self.X_train = np.array([[1, 0, 1], [0, 1, 0], [1, 1, 1], [0, 0, 0]])
-        self.y_train = np.array([1, 0, 1, 0])
-        self.X_test = np.array([[1, 0, 0], [0, 1, 1]])
-        self.y_test = np.array([1, 0])
+    # Probabilities should be between 0 and 1
+    assert np.all(probs >= 0) and np.all(probs <= 1)
+    # Predictions should match y (perfect accuracy for simple AND logic)
+    assert np.array_equal(preds, y)
+    # Accuracy should be 1.0
+    assert pytest.approx(scores["accuracy"], 0.01) == 1.0
+    # Should expose learned parameters
+    assert "class_probs" in params_dict and "feature_probs" in params_dict
 
-        self.classifier = NaiveBernoulliClassifier(params=NaiveBayesParams(verbose=True))
+def test_fit_with_nonbinary_raises():
+    X = np.array([
+        [0, 1],
+        [0, 2],  # Non-binary value!
+        [1, 0]
+    ])
+    y = np.array([0, 0, 1])
+    clf = NaiveBernoulliClassifier()
+    with pytest.raises(ValueError):
+        clf.fit(X, y)
 
-    def test_fit(self):
-        """Test the fit method."""
-        self.classifier.fit(self.X_train, self.y_train)
+def test_predict_without_fit_raises():
+    X = np.array([[0, 1], [1, 0]])
+    clf = NaiveBernoulliClassifier()
+    with pytest.raises(ValueError):
+        clf.predict_proba(X)
 
-        self.assertIsNotNone(self.classifier.feature_probs, "Feature probabilities should not be None after fitting.")
-        self.assertIsNotNone(self.classifier.class_probs, "Class probabilities should not be None after fitting.")
+def test_plot_feature_probs_runs(tmp_path):
+    # Test that plot_feature_probs runs without errors
+    X = np.array([[0, 1], [1, 0], [1, 1]])
+    y = np.array([0, 1, 1])
+    clf = NaiveBernoulliClassifier()
+    clf.fit(X, y)
+    # Should return a Plotly Figure
+    fig = clf.plot_feature_probs()
+    assert fig is not None
 
-    def test_predict_proba(self):
-        """Test the predict_proba method."""
-        self.classifier.fit(self.X_train, self.y_train)
-        probs = self.classifier.predict_proba(self.X_test)
-
-        self.assertEqual(probs.shape, (2, 2), "Predict_proba should return an array of shape (n_samples, n_classes).")
-        self.assertTrue(np.all(probs >= 0) and np.all(probs <= 1), "Probabilities should be between 0 and 1.")
-
-    def test_predict(self):
-        """Test the predict method."""
-        self.classifier.fit(self.X_train, self.y_train)
-        predictions = self.classifier.predict(self.X_test)
-
-        self.assertEqual(predictions.shape, (2,), "Predict should return an array of shape (n_samples,).")
-        self.assertTrue(np.all(np.isin(predictions, [0, 1])), "Predictions should be binary (0 or 1).")
-
-    def test_score(self):
-        """Test the score method."""
-        self.classifier.fit(self.X_train, self.y_train)
-        scores = self.classifier.score(self.X_test, self.y_test)
-
-        self.assertIn("accuracy", scores, "Score dictionary should contain 'accuracy'.")
-        self.assertIn("log_loss", scores, "Score dictionary should contain 'log_loss'.")
-        self.assertGreaterEqual(scores["accuracy"], 0, "Accuracy should be >= 0.")
-        self.assertGreaterEqual(scores["log_loss"], 0, "Log loss should be >= 0.")
-
-    def test_get_parameters(self):
-        """Test the get_parameters method."""
-        self.classifier.fit(self.X_train, self.y_train)
-        params = self.classifier.get_parameters()
-
-        self.assertIn("class_probs", params, "Parameters should contain 'class_probs'.")
-        self.assertIn("feature_probs", params, "Parameters should contain 'feature_probs'.")
-        self.assertEqual(params["class_probs"].shape, (2,), "Class probabilities should have shape (n_classes,).")
-        self.assertEqual(params["feature_probs"].shape, (2, self.X_train.shape[1]),
-                         "Feature probabilities should have shape (n_classes, n_features).")
-
-
-if __name__ == "__main__":
-    unittest.main()
+def test_plot_predictions_runs(tmp_path):
+    # Test that plot_predictions runs without errors
+    X = np.array([[0, 1], [1, 0], [1, 1], [0, 0]])
+    y = np.array([0, 1, 1, 0])
+    clf = NaiveBernoulliClassifier()
+    clf.fit(X, y)
+    fig = clf.plot_predictions(X, y, feature_x=0, feature_y=1)
+    assert fig is not None
