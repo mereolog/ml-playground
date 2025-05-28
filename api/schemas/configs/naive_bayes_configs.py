@@ -1,7 +1,7 @@
-from dataclasses import dataclass, field 
-from typing import Literal, Optional 
-from schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
+from dataclasses import dataclass
+from typing import Optional
 
+from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
 
 @dataclass

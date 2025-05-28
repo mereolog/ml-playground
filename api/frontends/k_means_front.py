@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Button
-from api.algorithms.unsupervised.k_means import KMeans
 import pandas as pd
+from matplotlib.widgets import Button
+
+from algorithms.unsupervised.k_means import KMeans
 
 
 def check_numeric_columns(df, columns):

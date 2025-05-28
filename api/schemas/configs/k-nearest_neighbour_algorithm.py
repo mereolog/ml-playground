@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Optional, Literal, Union
+from typing import Optional, Literal
 
-from schemas.configs.algorithms_configs import BaseAlgorithmParams
+from schemas.configs.algorithm_configs import BaseAlgorithmParams
 
 # Define custom types for clarity
 KNNWeightType = Literal['uniform', 'distance']

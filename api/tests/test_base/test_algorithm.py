@@ -1,10 +1,8 @@
 """Tests for the base Algorithm class."""
 
-from abc import abstractmethod
 from dataclasses import dataclass
 from typing import TypeVar
 
-import pytest
 from algorithms.base.algorithm import Algorithm
 from schemas.configs.algorithm_configs import BaseAlgorithmParams
 
