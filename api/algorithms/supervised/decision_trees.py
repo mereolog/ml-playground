@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from typing import Dict, Optional
 
-
 class TreeNode:
     def __init__(self, feature: Optional[str] = None, label: Optional[str] = None,
                  is_root: bool = False):
@@ -201,5 +200,6 @@ class DecisionTree():
 
 def majority_class(series: pd.Series) -> str:
     return series.value_counts().idxmax()
+
 
 
