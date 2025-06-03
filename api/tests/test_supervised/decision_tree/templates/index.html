@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Decision Tree</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .upload-container {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .upload-container:hover {
+            border-color: #4CAF50;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .result {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .file-info {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+        }
+        .node rect {
+            cursor: pointer;
+            stroke-width: 1.5px;
+        }
+        .node text {
+            font: 12px sans-serif;
+            fill: black;
+        }
+        .node:hover text {
+            opacity: 1;
+        }
+        .link {
+            fill: none;
+            stroke: #cccccc;
+            stroke-width: 1.5px;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            width: 120px;
+            height: auto;
+            padding: 5px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .tree-controls {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .tree-controls button {
+            margin: 0 5px;
+        }
+
+    .form-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        background-color: #e8e8e8;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-column {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+
+    label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    select,
+    input[type="number"] {
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        transition: border-color 0.3s;
+    }
+
+    select:hover,
+    input[type="number"]:hover {
+        border-color: #4CAF50;
+    }
+
+    .tooltip {
+        font-size: 0.8em;
+        color: #00000;
+        margin-top: 5px;
+    }
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .form-column {
+            min-width: 100%;
+        }
+    }
+
+            .csv-preview {
+        max-width: 100%;
+        overflow-x: auto;
+        margin-top: 20px;
+        border: 1px solid #dddddd;
+        border-radius: 4px;
+    }
+    .csv-preview table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .csv-preview th, .csv-preview td {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        text-align: left;
+    }
+    .csv-preview th {
+        background-color: #f2f2f2;
+    }
+</style>
+</head>
+<body>
+    <h1>Decision Tree</h1>
+
+
+    <form id="sampleForm" method="POST">
+        <div class="form-section">
+            <div class="form-group">
+                <label for="sample_file">Select sample dataset:</label>
+                <select id="sample_file" name="sample_file" required>
+                    <option value="">-- Select a sample file --</option>
+                    {% for file in sample_files %}
+                        <option value="{{ file }}" {% if selected_sample == file %}selected{% endif %}>{{ file }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit">Load Sample</button>
+        </div>
+    </form>
+
+        {% if csv_head %}
+    <h2>Preview of Selected CSV:</h2>
+    <div class="csv-preview">
+        {{ csv_head|safe }}
+    </div>
+    {% endif %}
+
+
+
+    {% if columns %}
+    <div class="form-section">
+        <div class="form-column">
+            <form id="runForm" method="POST" action="{{ url_for('index') }}">
+                <div class="form-group">
+                    <h2>Features and target</h2>
+                    <label for="features">Select Features (X):</label>
+                    <select id="features" name="features" multiple required>
+                        {% for column in columns %}
+                            <option value="{{ column }}">{{ column }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="tooltip">Hold down the Ctrl (Windows) / Command (Mac) button to select multiple options.</div>
+                </div>
+                <div class="form-group">
+                    <label for="target">Select Target (y):</label>
+                    <select id="target" name="target" required>
+                        {% for column in columns %}
+                            <option value="{{ column }}">{{ column }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="tooltip">Select the one output variable you want to predict.</div>
+                </div>
+
+        </div>
+
+        <div class="form-column">
+                <h2>Algorithm Parameters</h2>
+
+                <div class="form-group">
+                    <label for="max_depth">Max Depth</label>
+                    <input type="number" id="max_depth" name="max_depth" value="{{ max_depth or 4 }}" min="1">
+                    <div class="tooltip">Maximum depth of the tree. Increasing this may result in overfitting.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="min_samples_split">Min Samples Split</label>
+                    <input type="number" id="min_samples_split" name="min_samples_split" value="{{ min_samples_split or 2 }}" min="2">
+                    <div class="tooltip">Minimum number of samples required to split an internal node.</div>
+                </div>
+
+                <input type="hidden" name="csv_data" value="{{ csv_data }}">
+                <button type="submit">Run Algorithm</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    {% if result %}
+    <div class="result">
+        <h2>Decision Tree Visualization:</h2>
+
+        <div class="tree-controls">
+            <button id="expandAll">Expand</button>
+            <button id="collapseAll">Collapse All</button>
+        </div>
+
+        <div id="tree"></div>
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+    {% endif %}
+    <script>
+        {% if result %}
+        document.addEventListener("DOMContentLoaded", function() {
+            const jsonData = {{ result | tojson }};
+            function convertToD3Hierarchy(data) {
+                if (!data) return null;
+                const node = {
+                    name: data.feature || data.label || 'root',
+                    type: data.type,
+                    entropy: data.entropy,
+                    majority_class: data.majority_class,
+                    class_distribution: data.class_distribution,
+                    all_gains: data.all_gains || {},
+                    children: []
+                };
+                if (data.children) {
+                    for (let childKey in data.children) {
+                        const childNode = convertToD3Hierarchy(data.children[childKey]);
+                        if (childNode) {
+                            childNode.linkLabel = childKey;
+                            node.children.push(childNode);
+                        }
+                    }
+                }
+                return node;
+            }
+
+            const treeData = convertToD3Hierarchy(jsonData);
+            const margin = {top: 40, right: 90, bottom: 50, left: 90},
+                  width = 960 - margin.left - margin.right,
+                  height = 600 - margin.top - margin.bottom;
+
+            const svg = d3.select("#tree")
+                .append("svg")
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+                .call(d3.zoom().on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                }))
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            const g = svg.append("g");
+
+            let i = 0; // Initialize node ID counter
+
+            let root = d3.hierarchy(treeData);
+
+            const treeLayout = d3.tree().nodeSize([150, 100]);
+
+            root.descendants().forEach((d) => {
+                if (d.depth && d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                }
+            });
+
+            update(root);
+
+            // Add event listeners for the new buttons
+            document.getElementById('expandAll').addEventListener('click', function() {
+                expandAll();
+            });
+
+            document.getElementById('collapseAll').addEventListener('click', function() {
+                collapseAll();
+            });
+
+            function expandAll() {
+                root.descendants().forEach(d => {
+                    if (d._children) {
+                        d.children = d._children;
+                        d._children = null;
+                    }
+                });
+                update(root);
+            }
+
+            function collapseAll() {
+                root.descendants().forEach(d => {
+                    if (d.children && d.depth > 0) {
+                        d._children = d.children;
+                        d.children = null;
+                    }
+                });
+                update(root);
+            }
+
+            function update(source) {
+                treeLayout(root);
+                const nodes = root.descendants();
+                const links = root.links();
+
+                // Update the nodes…
+                const node = g.selectAll('g.node')
+                    .data(nodes, d => d.id || (d.id = ++i));
+
+                // Enter any new nodes at the parent's previous position.
+                const nodeEnter = node.enter().append('g')
+                    .attr('class', 'node')
+                    .attr('transform', d => `translate(${source.x0 || source.x},${source.y0 || source.y})`)
+                    .on('click', click)
+                    .on('mouseover', function(event, d) {
+                        if (d.data.type !== 'leaf') {
+                            tooltip.transition()
+                                .duration(200)
+                                .style('opacity', 1);
+                            tooltip.html(formatAllGains(d.data.all_gains))
+                                .style('left', (event.pageX + 5) + 'px')
+                                .style('top', (event.pageY - 28) + 'px');
+                        }
+                    })
+                    .on('mouseout', function() {
+                        tooltip.transition()
+                            .duration(500)
+                            .style('opacity', 0);
+                    });
+
+                nodeEnter.append('rect')
+                    .attr('width', 120)
+                    .attr('height', 50)
+                    .attr('x', -60)
+                    .attr('y', -25)
+                    .attr('fill', d => d.data.type === 'leaf' ? 'lightgreen' : 'white')
+                    .attr('stroke', 'steelblue');
+
+                nodeEnter.append("text")
+                    .attr("y", -10)
+                    .attr("text-anchor", 'middle')
+                    .html(d => {
+                        const featureText = d.data.type !== 'leaf' ? `<tspan x="0" dy="1.2em">Feature: ${d.data.name}</tspan>` : '';
+                        const entropyText = `<tspan x="0" dy="1.2em">Entropy: ${d.data.entropy.toFixed(2)}</tspan>`;
+                        const classDistText = d.data.type === 'leaf' ? `<tspan x="0" dy="1.2em">Class: ${d.data.majority_class}</tspan>` : '';
+                        return `${featureText} ${entropyText} ${classDistText}`;
+                    });
+
+                const nodeUpdate = nodeEnter.merge(node);
+
+                nodeUpdate.transition().duration(750)
+                    .attr('transform', d => `translate(${d.x},${d.y})`);
+
+                const nodeExit = node.exit().transition().duration(750)
+                    .attr('transform', d => `translate(${source.x},${source.y})`)
+                    .remove();
+
+                nodeExit.select("rect")
+                    .attr("stroke", 'steelblue');
+
+                const link = g.selectAll('path.link')
+                    .data(links, d => d.target.id);
+
+                link.enter().insert('path', 'g')
+                    .attr('class', 'link')
+                    .attr('d', d3.linkVertical()
+                        .x(d => source.x0 || source.x)
+                        .y(d => source.y0 || source.y)
+                    )
+                    .merge(link)
+                    .transition()
+                    .duration(750)
+                    .attr('d', d3.linkVertical()
+                        .x(d => d.x)
+                        .y(d => d.y)
+                    );
+
+                link.exit().transition().duration(1)
+                    .attr('d', d3.linkVertical()
+                        .x(d => source.x)
+                        .y(d => source.y)
+                    )
+                    .remove();
+
+                const linkLabel = g.selectAll(".link-label")
+                    .data(links, d => d.target.id);
+
+                const linkLabelEnter = linkLabel.enter().append("g")
+                    .attr("class", "link-label")
+                    .attr("transform", d => `translate(${(d.source.x + d.target.x) / 2}, ${(d.source.y + d.target.y) / 2})`);
+
+                linkLabelEnter.append("text")
+                    .attr("text-anchor", "middle")
+                    .text(d => d.target.data.linkLabel);
+
+                const linkLabelUpdate = linkLabelEnter.merge(linkLabel);
+
+                linkLabelUpdate.transition().duration(1)
+                    .attr("transform", d => `translate(${(d.source.x + d.target.x) / 2}, ${(d.source.y + d.target.y) / 2})`);
+
+                linkLabel.exit().transition().duration(1)
+                    .attr("transform", d => `translate(${source.x},${source.y})`)
+                    .remove();
+
+                nodes.forEach(d => {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
+                });
+            }
+
+            function formatAllGains(allGains) {
+                return Object.entries(allGains)
+                    .map(([key, value]) => `<strong>${key}:</strong> ${value.toFixed(3)}`)
+                    .join('<br/>');
+            }
+
+            function click(event, d) {
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                } else {
+                    d.children = d._children;
+                    d._children = null;
+                }
+                update(d);
+            }
+
+            const tooltip = d3.select("#tooltip");
+        });
+        {% endif %}
+    </script>
+</body>
+</html>
