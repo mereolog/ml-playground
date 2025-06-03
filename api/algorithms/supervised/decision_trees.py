@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 from typing import Dict, Optional
 
+from schemas.configs.decision_tree_config import DecisionTreeParams
+
+
 class TreeNode:
     def __init__(self, feature: Optional[str] = None, label: Optional[str] = None,
                  is_root: bool = False):
@@ -57,7 +60,7 @@ class TreeNode:
 
 
 class DecisionTree():
-    def __init__(self, max_depth: Optional[int] = None,  min_samples_split: int = 1):
+    def __init__(self, params: DecisionTreeParams):
         """
         Decision Tree classifier using ID3 algorithm.
 
@@ -65,8 +68,8 @@ class DecisionTree():
 
         """
 
-        self.max_depth = max_depth
-        self.min_samples_split = min_samples_split
+        self.max_depth = params.max_tree_depth
+        self.min_samples_split = params.min_split_samples
 
         self.root: Optional[TreeNode] = None
 
