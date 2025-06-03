@@ -8,11 +8,8 @@ import logging
 import numpy as np
 from typing import Dict, List, Optional, Any
 
-from api.algorithms.base.supervised import SupervisedAlgorithm
+from algorithms.supervised.linear_regression import LinearRegression
 from schemas.configs.polynomial_regression import PolynomialRegressionParams
-from api.algorithms.supervised.linear_regression import LinearRegression
-from schemas.configs.linear_regression import LinearRegressionParams
-
 
 
 class PolynomialRegression(LinearRegression):

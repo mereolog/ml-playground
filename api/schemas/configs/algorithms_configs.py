@@ -1,12 +1,11 @@
 """
 Model parameter configurations
 
-This module defines dataclasses for ML algorithm hyperparameters to be used throughout the platform.
-These dataclasses provide type safety, default values, and documentation for each algorithm's
+This module defines classes based on the pydantic models for ML algorithm hyperparameters to be used throughout the platform.
+These classes provide type safety, default values, and documentation for each algorithm's
 configurable parameters.
 
 Most of the stuff assumes that there is some existing logic in our code so we just need to build on top of that.
-
 
 Usage:
     from configs.model_parameter_configs import LinearRegressionParams
@@ -18,24 +17,17 @@ Usage:
     custom_params = LinearRegressionParams(learning_rate=0.05, epochs=200)
     
 
-Dataclasses documentation:
-https://docs.python.org/3/library/dataclasses.html
+Pydantic models documentation:
+https://docs.pydantic.dev/latest/concepts/models/
 """
 
-import sys
-from dataclasses import dataclass
-from typing import Literal, Optional  # will need to import other types
 
-# its mostly for type checkers
-# now they will warn us if we try to assign invalid string
-LossType = Literal["mse", "mae"]
+from typing import Optional, Literal
 
-# the Optional type tells us that the regularization is optional and can be equal None
-RegType = Optional[Literal["l1", "l2", "elasticnet"]]
+from pydantic import BaseModel, Field
 
 
-@dataclass
-class BaseAlgorithmParams:
+class BaseAlgorithmParams(BaseModel):
     """Base parameters common to all ML models.
 
     This class provides common configuration parameters that are relevant
@@ -46,11 +38,18 @@ class BaseAlgorithmParams:
         verbose: Flag to control logging verbosity
     """
 
-    random_state: Optional[int] = None
-    verbose: bool = False
+    random_state: Optional[int] = Field(default=None, description="Seed for random number generation (for reproducibility)")
+    verbose: bool = Field(default=False, description="Flag to control logging verbosity")
+
+# its mostly for type checkers
+# now they will warn us if we try to assign invalid string
+LossType = Literal["mse", "mae"]
+
+# the Optional type tells us that the regularization is optional and can be equal None
+RegType = Optional[Literal["l1", "l2", "elasticnet"]]
 
 
-@dataclass
+
 class SupervisedAlgorithmsParams(BaseAlgorithmParams):
     """Base parameters for all supervised algorithms, we need to think what are the most common parameters
 
@@ -61,25 +60,25 @@ class SupervisedAlgorithmsParams(BaseAlgorithmParams):
        stratify: Whether to use stratify the datasets based on the target values (y)
     """
 
-    test_size: float = 0.2
-    # Optional[...] is basically Union[..., None]
-    # Its a prettier way of telling our script that we expect the argument to be a float or None value
-    validation_size: Optional[float] = (
-        None  # we might not want to create validation split so we default to None
+    test_size: float = Field(
+        default=0.2, description="Proportion of the dataset to include in the test split"
     )
-    shuffle: bool = True
-    stratify: bool = False
+    validation_size: Optional[float] = Field(
+        default=None,
+        gt=0,
+        lt=1,
+        description="Proportion of the TRAINING DATA to use as validation",
+    )
+    shuffle: bool = Field(
+        default=True, description="Whether to shuffle the dataset before splitting"
+    )
 
-    def __post_init__(self):
-        # validation logic goes here
-
-        if not (0 < self.test_size < 1):
-            raise ValueError(
-                f"test_size must be between 0 and 1 (exclusive), got {self.test_size}"
-            )
+    stratify: bool = Field(
+        default=False,
+        description="Whether to use stratify the datasets based on the target values (y)",
+    )
 
 
-@dataclass
 class UnsupervisedAlgorithmsParams(BaseAlgorithmParams):
     """Base parameters for all unsupervised algorithms
 
@@ -88,15 +87,15 @@ class UnsupervisedAlgorithmsParams(BaseAlgorithmParams):
         max_iter: Maximum number of iterations for the algorithm
     """
 
-    n_init: int = 10
-    max_iter: int = 300
+    n_init: int = Field(
+        default=10,
+        description="Number of times the algorithm will be run with different centroid seeds",)
+    
+    max_iter: int = Field(
+        default=300,
+        description="Maximum number of iterations for the algorithm",)
 
-    def __post_init__(self):
-        pass
 
-
-# --- NEW Generalized Class for Gradient-Based/Iterative Parameters ---
-@dataclass
 class GradientBasedParams(SupervisedAlgorithmsParams):
     """
     General parameters for supervised algorithms using iterative optimization
@@ -114,40 +113,28 @@ class GradientBasedParams(SupervisedAlgorithmsParams):
                       Used only when reg_type='elasticnet' (default: 0.5).
     """
 
-    learning_rate: float = 0.01
-    epochs: int = 100
-    batch_size: Optional[int] = None
+    learning_rate: float = Field(
+        default=0.01, description="Step size for gradient optimization"
+    )
+    epochs: int = Field(
+        default=100, description="Number of full passes through the training dataset"
+    )
+    batch_size: Optional[int] = Field(
+        default=None, description="Number of samples per gradient update, None means full batch"
+    )
 
     # -- Regularization Configuration --
-    reg_type: RegType = None
-    reg_strength: float = 0.01  # Corrected typo
-    mixing_ratio: float = 0.5
+    reg_type: RegType = Field(
+        default=None,
+        description="Type of regularization ('l1', 'l2', 'elasticnet') or None",
+    )
+    reg_strength: float = Field(
+        default=0.01,
+        gt=0,
+        description="Strength (lambda/alpha) of the regularization. Must be > 0 to have an effect",
+    ) 
 
-    def __post_init__(self):
-        """Validate parameters after initialization."""
-        super().__post_init__()  # Call parent __post_init__ (includes Supervised and Base validation)
-
-        if self.learning_rate <= 0:
-            raise ValueError("learning_rate must be greater than 0")
-        if self.epochs <= 0:
-            raise ValueError("epochs must be a positive integer")
-        if self.batch_size is not None and self.batch_size <= 0:
-            raise ValueError("batch_size must be a positive integer or None")
-
-        if self.reg_type is not None:
-            if self.reg_strength <= 0:
-                raise ValueError(
-                    "reg_strength must be greater than 0 when regularization is used (reg_type is not None)"
-                )
-
-            if self.reg_type == "elasticnet":
-                if not (0.0 <= self.mixing_ratio <= 1.0):
-                    raise ValueError(
-                        "mixing_ratio must be between 0 and 1 for ElasticNet"
-                    )
-            elif self.mixing_ratio != 0.5:
-                print(
-                    f"Warning: parameter 'mixing_ratio' ({self.mixing_ratio}) is set, "
-                    f"but it only has an effect when reg_type='elasticnet'. Current type: {self.reg_type}",
-                    file=sys.stderr,
-                )
+    mixing_ratio: float = Field(
+        default=0.5,
+        description="Mixing parameter for ElasticNet regularization. Must be 0 <= mixing_ratio <= 1.",
+    )

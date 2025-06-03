@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
-from api.algorithms.base.supervised import SupervisedAlgorithm
+from algorithms.base.supervised import SupervisedAlgorithm
 from schemas.configs.logistic_regression import LogisticRegressionParams
 from utils.losses import BinaryCrossEntropy
 from utils.metrics import accuracy_score, log_loss
