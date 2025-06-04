@@ -5,8 +5,9 @@ the independent variables and the dependent variable is modelled as an nth degre
 """
 
 import logging
-import numpy as np
 from typing import Dict, List, Optional, Any
+
+import numpy as np
 
 from algorithms.supervised.linear_regression import LinearRegression
 from schemas.configs.polynomial_regression import PolynomialRegressionParams

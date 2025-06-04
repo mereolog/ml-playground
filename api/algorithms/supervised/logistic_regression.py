@@ -2,11 +2,11 @@
 This module contains implementation of the Logistic Regression algorithm.
 """
 import logging
-import numpy as np
 from typing import Any, Dict, List, Optional, Tuple
 
-from sklearn.preprocessing import OneHotEncoder
+import numpy as np
 from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
 
 from algorithms.base.supervised import SupervisedAlgorithm
 from schemas.configs.logistic_regression import LogisticRegressionParams

@@ -1,7 +1,9 @@
 import numpy as np
+
+from algorithms.supervised.logistic_regression import LogisticRegression
 from schemas.configs.logistic_regression import LogisticRegressionParams
 from utils.metrics import accuracy_score
-from algorithms.supervised.logistic_regression import LogisticRegression 
+
 
 def test_logistic_regression_on_simple_data():
     X = np.array([["red"], ["green"], ["blue"], ["red"]])

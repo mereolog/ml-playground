@@ -6,6 +6,7 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+
 from algorithms.base.supervised import SupervisedAlgorithm
 from schemas.configs.linear_regression import LinearRegressionParams
 from utils.losses import LossFunction, MeanAbsoluteError, MeanSquaredError

@@ -3,8 +3,9 @@
 
 import numpy as np
 import pytest
-from algorithms.supervised.linear_regression import LinearRegression
 from numpy.testing import assert_allclose
+
+from algorithms.supervised.linear_regression import LinearRegression
 from schemas.configs.linear_regression import LinearRegressionParams
 from utils.losses import MeanAbsoluteError, MeanSquaredError
 

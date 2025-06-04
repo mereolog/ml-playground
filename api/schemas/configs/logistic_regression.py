@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from schemas.configs.algorithms_configs import GradientBasedParams
 
 
