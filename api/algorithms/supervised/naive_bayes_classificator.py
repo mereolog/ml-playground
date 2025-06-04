@@ -5,12 +5,12 @@ import logging
 from typing import Any, Dict, Optional
 
 import numpy as np
-from algorithms.base.supervised import SupervisedAlgorithm
-from schemas.configs.naive_bayes_configs import NaiveBayesParams
-from utils.losses import LossFunction, LogLoss
-
-import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
+
+from algorithms.base.supervised import SupervisedAlgorithm
+from schemas.configs.naive_bayes_config import NaiveBayesParams
+from utils.losses import LogLoss
 
 
 class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
@@ -31,7 +31,7 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
         self._params = params if params is not None else NaiveBayesParams()
 
         # Use log loss function for calculating probabilities-based loss
-        self._loss_fn: LossFunction = LogLoss()
+        self._loss_fn: LogLoss()
 
         # Learned probabilities for each feature
         self.feature_probs: Optional[np.ndarray] = None
@@ -158,7 +158,7 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
         y_pred = self.predict(X)
 
         scores = {
-            "log_loss": self._loss_fn(y, self.predict_proba(X)),
+            "log_loss": self._loss_fn.compute(y, self.predict_proba(X)),
             "accuracy": np.mean(y == y_pred),
         }
 

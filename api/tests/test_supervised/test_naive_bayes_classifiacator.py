@@ -1,7 +1,9 @@
 import numpy as np
 import pytest
-from schemas.configs.naive_bayes_configs import NaiveBayesParams
+
 from algorithms.supervised.naive_bayes_classificator import NaiveBernoulliClassifier
+from schemas.configs.naive_bayes_config import NaiveBayesParams
+
 
 def test_fit_predict_score_basic():
     # Simple dataset: AND logic gate

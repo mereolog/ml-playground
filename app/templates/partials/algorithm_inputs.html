@@ -1,0 +1,56 @@
+<form id="algorithm-params-form" class="space-y-4">
+    <div class="card card-border bg-base-100">
+        <div class="card-body p-4">
+            <div class="space-y-3">
+                {% for field, config in schema.properties.items %}
+                    <div class="form-control w-full">
+                        <!-- Label with tooltip -->
+                        <label for="{{ field }}" class="label py-0">
+                            <span class="label-text font-medium">{{ config.title|default:field }}</span>
+                            {% if config.description and config.type != "boolean" %}
+                                <div class="tooltip tooltip-right hover:z-50 relative"
+                                     data-tip="{{ config.description }}">
+                                    <i class="size-4 cursor-pointer text-base-content/70"
+                                       data-lucide="help-circle"></i>
+                                </div>
+                            {% endif %}
+                        </label>
+                        {% if config.enum %}
+                            <!-- Enhanced select for enums -->
+                            <select name="{{ field }}"
+                                    id="{{ field }}"
+                                    class="select select-bordered select-sm w-full">
+                                {% for option in config.enum %}
+                                    <option value="{{ option }}"
+                                            {% if config.default == option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        {% elif config.type == "boolean" %}
+                            <!-- Enhanced toggle for boolean -->
+                            <div class="flex items-center mt-1">
+                                <input type="checkbox"
+                                       name="{{ field }}"
+                                       id="{{ field }}"
+                                       class="toggle toggle-primary toggle-sm"
+                                       {% if config.default %}checked{% endif %} />
+                                <span class="ml-2 text-xs opacity-70">{{ config.description|default:"Enable this feature" }}</span>
+                            </div>
+                        {% else %}
+                            <!-- Enhanced text input with proper sizing -->
+                            <input type="{% if 'integer' in config.type or 'number' in config.type %}number{% else %}text{% endif %}"
+                                   name="{{ field }}"
+                                   id="{{ field }}"
+                                   class="input input-bordered input-sm w-full"
+                                   value="{{ config.default|default:'' }}"
+                                   placeholder="{{ config.title|default:field }}" />
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="card-actions justify-end mt-4">
+                <button type="submit" class="btn btn-sm btn-primary">Apply Parameters</button>
+            </div>
+        </div>
+    </div>
+</form>
+<script>lucide.createIcons();</script>

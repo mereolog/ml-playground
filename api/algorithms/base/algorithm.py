@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from dataclasses import asdict
 from typing import Any, Dict, Generic, TypeVar
 
-from schemas.configs.algorithms_configs import BaseAlgorithmParams
+from schemas.configs.algorithm_configs import BaseAlgorithmParams
 
 P = TypeVar("P", bound=BaseAlgorithmParams)
 
@@ -26,7 +25,7 @@ class Algorithm(ABC, Generic[P]):
         Returns:
             Dictionary containing the algorithm parameters
         """
-        return asdict(self.params)
+        return self.params.model_dump()
 
     def set_params(self, **params) -> "Algorithm":
         """
