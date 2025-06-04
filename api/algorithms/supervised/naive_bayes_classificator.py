@@ -156,6 +156,12 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
             raise ValueError("Model has not been trained. Call fit() before score().")
 
         y_pred = self.predict(X)
+        y_pred_proba = self.predict_proba(X)
+        # For binary case (n_classes == 2) use probability of class 1
+        if y_pred_proba.shape[1] == 2:
+            log_loss = self._loss_fn(y, y_pred_proba[:, 1])
+        else:
+            log_loss = self._loss_fn(y, y_pred_proba)
 
         scores = {
             "log_loss": self._loss_fn.compute(y, self.predict_proba(X)),
@@ -180,7 +186,7 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
             "alpha": getattr(self.params, "alpha", 1.0)
         }
 
-    def plot_feature_probs(self, feature_names: Optional[list] = None):
+    def plot_feature_probs(self, feature_names: Optional[List[str]] = None):
         """
         Visualize the learned feature probabilities for each class using Plotly.
 
