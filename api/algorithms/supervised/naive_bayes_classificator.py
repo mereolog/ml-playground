@@ -2,7 +2,7 @@
 This module contains implementation of the Naive Bernoulli Classifier algorithm.
 """
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 import numpy as np
 import plotly.express as px
@@ -31,7 +31,7 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
         self._params = params if params is not None else NaiveBayesParams()
 
         # Use log loss function for calculating probabilities-based loss
-        self._loss_fn: LogLoss()
+        self._loss_fn = LogLoss()
 
         # Learned probabilities for each feature
         self.feature_probs: Optional[np.ndarray] = None
@@ -164,7 +164,7 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
             log_loss = self._loss_fn(y, y_pred_proba)
 
         scores = {
-            "log_loss": self._loss_fn.compute(y, self.predict_proba(X)),
+            "log_loss": log_loss,
             "accuracy": np.mean(y == y_pred),
         }
 
@@ -247,3 +247,6 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
         fig.update_traces(marker=dict(size=10, line=dict(width=1, color='DarkSlateGrey')))
         fig.show()
         return fig
+#
+# a = NaiveBernoulliClassifier()
+# v=0
