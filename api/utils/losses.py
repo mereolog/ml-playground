@@ -103,7 +103,7 @@ class BinaryCrossEntropy(LossFunction):
         # implementation
         pass
 
-class LogLoss(LossFunction):
+class LogLoss():
     @staticmethod
     def compute(y_true: np.ndarray, y_pred: np.ndarray) -> float:
         epsilon = 1e-15
