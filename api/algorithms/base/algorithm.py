@@ -26,7 +26,7 @@ class Algorithm(ABC, Generic[P]):
         Returns:
             Dictionary containing the algorithm parameters
         """
-        return asdict(self.params)
+        return self.params.model_dump()
 
     def set_params(self, **params) -> "Algorithm":
         """
