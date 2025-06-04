@@ -47,9 +47,9 @@ class KMeansVisualizer:
             self.plot_step()
 
 
-df = pd.read_csv("datasets/Live.csv")
+df = pd.read_csv("../../datasets/sample_submission_train.csv")
 
-columns_to_use = ['num_reactions', 'num_likes']
+columns_to_use = ['id','keyword','location','text','target']
 check_numeric_columns(df, columns_to_use)
 
 X = df[columns_to_use].values
