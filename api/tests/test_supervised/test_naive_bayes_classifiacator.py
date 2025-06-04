@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 from algorithms.supervised.naive_bayes_classificator import NaiveBernoulliClassifier
-from schemas.configs.naive_bayes_configs import NaiveBayesParams
+from schemas.configs.naive_bayes_config import NaiveBayesParams
 
 
 def test_fit_predict_score_basic():

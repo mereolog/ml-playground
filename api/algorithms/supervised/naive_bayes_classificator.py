@@ -7,10 +7,11 @@ from typing import Any, Dict, Optional
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+
+from schemas.configs.naive_bayes_config import NaiveBayesParams
 from utils.losses import LossFunction, LogLoss
 
 from algorithms.base.supervised import SupervisedAlgorithm
-from schemas.configs.naive_bayes_configs import NaiveBayesParams
 
 
 class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
