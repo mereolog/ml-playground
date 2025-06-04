@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from schemas.configs.algorithms_configs import GradientBasedParams, LossType
+from schemas.configs.algorithm_configs import GradientBasedParams, LossType
 
 
 # --- ADDED and UPDATED Polynomial Regression Params (Inherits GradientBasedParams) ---

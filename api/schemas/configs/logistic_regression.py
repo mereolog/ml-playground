@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 
-from schemas.configs.algorithms_configs import GradientBasedParams
+from schemas.configs.algorithm_configs import GradientBasedParams
 
 
 # --- ADDED and UPDATED Logistic Regression Params (Inherits GradientBasedParams) ---
-@dataclass
 class LogisticRegressionParams(GradientBasedParams):
     """
     This model parameter configuration defines the types and possible default arguments
