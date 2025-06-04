@@ -1,7 +1,8 @@
 import json
+from typing import Dict, Optional
+
 import numpy as np
 import pandas as pd
-from typing import Dict, Optional
 
 from schemas.configs.decision_tree_config import DecisionTreeParams
 

@@ -1,9 +1,11 @@
 import json
 import os
-from flask import Flask, render_template, request, session, send_from_directory
 from io import StringIO
+
 import pandas as pd
+from flask import Flask, render_template, request, session, send_from_directory
 from pydantic import ValidationError
+
 from algorithms.supervised.decision_trees import DecisionTree
 from schemas.configs.decision_tree_config import DecisionTreeParams
 
