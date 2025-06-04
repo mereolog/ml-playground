@@ -13,7 +13,7 @@ def test_polynomial_regression_on_quadratic_data():
     np.random.seed(42)
     X = np.linspace(-5, 5, 100).reshape(-1, 1)
     y = X.flatten() ** 2 + np.random.normal(0, 0.5, size=100)
-
+    
     params = PolynomialRegressionParams(
         learning_rate=0.01,
         epochs=1000,

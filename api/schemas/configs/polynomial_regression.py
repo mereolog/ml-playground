@@ -4,7 +4,7 @@ from schemas.configs.algorithm_configs import GradientBasedParams, LossType
 
 
 # --- ADDED and UPDATED Polynomial Regression Params (Inherits GradientBasedParams) ---
-@dataclass
+
 class PolynomialRegressionParams(GradientBasedParams):
     """
     This model parameter configuration defines the types and possible default arguments

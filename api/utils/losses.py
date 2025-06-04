@@ -98,10 +98,44 @@ class BinaryCrossEntropy(LossFunction):
     """
     same here
     """
-
+    
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
         # implementation
         pass
+        if y_true.shape != y_pred.shape:
+            raise ValueError(
+                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
+            )
+        if y_true.ndim != 1:
+            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
+        if not np.all(np.isin(y_true, [0, 1])):
+            raise ValueError("y_true must contain only binary labels (0 or 1).")
+        if not np.all((y_pred >= 0) & (y_pred <= 1)):
+            raise ValueError("y_pred must be in range [0, 1].")
+        
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        
+        return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+    
+    def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        if y_true.shape != y_pred.shape:
+            raise ValueError(
+                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
+            )
+        if y_true.ndim != 1:
+            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
+        if not np.all(np.isin(y_true, [0, 1])):
+            raise ValueError("y_true must contain only binary labels (0 or 1).")
+        if not np.all((y_pred >= 0) & (y_pred <= 1)):
+            raise ValueError("y_pred must be in range [0, 1].")
+        
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        
+        return (y_pred - y_true) / (y_pred * (1 - y_pred))
+
+
 class LogLoss:
     @staticmethod
     def compute(y_true: np.ndarray, y_pred: np.ndarray) -> float:
