@@ -59,9 +59,11 @@ class MeanSquaredError(LossFunction):
             raise ValueError(
                 f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
             )
-        if y_true.ndim != 1:
+        if y_true.ndim != 1:  # Just for simplicity lets assume the values are 1D
             raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
-        return np.mean(np.square(y_pred - y_true)).item()
+        return np.mean(
+            np.square(y_pred - y_true)
+        ).item()  # .item() converts element of numpy np.ndarray to standard python scalar
 
     def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         """Calculates the gradient of MSE w.r.t. y_pred."""
@@ -73,73 +75,52 @@ class MeanSquaredError(LossFunction):
             raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
         n_samples = y_true.shape[0]
         if n_samples == 0:
-            return np.array([])
+            return np.array([])  # if the input is empty lets just return empty list
+        # Gradient is (2 / n) * (y_pred - y_true)
+        # this calculates derivative (gradient) with respect to the predictions
         return (2.0 / n_samples) * (y_pred - y_true)
 
 
 class MeanAbsoluteError(LossFunction):
     """
-    Mean Absolute Error (MAE) loss.
-
-    Loss = mean(|y_pred - y_true|)
+    replace this with valid doc string
     """
 
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        if y_true.shape != y_pred.shape:
-            raise ValueError(
-                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
-            )
-        if y_true.ndim != 1:
-            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
-        return np.mean(np.abs(y_pred - y_true)).item()
+        # your implementation
+        pass
 
     def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
-        if y_true.shape != y_pred.shape:
-            raise ValueError(
-                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
-            )
-        if y_true.ndim != 1:
-            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
-        return np.where(y_pred > y_true, 1, np.where(y_pred < y_true, -1, 0))
+        pass
 
 
 class BinaryCrossEntropy(LossFunction):
     """
-    Binary Cross-Entropy loss, also known as Log Loss.
-
-    Used for binary classification problems.
+    same here
     """
 
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        if y_true.shape != y_pred.shape:
-            raise ValueError(
-                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
-            )
-        if y_true.ndim != 1:
-            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
-        if not np.all(np.isin(y_true, [0, 1])):
-            raise ValueError("y_true must contain only binary labels (0 or 1).")
-        if not np.all((y_pred >= 0) & (y_pred <= 1)):
-            raise ValueError("y_pred must be in range [0, 1].")
-
+        # implementation
+        pass
+class LogLoss:
+    @staticmethod
+    def compute(y_true: np.ndarray, y_pred: np.ndarray) -> float:
         epsilon = 1e-15
         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        y_true = y_true.astype(float)
 
-        return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
-
-    def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
-        if y_true.shape != y_pred.shape:
-            raise ValueError(
-                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
+        # Binary or multiclass (one-hot)
+        if y_true.ndim == 1 or (y_true.ndim == 2 and y_true.shape[1] == 1):
+            log_loss = -np.mean(
+                y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred)
             )
-        if y_true.ndim != 1:
-            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
-        if not np.all(np.isin(y_true, [0, 1])):
-            raise ValueError("y_true must contain only binary labels (0 or 1).")
-        if not np.all((y_pred >= 0) & (y_pred <= 1)):
-            raise ValueError("y_pred must be in range [0, 1].")
+        else:
+            log_loss = -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
+        return log_loss
 
+    @staticmethod
+    def gradient(y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         epsilon = 1e-15
         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-
-        return (y_pred - y_true) / (y_pred * (1 - y_pred))
+        y_true = y_true.astype(float)
+        return -(y_true / y_pred) + ((1 - y_true) / (1 - y_pred))
