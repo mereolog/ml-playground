@@ -2,7 +2,7 @@ from typing import List, Optional
 import numpy as np
 
 from algorithms.base.algorithm import Algorithm
-from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams, 
+from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams 
 from schemas.configs.hierarchical_clastering_config import HierarchicalClusteringParams
 
 class HierarchicalClustering(UnsupervisedAlgorithm):
