@@ -1,7 +1,9 @@
 from typing import List, Optional
 import numpy as np
 
+
 from algorithms.base.algorithm import Algorithm
+from algorithms.base.unsupervised import UnsupervisedAlgorithm
 from schemas.configs.algorithm_configs import UnsupervisedAlgorithmsParams 
 from schemas.configs.hierarchical_clastering_config import HierarchicalClusteringParams
 
