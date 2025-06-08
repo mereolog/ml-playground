@@ -1,5 +1,6 @@
 from typing import Literal, Optional
 from pydantic import BaseModel, Field
+
 from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
 LinkageType = Literal["single", "complete", "average"]
