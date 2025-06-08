@@ -1,40 +1,76 @@
+from typing import List, Optional
 import numpy as np
-from scipy.cluster.hierarchy import linkage
-from typing import List, Union
 
-def perform_hierarchical_clustering(
-    data: List[List[Union[int, float]]],
-    method: str = 'average',
-    metric: str = 'euclidean'
-) -> List[List[float]]:
-    """
-    Performs hierarchical clustering on the input data.
+from algorithms.base.algorithm import Algorithm
+from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams, 
+from schemas.configs.hierarchical_clastering_config import HierarchicalClusteringParams
 
-    Args:
-        data: Input data as a list of lists (samples x features).
-        method: The linkage criterion to use. See 
-scipy.cluster.hierarchy.linkage docs.
-        metric: The distance metric to use. See 
-scipy.spatial.distance.pdist docs.
+class HierarchicalClustering(UnsupervisedAlgorithm):
+    def __init__(self, params: Optional[HierarchicalClusteringParams] = None):
+        super().__init__()
+        if params is None:
+            params = HierarchicalClusteringParams()
+        self._params = params
+        self.labels_ = None
 
-    Returns:
-        The linkage matrix (N-1)x4 as a list of lists.
-        Each row [i, j, distance, count] represents the merging of 
-clusters i and j.
+    @property
+    def params(self):
+        return self._params
 
-    Raises:
-        ValueError: If the input data contains less than 2 samples.
-    """
-    data_np = np.array(data)
+    def _point_distance(self, a, b):
+        if self._params.metric == "manhattan":
+            return float(np.abs(a - b).sum())
+        if self._params.metric == "cosine":
+            num = float(np.dot(a, b))
+            den = float(np.linalg.norm(a) * np.linalg.norm(b)) + 1e-12
+            return 1.0 - num / den
+        if self._params.metric == "chebyshev":
+            return float(np.abs(a - b).max())
+        if self._params.metric == "minkowski":
+            p = 3
+            return float((np.abs(a - b) ** p).sum() ** (1.0 / p))
+        return float(np.linalg.norm(a - b))
 
-    if data_np.shape[0] < 2:
-        raise ValueError("Input data must contain at least 2 samples for 
-clustering.")
+    def _cluster_distance(self, cluster_a, cluster_b, data):
+        dists = []
+        for i in cluster_a:
+            for j in cluster_b:
+                dists.append(self._point_distance(data[i], data[j]))
+        if self._params.linkage == "single":
+            return min(dists)
+        if self._params.linkage == "complete":
+            return max(dists)
+        return sum(dists) / len(dists)
 
-    # Perform hierarchical clustering
-    linkage_matrix = linkage(data_np, method=method, metric=metric)
+    def fit(self, X: np.ndarray):
+        clusters = [[i] for i in range(len(X))]
+        while True:
+            if self._params.n_clusters is not None and len(clusters) <= self._params.n_clusters:
+                break
+            best_distance = float("inf")
+            best_pair = None
+            for i in range(len(clusters)):
+                for j in range(i + 1, len(clusters)):
+                    d = self._cluster_distance(clusters[i], clusters[j], X)
+                    if d < best_distance:
+                        best_distance = d
+                        best_pair = (i, j)
+            if self._params.distance_threshold is not None and best_distance > self._params.distance_threshold:
+                break
+            if best_pair is None:
+                break
+            i, j = best_pair
+            clusters[i].extend(clusters[j])
+            clusters.pop(j)
+        labels = np.empty(len(X), dtype=int)
+        for cid, cluster in enumerate(clusters):
+            for idx in cluster:
+                labels[idx] = cid
+        self.labels_ = labels.tolist()
+        return self
 
-    # Convert NumPy matrix to list of lists for JSON serialization
-    return linkage_matrix.tolist()
+    def fit_predict(self, X: np.ndarray):
+        return self.fit(X).labels_
 
-# No example usage with if name == 'main': as requested
+    def predict(self, X: np.ndarray):
+        raise NotImplementedError
