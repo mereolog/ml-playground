@@ -1,6 +1,6 @@
 """Tests for algorithm configuration dataclasses."""
 
-from schemas.configs.algorithms_configs import BaseAlgorithmParams
+from schemas.configs.algorithm_configs import BaseAlgorithmParams
 
 
 class TestBaseAlgorithmParams:

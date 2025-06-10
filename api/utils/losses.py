@@ -8,7 +8,6 @@ Each loss function is implemented as a class with:
 """
 
 from abc import ABC, abstractmethod
-
 import numpy as np
 
 
@@ -59,11 +58,9 @@ class MeanSquaredError(LossFunction):
             raise ValueError(
                 f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
             )
-        if y_true.ndim != 1:  # Just for simplicity lets assume the values are 1D
+        if y_true.ndim != 1:
             raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
-        return np.mean(
-            np.square(y_pred - y_true)
-        ).item()  # .item() converts element of numpy np.ndarray to standard python scalar
+        return np.mean(np.square(y_pred - y_true)).item()
 
     def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         """Calculates the gradient of MSE w.r.t. y_pred."""
@@ -75,94 +72,115 @@ class MeanSquaredError(LossFunction):
             raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
         n_samples = y_true.shape[0]
         if n_samples == 0:
-            return np.array([])  # if the input is empty lets just return empty list
-        # Gradient is (2 / n) * (y_pred - y_true)
-        # this calculates derivative (gradient) with respect to the predictions
+            return np.array([])
         return (2.0 / n_samples) * (y_pred - y_true)
 
 
 class MeanAbsoluteError(LossFunction):
     """
-    replace this with valid doc string
+    Mean Absolute Error (MAE) loss.
+
+    Loss = mean(|y_pred - y_true|)
     """
 
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        # your implementation
-        pass
+        if y_true.shape != y_pred.shape:
+            raise ValueError(
+                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
+            )
+        if y_true.ndim != 1:
+            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
+        return np.mean(np.abs(y_pred - y_true)).item()
 
     def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
-        pass
+        if y_true.shape != y_pred.shape:
+            raise ValueError(
+                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
+            )
+        if y_true.ndim != 1:
+            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
+        n_samples = y_true.shape[0]
+        if n_samples == 0:
+            return np.array([])
+        # Gradient for MAE: sign(y_pred - y_true) / n_samples
+        return np.sign(y_pred - y_true) / n_samples
 
 
 class BinaryCrossEntropy(LossFunction):
     """
-    same here
+    Binary Cross-Entropy loss.
+
+    Loss = -mean(y_true * log(y_pred) + (1 - y_true) * log(1 - y_pred))
     """
 
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        # implementation
-        pass
+        if y_true.shape != y_pred.shape:
+            raise ValueError(
+                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
+            )
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
 
-class LogLoss:
-    """Implementation of the logarithmic Loss (Log Loss) function.
+    def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        n_samples = y_true.shape[0]
+        if n_samples == 0:
+            return np.array([])
+        # Derivative w.r.t. y_pred
+        return ((-y_true / y_pred) + ((1 - y_true) / (1 - y_pred))) / n_samples
+
+
+class LogLoss(LossFunction):
+    """
+    Implementation of the logarithmic Loss (Log Loss) function.
     Log loss is used to evaluate the performance of a classification model where
     the output is a probability value between 0 and 1.
 
     Formula:
      LogLoss = -1/N * Σ (y_true * log(y_pred) + (1 - y_true) * log(1 - y_pred))
 
-    Attributes:
-        None
+    Supports binary and multi-class (one-hot) targets.
     """
-    @staticmethod
-    def compute(y_true: np.ndarray, y_pred:np.ndarray) -> float:
+
+    def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
         """
         Compute the Log Loss value
 
-         Args:
-            y_true: Ground truth labels, shape (n_samples,).
-                    Labels should be binary (0 or 1) or one-hot encoded for multi-class problems.
-            y_pred: Predicted probabilities, shape (n_samples,) for binary
-                    or (n_samples, n_classes) for multi-class.
+        Args:
+            y_true: Ground truth labels, shape (n_samples,) or (n_samples, n_classes).
+            y_pred: Predicted probabilities, shape (n_samples,) or (n_samples, n_classes).
 
         Returns:
             Log Loss value (scalar).
         """
-        # Ensure predictions are clipped to avoid log(0) or log(1) errors
         epsilon = 1e-15
         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
 
-        # For binary classification
-        if y_true.ndim == 1 or y_true.shape[1] == 1:
+        # Binary classification
+        if y_true.ndim == 1 or (y_true.ndim == 2 and y_true.shape[1] == 1):
+            y_true = y_true.reshape(-1)
+            y_pred = y_pred.reshape(-1)
             log_loss = -np.mean(
                 y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred)
             )
-        else:  # For multi-class classification
+        else:  # Multi-class (one-hot)
             log_loss = -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
 
         return log_loss
 
-    @staticmethod
-    def gradient(y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+    def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         """
         Compute the gradient of the Log Loss with respect to the predictions.
 
         Args:
-            y_true: Ground truth labels, shape (n_samples,).
-                    Labels should be binary (0 or 1) or one-hot encoded for multi-class problems.
-            y_pred: Predicted probabilities, shape (n_samples,) for binary
-                    or (n_samples, n_classes) for multi-class.
+            y_true: Ground truth labels, shape (n_samples,) or (n_samples, n_classes).
+            y_pred: Predicted probabilities, shape (n_samples,) or (n_samples, n_classes).
 
         Returns:
             Gradient of Log Loss with respect to predictions, shape as y_pred.
         """
-        # Ensure predictions are clipped to avoid division by zero
         epsilon = 1e-15
         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-
-        # Gradient computation
         return -(y_true / y_pred) + (1 - y_true) / (1 - y_pred)
-
-
-
-
