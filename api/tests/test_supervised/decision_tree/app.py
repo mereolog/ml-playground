@@ -59,7 +59,7 @@ def handle_sample_file_upload():
         with open(sample_path, 'r', encoding='utf-8') as f:
             csv_data = f.read()
         data = pd.read_csv(StringIO(csv_data))
-        csv_head = data.head().to_html(classes='table table-striped')
+        csv_head = data.to_html(classes='table table-striped')
         session['csv_data'] = csv_data
         session['columns'] = data.columns.tolist()
         session['csv_head'] = csv_head
