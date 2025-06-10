@@ -5,12 +5,6 @@ import logging
 from typing import Any, Dict, Optional, List
 
 import numpy as np
-import plotly.graph_objects as go
-
-from algorithms.base.supervised import SupervisedAlgorithm
-from schemas.configs.naive_bayes_config import NaiveBayesParams
-import plotly.express as px
-import plotly.graph_objects as go
 
 from algorithms.base.supervised import SupervisedAlgorithm
 from schemas.configs.naive_bayes_config import NaiveBayesParams
@@ -32,11 +26,6 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
         super().__init__()
         self._params = params if params is not None else NaiveBayesParams()
         self._loss_fn = LogLoss()
-
-        # Use log loss function for calculating probabilities-based loss
-        self._loss_fn = LogLoss()
-
-        # Learned probabilities for each feature
         self.feature_probs: Optional[np.ndarray] = None
         self.class_probs: Optional[np.ndarray] = None
         self.classes_: Optional[np.ndarray] = None
@@ -85,17 +74,7 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
 
         self.feature_probs = np.zeros((2, n_features))
         for idx, c in enumerate(self.classes_):
-        # Use smoothing parameter from params (default to 1.0 if not present)
-        alpha = getattr(self.params, "alpha", 1.0)
-
-        # Calculate feature probabilities P(x_i=1 | y=c) for each class c, using alpha
-        self.feature_probs = np.zeros((len(classes), n_features))
-        for idx, c in enumerate(classes):
             X_class = X[y == c]
-            self.feature_probs[idx] = (np.sum(X_class, axis=0) + alpha) / (
-                X_class.shape[0] + 2 * alpha
-            )
-            # Laplace (additive) smoothing with alpha
             self.feature_probs[idx] = (np.sum(X_class, axis=0) + alpha) / (
                 X_class.shape[0] + 2 * alpha
             )
@@ -126,21 +105,6 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
         )
 
         log_probs = log_prob_c
-        probs = np.exp(log_probs - log_probs.max(axis=1, keepdims=True))
-        probs /= np.sum(probs, axis=1, keepdims=True)
-        return probs
-        # Calculate log-probabilities for each class
-        log_probs = []
-        for x in X:
-            log_prob_c = (
-                log_class_probs
-                + np.sum(x * log_feature_probs, axis=1)
-                + np.sum((1 - x) * log_feature_complement_probs, axis=1)
-            )
-            log_probs.append(log_prob_c)
-
-        # Convert back to probabilities with normalization (softmax style for stability)
-        log_probs = np.vstack(log_probs)
         probs = np.exp(log_probs - log_probs.max(axis=1, keepdims=True))
         probs /= np.sum(probs, axis=1, keepdims=True)
         return probs
@@ -175,12 +139,6 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
             log_loss = self._loss_fn(y, y_pred_proba[:, idx1])
         else:
             log_loss = self._loss_fn(y, y_pred_proba)
-        y_pred_proba = self.predict_proba(X)
-        # For binary case (n_classes == 2) use probability of class 1
-        if y_pred_proba.shape[1] == 2:
-            log_loss = self._loss_fn(y, y_pred_proba[:, 1])
-        else:
-            log_loss = self._loss_fn(y, y_pred_proba)
 
         scores = {
             "log_loss": log_loss,
@@ -202,68 +160,3 @@ class NaiveBernoulliClassifier(SupervisedAlgorithm[NaiveBayesParams]):
             "feature_probs": self.feature_probs.copy(),
             "alpha": getattr(self.params, "alpha", 1.0)
         }
-
-    def plot_feature_probs(self, feature_names: Optional[List[str]] = None):
-        """
-        Visualize the learned feature probabilities for each class using Plotly.
-
-        Args:
-            feature_names: Optional list of feature names (length must match n_features).
-        Returns:
-            Plotly Figure object.
-        """
-        if self.feature_probs is None:
-            raise ValueError("Model has not been trained. Call fit() before plotting.")
-
-        n_classes, n_features = self.feature_probs.shape
-        if feature_names is None:
-            feature_names = [f"Feature {i}" for i in range(n_features)]
-
-        fig = go.Figure()
-        for class_idx in range(n_classes):
-            fig.add_trace(
-                go.Bar(
-                    x=feature_names,
-                    y=self.feature_probs[class_idx],
-                    name=f"Class {class_idx}",
-                )
-            )
-        fig.update_layout(
-            barmode="group",
-            title="Feature Probabilities per Class",
-            xaxis_title="Features",
-            yaxis_title="P(x_i=1 | y=class)",
-            legend_title="Class",
-        )
-        fig.show()
-        return fig
-
-    def plot_predictions(self, X: np.ndarray, y: np.ndarray, feature_x: int = 0, feature_y: int = 1):
-        """
-        Visualize the classifier decision and true labels in 2D (for two selected features).
-
-        Args:
-            X: Feature matrix.
-            y: True classes.
-            feature_x: Feature index for X axis.
-            feature_y: Feature index for Y axis.
-        Returns:
-            Plotly Figure object.
-        """
-        if X.shape[1] <= max(feature_x, feature_y):
-            raise ValueError("Selected feature indices out of bounds.")
-        preds = self.predict(X)
-        fig = px.scatter(
-            x=X[:, feature_x],
-            y=X[:, feature_y],
-            color=[str(label) for label in y],
-            symbol=[str(pred) for pred in preds],
-            labels={"color": "True class", "symbol": "Predicted"},
-            title="True classes and predicted labels (symbols) in feature space",
-        )
-        fig.update_traces(marker=dict(size=10, line=dict(width=1, color='DarkSlateGrey')))
-        fig.show()
-        return fig
-#
-# a = NaiveBernoulliClassifier()
-# v=0
