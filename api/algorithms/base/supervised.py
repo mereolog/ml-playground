@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import Generic, TypeVar
 
 from algorithms.base.algorithm import Algorithm
-from schemas.configs.algorithms_configs import SupervisedAlgorithmsParams
+from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
 SP = TypeVar("SP", bound=SupervisedAlgorithmsParams)
 
