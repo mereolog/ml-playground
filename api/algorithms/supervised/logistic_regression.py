@@ -38,6 +38,7 @@ class LogisticRegression(SupervisedAlgorithm):
         return self._params
 
     def _sigmoid(self, z: np.ndarray) -> np.ndarray:
+        z = np.clip(z, -500, 500)
         return 1 / (1 + np.exp(-z))
 
     def _initialize_parameters(self, n_features: int) -> None:

@@ -1,7 +1,7 @@
 """
 This module contains implementation of the Polynomial Regression algorithm.
 Polynomial Regression is a form of regression analysis in which the relationship between
-the independent variables and the dependent variable is modelled as an nth degree polynomial.
+independent variables and the dependent variable is modeled as an nth-degree polynomial.
 """
 
 import logging
@@ -45,7 +45,7 @@ class PolynomialRegression(LinearRegression):
 
     def _create_polynomial_features(self, X: np.ndarray) -> np.ndarray:
         """
-        Transform input features into polynomial features up to given degree.
+        Transform input features into polynomial features up to a given degree.
         Also applies normalization (zero mean, unit variance).
         Args:
             X: Input features, shape (n_samples, n_features).

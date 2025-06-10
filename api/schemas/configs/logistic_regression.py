@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from schemas.configs.algorithm_configs import GradientBasedParams
-
+from typing import Optional
 
 # --- ADDED and UPDATED Logistic Regression Params (Inherits GradientBasedParams) ---
 class LogisticRegressionParams(GradientBasedParams):
@@ -15,7 +15,7 @@ class LogisticRegressionParams(GradientBasedParams):
         lambda_: Regularization strength (must be non-negative).
     """
     threshold: float = 0.5
-    regularization: str = None  # "l1", "l2", or None
+    regularization: Optional[str] = None  # "l1", "l2", or None
     lambda_: float = 0.01       # Regularization strength
 
     def __post_init__(self):

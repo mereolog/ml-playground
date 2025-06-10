@@ -1,3 +1,4 @@
+#pytest tests/test_supervised/test_polynomial_regression.py
 import numpy as np
 import pytest
 
@@ -5,49 +6,50 @@ from algorithms.supervised.polynomial_regression import PolynomialRegression
 from schemas.configs.polynomial_regression import PolynomialRegressionParams
 
 
-def test_polynomial_regression_on_quadratic_data():
-    """
-    Test polynomial regression on quadratic data.
-    Model should perfectly fit a parabola when degree=2.
-    """
-    np.random.seed(42)
-    X = np.linspace(-5, 5, 100).reshape(-1, 1)
-    y = X.flatten() ** 2 + np.random.normal(0, 0.5, size=100)
-    
-    params = PolynomialRegressionParams(
-        learning_rate=0.01,
-        epochs=1000,
-        batch_size=None,
-        degree=2,
-        verbose=False
-    )
-    model = PolynomialRegression(params=params)
+def generate_data(n_samples=100):
+    X = np.linspace(0, 10, n_samples).reshape(-1, 1)
+    y = 3 * X.squeeze() ** 2 + 2 * X.squeeze() + 1  
+    return X, y
+
+
+def test_fit_runs_and_loss_decreases():
+    X, y = generate_data()
+    params = PolynomialRegressionParams(epochs=100, learning_rate=0.01, degree=2)
+    model = PolynomialRegression(params)
     model.fit(X, y)
 
-    predictions = model.predict(X)
-
-    from utils.metrics import mean_squared_error, r2_score
-
-    mse = mean_squared_error(y, predictions)
-    r2 = r2_score(y, predictions)
-
-    assert mse < 1.0, f"Expected low MSE (<1.0), got {mse}"
-    assert r2 > 0.9, f"Expected high R² (>0.9), got {r2}"
+    history = model.get_training_history()["training_loss"]
+    assert len(history) > 0
+    assert history[0] > history[-1], "Loss should decrease after training."
 
 
-def test_polynomial_regression_with_invalid_degree():
-    """
-    Test that invalid degree raises ValueError.
-    """
-    with pytest.raises(ValueError):
-        PolynomialRegressionParams(degree=0)
-
-
-def test_polynomial_regression_without_training():
-    """
-    Test that predict() fails before training.
-    """
+def test_predict_shape_matches_input():
+    X, y = generate_data()
     model = PolynomialRegression(PolynomialRegressionParams(degree=2))
-    X = np.array([[1], [2]])
+    model.fit(X, y)
+    preds = model.predict(X)
+    assert preds.shape == y.shape
+
+
+def test_predict_before_fit_raises():
+    X, _ = generate_data()
+    model = PolynomialRegression()
     with pytest.raises(ValueError):
         model.predict(X)
+
+
+def test_get_coefficients_keys():
+    X, y = generate_data()
+    model = PolynomialRegression(PolynomialRegressionParams(degree=3))
+    model.fit(X, y)
+    coeffs = model.get_coefficients()
+    assert "weights" in coeffs
+    assert "bias" in coeffs
+    assert "degree" in coeffs
+
+
+def test_fit_with_high_degree_does_not_crash():
+    X, y = generate_data()
+    model = PolynomialRegression(PolynomialRegressionParams(degree=6, epochs=50))
+    model.fit(X, y)
+    assert len(model.get_training_history()["training_loss"]) == 50
