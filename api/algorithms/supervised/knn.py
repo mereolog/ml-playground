@@ -1,15 +1,20 @@
 from algorithms.base.supervised import SupervisedAlgorithm
-from configs.k_nearest_neighbour_algorithm import KNeighborsParams  
+from schemas.configs.k_nearest_neighbour_algorithm import KNeighborsParams
 import numpy as np
 from typing import Optional
 from sklearn.metrics.pairwise import pairwise_distances
 from collections import Counter
+
 
 class KNearestNeighbor(SupervisedAlgorithm):
     def __init__(self, config: KNeighborsParams):
         self.config = config
         self.X_train: Optional[np.ndarray] = None
         self.y_train: Optional[np.ndarray] = None
+
+    @property
+    def params(self) -> KNeighborsParams:
+        return self.config
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         self.X_train = X
@@ -30,10 +35,6 @@ class KNearestNeighbor(SupervisedAlgorithm):
             for i in range(n_samples):
                 neighbor_labels = nearest_labels[i]
                 label_counts = Counter(neighbor_labels)
-
-                print(f"Punkt {i}: sąsiedzi = {neighbor_labels.tolist()}")
-                print(f"Zliczone klasy: {dict(label_counts)}")
-
                 predicted_label = label_counts.most_common(1)[0][0]
                 predictions[i] = predicted_label
 
@@ -43,6 +44,14 @@ class KNearestNeighbor(SupervisedAlgorithm):
             raise ValueError(f"Unsupported weight function: {self.config.weights}")
 
         return predictions
+
+    def score(self, X: np.ndarray, y: np.ndarray) -> dict:
+        if self.X_train is None or self.y_train is None:
+            raise ValueError("Model not fitted yet.")
+
+        y_pred = self.predict(X)
+        accuracy = np.mean(y_pred == y)
+        return {"accuracy": accuracy}
 
     def _compute_distances(self, X: np.ndarray) -> np.ndarray:
         metric_map = {
@@ -67,8 +76,6 @@ class KNearestNeighbor(SupervisedAlgorithm):
             label_weights = {}
             for label, weight in zip(neighbor_labels, weights):
                 label_weights[label] = label_weights.get(label, 0) + weight
-
-            print(f"Punkt {i} (ważone): {dict(label_weights)}")
 
             predictions[i] = max(label_weights, key=label_weights.get)
 
