@@ -8,7 +8,6 @@ Each loss function is implemented as a class with:
 """
 
 from abc import ABC, abstractmethod
-
 import numpy as np
 
 
@@ -21,13 +20,6 @@ class LossFunction(ABC):
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
         """
         Calculate the loss value.
-
-        Args:
-            y_true: Ground truth target values.
-            y_pred: Predicted values.
-
-        Returns:
-            Float as scalar loss value.
         """
         pass
 
@@ -35,13 +27,6 @@ class LossFunction(ABC):
     def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
         """
         Calculate the gradient of the loss function with respect to y_pred.
-
-        Args:
-            y_true: Ground truth target values.
-            y_pred: Predicted values.
-
-        Returns:
-            Gradient vector, shape (n_samples,).
         """
         pass
 
@@ -49,74 +34,97 @@ class LossFunction(ABC):
 class MeanSquaredError(LossFunction):
     """
     Mean Squared Error (MSE) loss.
-
     Loss = mean((y_pred - y_true)^2)
     """
 
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        """Calculates the mean squared error."""
         if y_true.shape != y_pred.shape:
-            raise ValueError(
-                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
-            )
-        if y_true.ndim != 1:  # Just for simplicity lets assume the values are 1D
+            raise ValueError(f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}")
+        if y_true.ndim != 1:
             raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
-        return np.mean(
-            np.square(y_pred - y_true)
-        ).item()  # .item() converts element of numpy np.ndarray to standard python scalar
+        return np.mean(np.square(y_pred - y_true)).item()
 
     def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
-        """Calculates the gradient of MSE w.r.t. y_pred."""
         if y_true.shape != y_pred.shape:
-            raise ValueError(
-                f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}"
-            )
+            raise ValueError(f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}")
         if y_true.ndim != 1:
             raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
         n_samples = y_true.shape[0]
         if n_samples == 0:
-            return np.array([])  # if the input is empty lets just return empty list
-        # Gradient is (2 / n) * (y_pred - y_true)
-        # this calculates derivative (gradient) with respect to the predictions
+            return np.array([])
         return (2.0 / n_samples) * (y_pred - y_true)
 
 
 class MeanAbsoluteError(LossFunction):
     """
-    replace this with valid doc string
+    Mean Absolute Error (MAE) loss.
+    Loss = mean(|y_pred - y_true|)
     """
 
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        # your implementation
-        pass
+        if y_true.shape != y_pred.shape:
+            raise ValueError(f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}")
+        return np.mean(np.abs(y_pred - y_true)).item()
 
     def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
-        pass
+        if y_true.shape != y_pred.shape:
+            raise ValueError(f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}")
+        grad = np.sign(y_pred - y_true)
+        return grad / len(y_true)
 
 
 class BinaryCrossEntropy(LossFunction):
     """
-    same here
+    Binary Cross-Entropy loss for binary classification tasks.
+    BCE = -mean(y * log(y_pred) + (1 - y) * log(1 - y_pred))
     """
 
     def __call__(self, y_true: np.ndarray, y_pred: np.ndarray) -> float:
-        # implementation
-        pass
+        if y_true.shape != y_pred.shape:
+            raise ValueError(f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}")
+        if y_true.ndim != 1:
+            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
+        if not np.all(np.isin(y_true, [0, 1])):
+            raise ValueError("y_true must contain only binary labels (0 or 1).")
+        if not np.all((y_pred >= 0) & (y_pred <= 1)):
+            raise ValueError("y_pred must be in range [0, 1].")
+
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+
+        return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+
+    def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+        if y_true.shape != y_pred.shape:
+            raise ValueError(f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}")
+        if y_true.ndim != 1:
+            raise ValueError(f"Expected 1D arrays, got shape {y_true.shape}")
+        if not np.all(np.isin(y_true, [0, 1])):
+            raise ValueError("y_true must contain only binary labels (0 or 1).")
+        if not np.all((y_pred >= 0) & (y_pred <= 1)):
+            raise ValueError("y_pred must be in range [0, 1].")
+
+        epsilon = 1e-15
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+
+        return (y_pred - y_true) / (y_pred * (1 - y_pred))
+
+
 class LogLoss:
+    """
+    Utility class for computing log loss (used for binary and multiclass classification).
+    """
+
     @staticmethod
     def compute(y_true: np.ndarray, y_pred: np.ndarray) -> float:
         epsilon = 1e-15
         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
         y_true = y_true.astype(float)
 
-        # Binary or multiclass (one-hot)
         if y_true.ndim == 1 or (y_true.ndim == 2 and y_true.shape[1] == 1):
-            log_loss = -np.mean(
-                y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred)
-            )
+            return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
         else:
-            log_loss = -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
-        return log_loss
+            return -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
 
     @staticmethod
     def gradient(y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
