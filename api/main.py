@@ -9,7 +9,6 @@ import logging
 from typing import Any, Dict, List, Optional, Type
 
 from algorithms.supervised.linear_regression import LinearRegression
-from connection_manager import ConnectionManager
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from v1 import algorithms, sessions, websockets
 
@@ -22,15 +21,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Global connection manager
+
 
 app.include_router(algorithms.router, prefix="/algorithms", tags=["algorithms"])
 app.include_router(sessions.router, prefix="/sessions", tags=["sessions"])
 app.include_router(websockets.router, prefix="/ws", tags=["websockets"])
-
-
-# Global connection manager
-manager = ConnectionManager()
-
-# Global registry for algorithm sessions
-algorithm_sessions: Dict[str, Dict[str, Any]] = {}
 

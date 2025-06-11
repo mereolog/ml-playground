@@ -3,7 +3,7 @@ from typing import List
 
 from algorithms_registry import ALGORITHM_REGISTRY
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
-from main import algorithm_sessions, app, manager
+from shared import algorithm_sessions, manager
 from pydantic import ValidationError
 from schemas.interface.requests import (
     AlgorithmInstanceRequest,
