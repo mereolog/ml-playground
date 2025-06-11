@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 import pytest
-
+import os
+sciezka = os.path.abspath("C:\\Users\\pc60303\\Documents\\ml-playground\\api\\algorithms")
 from algorithms.supervised.naive_bayes_classificator import NaiveBernoulliClassifier
 from schemas.configs.naive_bayes_config import NaiveBayesParams
 
