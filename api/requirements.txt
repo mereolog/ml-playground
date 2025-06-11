@@ -4,7 +4,7 @@ numpy<2.0
 pydantic
 pandas
 pytest
-matplotlib
+flask
 scikit-learn
 streamlit
 matplotlib
