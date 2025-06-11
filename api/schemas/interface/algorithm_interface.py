@@ -1,7 +1,4 @@
-from typing import List, Literal, Optional, Type
-
 from pydantic import BaseModel, Field
-from schemas.configs.algorithm_configs import BaseAlgorithmParams
 
 
 class AlgorithmInfo(BaseModel):

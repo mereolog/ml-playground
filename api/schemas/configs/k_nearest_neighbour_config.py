@@ -1,6 +1,7 @@
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import Field
+
 from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
 # Define custom types for clarity, mirroring the dataclass version

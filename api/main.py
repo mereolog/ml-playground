@@ -9,6 +9,7 @@ import logging
 from typing import Dict, List, Type
 
 from fastapi import FastAPI, HTTPException, WebSocket
+
 from schemas.configs.decision_tree_config import DecisionTreeParams
 from schemas.configs.k_nearest_neighbour_config import KNeighborsParams
 from schemas.configs.kmeans_config import KMeansParams

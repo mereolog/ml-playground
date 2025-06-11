@@ -22,9 +22,9 @@ https://docs.pydantic.dev/latest/concepts/models/
 """
 
 
-from pydantic import BaseModel, Field
-from typing import Optional, List, Literal
+from typing import Optional, Literal
 
+from pydantic import BaseModel, Field
 
 
 class BaseAlgorithmParams(BaseModel):
@@ -138,4 +138,3 @@ class GradientBasedParams(SupervisedAlgorithmsParams):
         default=0.5,
         description="Mixing parameter for ElasticNet regularization. Must be 0 <= mixing_ratio <= 1.",
     )
-

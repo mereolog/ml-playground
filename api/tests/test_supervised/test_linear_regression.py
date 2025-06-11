@@ -3,8 +3,8 @@
 
 import numpy as np
 import pytest
+
 from algorithms.supervised.linear_regression import LinearRegression
-from schemas.configs.linear_regression_configs import LinearRegressionParams
 
 
 @pytest.fixture(name="model")
