@@ -5,3 +5,8 @@ pydantic
 pandas
 pytest
 plotly
+scikit-learn
+streamlit
+matplotlib
+seaborn
+

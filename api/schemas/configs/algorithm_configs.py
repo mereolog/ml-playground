@@ -138,4 +138,3 @@ class GradientBasedParams(SupervisedAlgorithmsParams):
         default=0.5,
         description="Mixing parameter for ElasticNet regularization. Must be 0 <= mixing_ratio <= 1.",
     )
-
