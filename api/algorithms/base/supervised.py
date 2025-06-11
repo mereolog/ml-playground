@@ -1,43 +1,22 @@
 from abc import abstractmethod
-from typing import Generic, TypeVar, Dict, Any, List
-
-import numpy as np
+from typing import Generic, TypeVar
 
 from algorithms.base.algorithm import Algorithm
 from schemas.configs.algorithm_configs import SupervisedAlgorithmsParams
 
 SP = TypeVar("SP", bound=SupervisedAlgorithmsParams)
 
+
 class SupervisedAlgorithm(Algorithm[SP], Generic[SP]):
     """
-    Base class for supervised learning algorithms.
+    Base class for supervised algorithms
     """
 
     def __init__(self) -> None:
         super().__init__()
-        self._params = None  
 
     @property
     @abstractmethod
     def params(self) -> SP:
-        pass
-
-    @abstractmethod
-    def fit(self, X: np.ndarray, y: np.ndarray):
-        pass
-
-    @abstractmethod
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        pass
-
-    @abstractmethod
-    def score(self, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
-        pass
-
-    @abstractmethod
-    def get_coefficients(self) -> Dict[str, Any]:
-        pass
-
-    @abstractmethod
-    def get_training_history(self) -> Dict[str, List[float]]:
+        """Supervised algorithm params"""
         pass

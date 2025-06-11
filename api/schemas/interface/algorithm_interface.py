@@ -14,3 +14,11 @@ class AlgorithmInfo(BaseModel):
         default="",
         description="Description of the algorithm, providing details about its functionality.",
     )
+
+class AlgorithmRegistryEntry:
+    """Registry entry for ML algorithms containing metadata and configuration schema."""
+
+    def __init__(self, info: AlgorithmInfo, pydantic_model: Type, algorithm_class: Type):
+        self.info = info
+        self.pydantic_model = pydantic_model
+        self.algorithm_class = algorithm_class

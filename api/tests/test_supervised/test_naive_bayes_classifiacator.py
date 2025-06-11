@@ -1,15 +1,13 @@
 import numpy as np
 import pandas as pd
 import pytest
-import os
-sciezka = os.path.abspath("C:\\Users\\pc60303\\Documents\\ml-playground\\api\\algorithms")
 from algorithms.supervised.naive_bayes_classificator import NaiveBernoulliClassifier
 from schemas.configs.naive_bayes_config import NaiveBayesParams
 
 @pytest.fixture(scope="module")
 def titanic_dataset():
     # Wczytaj dane
-    df = pd.read_csv("C:\\Users\\pc60303\\Documents\\ml-playground\\datasets\\titanic.csv")
+    df = pd.read_csv("datasets\\titanic.csv")
     # Preprocessing:
     # - wybieramy kilka prostych cech do binarnego zakodowania
     # - zakodujemy je "na sztywno" (tu: płeć, klasa, port wypłynięcia)
