@@ -18,7 +18,7 @@ def test_loss_fn_mse(model, simple_linear_dataset):
     X, y = simple_linear_dataset
     predictions = np.array([1, 2, 3])
     targets = np.array([1.5, 2.5, 3.5])
-    loss = model.params._loss_fn(predictions, targets)
+    loss = model._loss_fn(predictions, targets)
     expected_loss = np.mean((predictions - targets) ** 2)
     assert np.isclose(loss, expected_loss)
 
