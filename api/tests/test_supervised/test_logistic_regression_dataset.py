@@ -9,7 +9,7 @@ from schemas.configs.logistic_regression import LogisticRegressionParams
 
 
 def test_logistic_regression_on_social_network_ads():
-    df = pd.read_csv("../datasets/Social_Network_Ads.csv")
+    df = pd.read_csv("datasets/Social_Network_Ads.csv")
     df["Gender"] = LabelEncoder().fit_transform(df["Gender"])
 
     X = df[["Gender", "Age", "EstimatedSalary"]].values
