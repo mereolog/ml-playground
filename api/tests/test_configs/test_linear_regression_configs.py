@@ -5,7 +5,7 @@ of the linear regression configuration parameters.
 """
 
 from schemas.configs.algorithm_configs import GradientBasedParams
-from schemas.configs.linear_regression_configs import LinearRegressionParams
+from schemas.configs.linear_regression import LinearRegressionParams
 
 
 def test_linear_regression_params():

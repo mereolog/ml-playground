@@ -98,11 +98,6 @@ class MeanAbsoluteError(LossFunction):
         # Gradient for MAE: sign(y_pred - y_true) / n_samples
         return np.sign(y_pred - y_true) / n_samples
 
-            raise ValueError(f"Shape mismatch: y_true {y_true.shape} vs y_pred {y_pred.shape}")
-        grad = np.sign(y_pred - y_true)
-        return grad / len(y_true)
-
-
 
 class BinaryCrossEntropy(LossFunction):
     """
