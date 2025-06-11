@@ -1,6 +1,5 @@
 """Tests for the base Algorithm class."""
 
-from dataclasses import dataclass
 from typing import TypeVar
 
 from algorithms.base.algorithm import Algorithm

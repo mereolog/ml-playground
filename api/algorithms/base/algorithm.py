@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from dataclasses import asdict
 from typing import Any, Dict, Generic, TypeVar
 
 from schemas.configs.algorithm_configs import BaseAlgorithmParams
