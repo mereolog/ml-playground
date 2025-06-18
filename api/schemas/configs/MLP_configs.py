@@ -1,7 +1,7 @@
 from typing import Literal
 from pydantic import Field
 
-from configs.model_parameter_configs.base import GradientBasedParams
+from schemas.configs.algorithm_configs import GradientBasedParams
 
 ActivationType = Literal["relu", "tanh", "sigmoid", "gelu", "leaky_relu"]
 
