@@ -1,8 +1,10 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
 from typing import Callable
+
+from torch import nn, optim
+import torch
+
 from schemas.configs.MLP_config import MLPParams
+
 
 
 class MLP(nn.Module):
