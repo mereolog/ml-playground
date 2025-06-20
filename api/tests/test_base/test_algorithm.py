@@ -1,16 +1,21 @@
 """Tests for the base Algorithm class."""
 
-from abc import abstractmethod
-from dataclasses import dataclass
 from typing import TypeVar
 
-import pytest
 from algorithms.base.algorithm import Algorithm
-from schemas.configs.algorithms_configs import BaseAlgorithmParams
+from schemas.configs.algorithm_configs import BaseAlgorithmParams
 
 
-@dataclass
 class MockParams(BaseAlgorithmParams):
+    """Mock parameter class for testing.
+    
+    This class extends BaseAlgorithmParams to provide a concrete implementation
+    for testing purposes with two simple integer parameters.
+    
+    Attributes:
+        param1: First test parameter
+        param2: Second test parameter
+    """
     param1: int = 1
     param2: int = 2
 
