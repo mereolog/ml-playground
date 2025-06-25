@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
 from algorithms.supervised.knn import KNearestNeighbor
-from schemas.configs.k_nearest_neighbour_config import KNeighborsParams
+from schemas.configs.k_nearest_neighbour_algorithm import KNeighborsParams
 
 
 def get_default_params(**overrides):

@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 
 from algorithms.supervised.knn import KNearestNeighbor
-from schemas.configs.k_nearest_neighbour_config import KNeighborsParams
+from schemas.configs.k_nearest_neighbour_algorithm import KNeighborsParams
 
 
 def test_knn_on_car_dekho_dataset():

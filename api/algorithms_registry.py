@@ -1,13 +1,14 @@
 from typing import Dict, Any, Optional
 
+from schemas.configs.decisions_tree_config import DecisionTreeParams
+from schemas.configs.k_nearest_neighbour_algorithm import KNeighborsParams
+from schemas.configs.kmeans_configs import KMeansParams
+from schemas.configs.linear_regression import LinearRegressionParams
+from schemas.configs.logistic_regression import LogisticRegressionParams
 from schemas.interface.algorithm_interface import AlgorithmInfo
 from schemas.interface.algorithm_interface import AlgorithmRegistryEntry
 
-from schemas.configs.decision_tree_config import DecisionTreeParams
-from schemas.configs.k_nearest_neighbour_config import KNeighborsParams
-from schemas.configs.kmeans_config import KMeansParams
-from schemas.configs.linear_regression_configs import LinearRegressionParams
-from schemas.configs.logistic_regression_config import LogisticRegressionParams
+
 from schemas.configs.polynomial_regression_configs import PolynomialRegressionParams
 
 from algorithms.supervised.linear_regression import LinearRegression

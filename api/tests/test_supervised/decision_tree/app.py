@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, session, send_from_directory
 from pydantic import ValidationError
 
 from algorithms.supervised.decision_trees import DecisionTree
-from schemas.configs.decision_tree_config import DecisionTreeParams
+from schemas.configs.decisions_tree_config import DecisionTreeParams
 
 SAMPLE_FILES_DIR = os.path.join(os.path.dirname(__file__), 'samples')
 app = Flask(__name__)
