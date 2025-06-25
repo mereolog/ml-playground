@@ -22,8 +22,7 @@ jobs:
           PYTHONPATH: ./api
       run: |
         cp .env.example .env
-        echo $(git ls-files './**/*.py')
-        pylint api/  --extension-pkg-whitelist=numpy --fail-on E
+        pylint "api/"  --extension-pkg-whitelist=numpy --fail-on E
 
     - name: Run tests with pytest
       run: |
