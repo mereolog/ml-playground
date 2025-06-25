@@ -2,9 +2,10 @@ import logging
 from typing import List
 
 from fastapi import APIRouter, HTTPException
-from shared import algorithm_sessions, manager
+
 from schemas.interface.requests import StreamingTrainingRequest, TrainingRequest
 from schemas.interface.responses import TrainingResponse
+from shared import algorithm_sessions, manager
 
 router = APIRouter()
 

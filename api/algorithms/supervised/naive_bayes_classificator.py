@@ -2,7 +2,7 @@
 This module contains implementation of the Naive Bernoulli Classifier algorithm.
 """
 import logging
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Optional
 
 import numpy as np
 

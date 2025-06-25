@@ -1,16 +1,8 @@
 import logging
-from typing import List
 
-from algorithms_registry import ALGORITHM_REGISTRY
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
-from shared import algorithm_sessions, manager
-from pydantic import ValidationError
-from schemas.interface.requests import (
-    AlgorithmInstanceRequest,
-    StreamingTrainingRequest,
-    TrainingRequest,
-)
-from schemas.interface.responses import AlgorithmInstanceResponse, TrainingResponse
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
+from shared import manager
 
 router = APIRouter()
 

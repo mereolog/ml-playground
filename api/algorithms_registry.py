@@ -1,17 +1,14 @@
-from typing import Dict, Any, Optional
+from typing import Dict
 
+from algorithms.supervised.linear_regression import LinearRegression
 from schemas.configs.decisions_tree_config import DecisionTreeParams
 from schemas.configs.k_nearest_neighbour_algorithm import KNeighborsParams
 from schemas.configs.kmeans_configs import KMeansParams
 from schemas.configs.linear_regression import LinearRegressionParams
 from schemas.configs.logistic_regression import LogisticRegressionParams
+from schemas.configs.polynomial_regression_configs import PolynomialRegressionParams
 from schemas.interface.algorithm_interface import AlgorithmInfo
 from schemas.interface.algorithm_interface import AlgorithmRegistryEntry
-
-
-from schemas.configs.polynomial_regression_configs import PolynomialRegressionParams
-
-from algorithms.supervised.linear_regression import LinearRegression
 
 ALGORITHM_REGISTRY: Dict[str, AlgorithmRegistryEntry] = {
     "linear_regression": AlgorithmRegistryEntry(

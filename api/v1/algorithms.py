@@ -2,13 +2,14 @@ import logging
 import uuid
 from typing import List
 
-from algorithms_registry import ALGORITHM_REGISTRY
 from fastapi import APIRouter, HTTPException
-from shared import algorithm_sessions, manager
 from pydantic import ValidationError
+
+from algorithms_registry import ALGORITHM_REGISTRY
 from schemas.interface.algorithm_interface import AlgorithmInfo
 from schemas.interface.requests import AlgorithmInstanceRequest
 from schemas.interface.responses import AlgorithmInstanceResponse
+from shared import algorithm_sessions
 
 router = APIRouter()
 

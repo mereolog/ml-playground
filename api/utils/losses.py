@@ -8,6 +8,7 @@ Each loss function is implemented as a class with:
 """
 
 from abc import ABC, abstractmethod
+
 import numpy as np
 
 

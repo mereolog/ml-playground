@@ -1,6 +1,8 @@
-from fastapi import WebSocket
-from typing import Dict
 import logging
+from typing import Dict
+
+from fastapi import WebSocket
+
 
 class ConnectionManager:
     """Manages WebSocket connections for real-time training updates."""

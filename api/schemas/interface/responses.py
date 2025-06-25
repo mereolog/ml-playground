@@ -1,5 +1,7 @@
+from typing import Dict, Any, Optional
+
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional
+
 
 class AlgorithmInstanceResponse(BaseModel):
     session_id: str

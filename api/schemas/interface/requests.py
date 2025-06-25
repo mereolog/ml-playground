@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from typing import List, Dict, Any
+
+from pydantic import BaseModel
 
 
 class AlgorithmInstanceRequest(BaseModel):
