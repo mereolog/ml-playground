@@ -1,6 +1,7 @@
 #pytest tests/test_supervised/test_logistic_regression.py -v
 import numpy as np
 import pytest
+
 from algorithms.supervised.logistic_regression import LogisticRegression
 from schemas.configs.logistic_regression import LogisticRegressionParams
 

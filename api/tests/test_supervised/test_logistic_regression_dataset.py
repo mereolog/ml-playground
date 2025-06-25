@@ -1,7 +1,7 @@
 # pytest tests/test_supervised/test_logistic_regression_dataset.py
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from algorithms.supervised.logistic_regression import LogisticRegression

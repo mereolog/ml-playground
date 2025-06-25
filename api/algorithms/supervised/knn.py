@@ -1,10 +1,11 @@
-from algorithms.base.supervised import SupervisedAlgorithm
-from schemas.configs.k_nearest_neighbour_algorithm import KNeighborsParams
+from collections import Counter
+from typing import Optional, Dict, Any, List
 
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
-from collections import Counter
-from typing import Optional, Dict, Any, List
+
+from algorithms.base.supervised import SupervisedAlgorithm
+from schemas.configs.k_nearest_neighbour_algorithm import KNeighborsParams
 
 
 class KNearestNeighbor(SupervisedAlgorithm[KNeighborsParams]):

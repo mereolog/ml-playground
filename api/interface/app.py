@@ -1,14 +1,12 @@
 # streamlit run interface/app.py
-import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import sys
 import os
+import sys
 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import streamlit as st
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from mpl_toolkits.mplot3d import Axes3D  # For 3D plot
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -19,8 +17,6 @@ from schemas.configs.logistic_regression import LogisticRegressionParams
 from schemas.configs.polynomial_regression import PolynomialRegressionParams
 
 from utils.metrics import (
-    accuracy_score,
-    log_loss,
     mean_squared_error,
     mean_absolute_error,
     r2_score,

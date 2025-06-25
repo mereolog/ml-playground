@@ -4,7 +4,7 @@ from typing import Dict, Optional
 import numpy as np
 import pandas as pd
 
-from schemas.configs.decision_tree_config import DecisionTreeParams
+from schemas.configs.decisions_tree_config import DecisionTreeParams
 
 
 class TreeNode:
