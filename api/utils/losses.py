@@ -148,28 +148,28 @@ class BinaryCrossEntropy(LossFunction):
         return (y_pred - y_true) / (y_pred * (1 - y_pred))
 
 
-class LogLoss:
-    """
-    Utility class for computing log loss (used for binary and multiclass classification).
-    """
-
-    @staticmethod
-    def compute(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-
-        epsilon = 1e-15
-        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-        return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
-
-
-    def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
-        epsilon = 1e-15
-        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-        n_samples = y_true.shape[0]
-        if n_samples == 0:
-            return np.array([])
-        # Derivative w.r.t. y_pred
-        return ((-y_true / y_pred) + ((1 - y_true) / (1 - y_pred))) / n_samples
-
+# class LogLoss:
+#     """
+#     Utility class for computing log loss (used for binary and multiclass classification).
+#     """
+#
+#     @staticmethod
+#     def compute(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+#
+#         epsilon = 1e-15
+#         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+#         return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+#
+#
+#     def gradient(self, y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
+#         epsilon = 1e-15
+#         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+#         n_samples = y_true.shape[0]
+#         if n_samples == 0:
+#             return np.array([])
+#         # Derivative w.r.t. y_pred
+#         return ((-y_true / y_pred) + ((1 - y_true) / (1 - y_pred))) / n_samples
+#
 
 class LogLoss(LossFunction):
     """
