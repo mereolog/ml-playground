@@ -22,7 +22,7 @@ jobs:
           PYTHONPATH: ./api
       run: |
         cp .env.example .env
-        pylint api/  --extension-pkg-whitelist=numpy --fail-on E
+        pylint --extension-pkg-whitelist=numpy --fail-on E api/
 
     - name: Run tests with pytest
       run: |
