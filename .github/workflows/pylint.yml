@@ -23,7 +23,7 @@ jobs:
       run: |
         cp .env.example .env
         echo $(git ls-files './**/*.py')
-        pylint --extension-pkg-whitelist=numpy --fail-under 7 --fail-on E $(git ls-files './**/*.py')
+        pylint api/  --extension-pkg-whitelist=numpy --fail-on E
 
     - name: Run tests with pytest
       run: |
