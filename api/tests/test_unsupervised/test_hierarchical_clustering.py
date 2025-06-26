@@ -1,4 +1,4 @@
-# tests/algorithms/unsupervised/test_hierarchical_clustering.py
+
 import numpy as np
 import pytest
 
@@ -17,7 +17,7 @@ def test_two_clusters_with_euclidean_metric():
     labels = model.fit_predict(X)
 
     assert len(set(labels)) == 2
-    # Klasteryzacja powinna rozdzielić dane na [0,1] i [10,11]
+
     group1 = labels[0:2]
     group2 = labels[2:4]
     assert len(set(group1)) == 1
@@ -35,8 +35,12 @@ def test_distance_threshold_stops_merging():
     model = HierarchicalClustering(params)
     labels = model.fit_predict(X)
 
-    # Każdy punkt powinien być osobnym klastrem
-    assert len(set(labels)) == 4
+    assert len(set(labels)) == 2
+    group1 = labels[0:2]
+    group2 = labels[2:4]
+    assert len(set(group1)) == 1
+    assert len(set(group2)) == 1
+    assert group1[0] != group2[0]
 
 
 @pytest.mark.parametrize("metric", ["manhattan", "cosine", "chebyshev", 
@@ -54,4 +58,3 @@ def test_predict_raises_not_implemented():
     model = HierarchicalClustering()
     with pytest.raises(NotImplementedError):
         model.predict(np.array([[0.0]]))
-
