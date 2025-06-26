@@ -28,9 +28,9 @@ def test_two_clusters_with_euclidean_metric():
 def test_distance_threshold_stops_merging():
     X = np.array([[0], [1], [10], [11]])
     params = HierarchicalClusteringParams(
-        distance_threshold=1.5,
-        linkage="single",
-        metric="euclidean"
+    distance_threshold=0.5,  
+    linkage="single",
+    metric="euclidean"
     )
     model = HierarchicalClustering(params)
     labels = model.fit_predict(X)
