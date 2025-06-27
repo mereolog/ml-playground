@@ -26,21 +26,26 @@ def test_two_clusters_with_euclidean_metric():
 
 
 def test_distance_threshold_stops_merging():
-    X = np.array([[0], [1], [10], [11]])
+    X = np.array([[0], [1], [8], [11], [15]])
     params = HierarchicalClusteringParams(
-    distance_threshold=0.5,  
+    distance_threshold=1.5,  
     linkage="single",
     metric="euclidean"
     )
     model = HierarchicalClustering(params)
     labels = model.fit_predict(X)
+    
+    print(labels)
+    # sprawdzamy czy jest 4 klastrów ponieważ odległość  1.5
+    assert len(set(labels)) == 4
+    
+    # czy zwrocilo liste
+    assert isinstance(labels, list)
 
-    assert len(set(labels)) == 2
-    group1 = labels[0:2]
-    group2 = labels[2:4]
-    assert len(set(group1)) == 1
-    assert len(set(group2)) == 1
-    assert group1[0] != group2[0]
+    assert labels[0] == labels[1]  # czy 0 i 1 to ten sam klaster
+
+    # 8 i 11 to juz inne klastry
+    assert labels[2] != labels[3]
 
 
 @pytest.mark.parametrize("metric", ["manhattan", "cosine", "chebyshev", 
