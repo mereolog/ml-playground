@@ -58,3 +58,6 @@ def test_predict_raises_not_implemented():
     model = HierarchicalClustering()
     with pytest.raises(NotImplementedError):
         model.predict(np.array([[0.0]]))
+
+
+# test_two_clusters_with_euclidean_metric()
