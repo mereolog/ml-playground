@@ -12,7 +12,7 @@ class HierarchicalClusteringParams(SupervisedAlgorithmsParams, BaseModel):
     """
 
     n_clusters: Optional[int] = Field(
-        default=2,
+        default=None,
         ge=1,        
         description=("Number of clusters to form"),
     )
@@ -21,7 +21,7 @@ class HierarchicalClusteringParams(SupervisedAlgorithmsParams, BaseModel):
         description="Method for linking clusters.",
     )
     distance_threshold: Optional[float] = Field(
-        default=1.0,
+        default=None,
         gt=0,      
         description=("Maximum allowed distance between clusters"),
     )

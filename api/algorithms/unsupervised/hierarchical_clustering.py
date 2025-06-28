@@ -1,7 +1,6 @@
 from typing import List, Optional
 import numpy as np
 
-
 from algorithms.base.algorithm import Algorithm
 from algorithms.base.unsupervised import UnsupervisedAlgorithm
 from schemas.configs.algorithm_configs import UnsupervisedAlgorithmsParams 
@@ -13,6 +12,11 @@ class HierarchicalClustering(UnsupervisedAlgorithm):
         if params is None:
             params = HierarchicalClusteringParams()
         self._params = params
+
+        # Забороняємо одночасне використання n_clusters і distance_threshold
+        if self._params.n_clusters is not None and self._params.distance_threshold is not None:
+            raise ValueError("Cannot specify both n_clusters and distance_threshold.")
+
         self.labels_ = None
 
     @property
@@ -46,28 +50,36 @@ class HierarchicalClustering(UnsupervisedAlgorithm):
 
     def fit(self, X: np.ndarray):
         clusters = [[i] for i in range(len(X))]
+
         while True:
-            if self._params.n_clusters is not None and len(clusters) <= self._params.n_clusters:
-                break
             best_distance = float("inf")
             best_pair = None
+
             for i in range(len(clusters)):
                 for j in range(i + 1, len(clusters)):
                     d = self._cluster_distance(clusters[i], clusters[j], X)
                     if d < best_distance:
                         best_distance = d
                         best_pair = (i, j)
-            if self._params.distance_threshold is not None and best_distance > self._params.distance_threshold:
-                break
+
             if best_pair is None:
                 break
+
+            if self._params.distance_threshold is not None and best_distance > self._params.distance_threshold:
+                break
+
             i, j = best_pair
             clusters[i].extend(clusters[j])
             clusters.pop(j)
+
+            if self._params.n_clusters is not None and len(clusters) <= self._params.n_clusters:
+                break
+
         labels = np.empty(len(X), dtype=int)
         for cid, cluster in enumerate(clusters):
             for idx in cluster:
                 labels[idx] = cid
+
         self.labels_ = labels.tolist()
         return self
 
