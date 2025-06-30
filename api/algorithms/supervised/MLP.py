@@ -1,10 +1,9 @@
 from typing import Callable
 
-from torch import nn, optim
 import torch
+from torch import nn, optim
 
 from schemas.configs.MLP_config import MLPParams
-
 
 
 class MLP(nn.Module):
@@ -26,14 +25,20 @@ class MLP(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
 
-    def _get_activation(self, name: str) -> Callable:
-        match name:
-            case "relu": return nn.ReLU()
-            case "tanh": return nn.Tanh()
-            case "sigmoid": return nn.Sigmoid()
-            case "gelu": return nn.GELU()
-            case "leaky_relu": return nn.LeakyReLU()
-            case _: raise ValueError(f"Unsupported activation: {name}")
+    @staticmethod
+    def _get_activation(name: str) -> Callable:
+        name = name.lower()
+        if name == "relu":
+            return nn.ReLU()
+        elif name == "tanh":
+            return nn.Tanh()
+        elif name == "sigmoid":
+            return nn.Sigmoid()
+        elif name == "gelu":
+            return nn.GELU()
+        elif name == "leaky_relu":
+            return nn.LeakyReLU()
+        raise ValueError(f"Unsupported activation: {name}")
 
 
 def train_mlp(model: MLP, X: torch.Tensor, y: torch.Tensor, config: MLPParams) -> None:
@@ -58,17 +63,23 @@ def train_mlp(model: MLP, X: torch.Tensor, y: torch.Tensor, config: MLPParams) -
             print(f"Epoch {epoch + 1}/{config.epochs}, Loss: {epoch_loss:.4f}")
 
 
-def _get_loss_function(name: str):
-    match name:
-        case "mse": return nn.MSELoss()
-        case "mae": return nn.L1Loss()
-        case "cross_entropy": return nn.CrossEntropyLoss()
-        case _: raise ValueError(f"Unsupported loss function: {name}")
+def _get_loss_function(name: str) -> Callable:
+    name = name.lower()
+    if name == "mse":
+        return nn.MSELoss()
+    elif name == "mae":
+        return nn.L1Loss()
+    elif name == "cross_entropy":
+        return nn.CrossEntropyLoss()
+    raise ValueError(f"Unsupported loss function: {name}")
 
 
-def _get_optimizer(name: str, parameters, lr: float):
-    match name:
-        case "adam": return optim.Adam(parameters, lr=lr)
-        case "sgd": return optim.SGD(parameters, lr=lr)
-        case "rmsprop": return optim.RMSprop(parameters, lr=lr)
-        case _: raise ValueError(f"Unsupported optimizer: {name}")
+def _get_optimizer(name: str, parameters, lr: float) -> optim.Optimizer:
+    name = name.lower()
+    if name == "adam":
+        return optim.Adam(parameters, lr=lr)
+    elif name == "sgd":
+        return optim.SGD(parameters, lr=lr)
+    elif name == "rmsprop":
+        return optim.RMSprop(parameters, lr=lr)
+    raise ValueError(f"Unsupported optimizer: {name}")
